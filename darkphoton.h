@@ -799,7 +799,7 @@ void pureL( vector<double> n, vector<double> nH, vector<double> nHe4, vector<dou
 	vector<double> chiIAXO;
 	
 	
-	for ( double m = 1e-6; m < 1e3; m*=1.001 ) {
+	for ( double m = 1e-6; m < 3e2; m*=1.5 ) {
 		double entryIAXO = pureLintegrate( m, n, nH, nHe4, nHe3, T, wp, r, L );
 		double chi4IAXO = phi / entryIAXO;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );

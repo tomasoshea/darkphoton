@@ -9,13 +9,13 @@ from matplotlib import pyplot as plt
 
 
 # confidence level
-CL = 0.96
+CL = 0.95
 
 # increment
-dN = 1e-6
+dN = 1e-3
 
 # detection time in days
-days = 3
+days = 4
 
 # select detector
 detector = 2	# 0-baby 1-baseline 2-upgraded
@@ -41,12 +41,13 @@ def cdfGamma(b):
 		nsig+=dN
 	return nsig, a
 
+
 # decide on detector
 if detector==0:
 	# babyIAXO parameters
 	name="babyIAXO"
 	A = 0.77	# detector area [m2]
-	dE = 79	# energy range [keV]
+	dE = 100	# energy range [keV]
 	phiBg = 1e-7 * 1e4 * dE	# background flux [m-2 s-1]
 	a = 0.6 * 1e-4	# XRay detection area [m2]
 	t = days * 24 * 3600	# detection time [s]
@@ -58,7 +59,7 @@ elif detector==1:
 	# IAXO baseline parameters
 	name="IAXO baseline"
 	A = 2.3	# detector area [m2]
-	dE = 79	# energy range [keV]
+	dE = 100	# energy range [keV]
 	phiBg = 1e-8 * 1e4 * dE	# background flux [m-2 s-1]
 	a = 1.2 * 1e-4	# XRay detection area [m2]
 	t = days * 24 * 3600	# detection time [s]
@@ -70,7 +71,7 @@ elif detector==2:
 	# IAXO upgraded parameters
 	name="IAXO upgraded"
 	A = 3.9	# detector area [m2]
-	dE = 79	# energy range [keV]
+	dE = 100	# energy range [keV]
 	phiBg = 1e-9 * 1e4 * dE	# background flux [m-2 s-1]
 	a = 1.2 * 1e-4	# XRay detection area [m2]
 	t = days * 24 * 3600	# detection time [s]
@@ -95,5 +96,4 @@ phiLimit = Nd / ( A * effO * effD * effT * t )
 
 print("\nBackground phi:	{} m-2 s-1".format(phiBg))
 print("{}% CL phi:	{} m-2 s-1".format(round((1 - prob)*1e2), phiLimit))
-
 
