@@ -3,7 +3,7 @@
 // script to generate a function of dark photon mixing parameter against dark photon mass
 // to give a theoretical upper limit on these parameters that IAXO could achieve
 
-// based on Javier Redondo's paper https://arxiv.org/abs/0801.1527
+// direct detection of l-DPs
 
 #include "darkphoton.h"	// home of the real code
 #include <thread>

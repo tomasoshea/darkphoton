@@ -4,21 +4,18 @@
 # using a gamma distribution, for use in IAXO dark photon analysis
 
 from numpy import *
-from math import factorial
-from scipy.special import factorial as fac
 from scipy.stats import gamma
 from matplotlib import pyplot as plt
-from scipy.integrate import quad
 
 
 # confidence level
-CL = 0.99
+CL = 0.95
 
 # increment
 dN = 1e-5
 
 # detection time in days
-days = 1
+days = 4
 
 # select detector
 detector = 2	# 0-baby 1-baseline 2-upgraded

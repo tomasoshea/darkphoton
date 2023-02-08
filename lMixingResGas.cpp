@@ -3,8 +3,7 @@
 // script to generate a function of dark photon mixing parameter against dark photon mass
 // to give a theoretical upper limit on these parameters that IAXO could achieve
 
-// L plasmon mixing integral
-
+// L plasmon mixing integral for IAXO gas run
 
 #include "darkphoton.h"	// home of the real code
 #include <thread>

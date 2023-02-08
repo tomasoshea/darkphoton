@@ -694,7 +694,7 @@ void lMixingRes( vector<double> n, vector<double> T, vector<double> wp, vector<d
 	vector<double> chiIAXO;
 	
 	
-	for ( double m = 1e-6; m < 1e3; m*=1.001 ) {
+	for ( double m = 1e-4; m < 1e3; m*=1.001 ) {
 		double entryIAXO = lMixingResIntegrate( m, n, T, wp, rFrac, nH, nHe4, nHe3, z1, z2, r, L );
 		double chi4IAXO = phi / entryIAXO;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );

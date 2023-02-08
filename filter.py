@@ -4,14 +4,10 @@
 
 from numpy import power as pw
 import numpy as np
-from scipy.signal import savgol_filter as smooth
 
 ############ constants ################
-from scipy.constants import physical_constants
 
 # physical constants
-#from scipy.constants import alpha as a	# fine structure const
-
 a = (1./137.)
 pi = np.pi
 me = 0.51099895000e6	# electron mass in eV
