@@ -29,7 +29,7 @@ ax2.plot(datT[:,0], phiT, ls = '--', color=(1., 1., 0.), label = 'T plasmon m = 
 
 
 # lMixing
-dat = loadtxt("data/Espectrum-lMixing-new-1.dat")
+dat = loadtxt("data/Espectrum-lMixing-1.dat")
 phi = dat[:,1] / np.nanmax(dat[:,1])
 ax2.plot(dat[:,0], phi, color="cyan", label = 'L mixing')
 
@@ -47,7 +47,7 @@ ax2.set_xscale('log')
 ax2.tick_params(axis='both')
 ax2.legend()
 
-fig2.savefig('plots/spectrum-pureL-style.jpg')
+fig2.savefig('plots/spectrum-pureL.jpg')
 
 plt.show()
 

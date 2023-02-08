@@ -30,15 +30,11 @@ int main( int argc, char** argv ) {
 	cout << "output files: " << suffix << ".dat" << endl;
 	
 	// read csv files to vectors
-	vector<double> mass1 = read("data/mass1.dat");	// mass values for gas [eV]
-	vector<double> mass2 = read("data/mass2.dat");	// mass values for gas [eV]
 	vector<double> rad = read("data/r.dat");	// sun radial distance [eV-1]
 	vector<double> rFrac = read("data/rFrac.dat");	// sun radial distance fraction
 	vector<double> temperature = read("data/T.dat");	// solar temperature [eV]
 	vector<double> eDensity = read("data/ne.dat");	// electron number density [eV3]
 	vector<double> omegaP = read("data/wp.dat");	// plasma frequency [eV]
-	vector<double> dOmegaP2 = read("data/dwp2.dat");	// dw2/dr [eV3]
-	vector<double> wIAXO = read("data/wIAXO.dat");	// w for integration [eV4]
 	vector<double> nH = read("data/nH.dat");	// H ion density [eV3]
 	vector<double> nHe4 = read("data/nHe4.dat");	// He4 ion density [eV3]
 	vector<double> nHe3 = read("data/nHe3.dat");	// He3 ion density [eV3]

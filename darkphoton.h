@@ -804,7 +804,6 @@ void pureL( vector<double> n, vector<double> nH, vector<double> nHe4, vector<dou
 		double chi4IAXO = phi / entryIAXO;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
 		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
 	}
 
 	// write out
