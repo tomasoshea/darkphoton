@@ -9,13 +9,13 @@ from matplotlib import pyplot as plt
 
 
 # confidence level
-CL = 0.95
+CL = 0.96
 
 # increment
-dN = 1e-5
+dN = 1e-6
 
 # detection time in days
-days = 4
+days = 3
 
 # select detector
 detector = 2	# 0-baby 1-baseline 2-upgraded
@@ -24,13 +24,22 @@ detector = 2	# 0-baby 1-baseline 2-upgraded
 def survivalGamma(b, alpha = 1 - CL):
 	#Right hand side of the Gamma distribution for signal+background. Alpha in (0, 1), b number of background signals expected.
 	if alpha > 1 or alpha < 0: print("Value for alpha outside bounds (0, 1)")
-	a = 1
+	a = 1.
 	nsig = 0.
 	while a > alpha :
 		a = gamma.sf(nsig+b, b)
 		nsig+=dN
 	return nsig, a
 
+def cdfGamma(b):
+	#Right hand side of the Gamma distribution for signal+background. Alpha in (0, 1), b number of background signals expected.
+	if CL > 1 or CL < 0: print("Value for alpha outside bounds (0, 1)")
+	a = 0.
+	nsig = 0.
+	while a < CL :
+		a = gamma.cdf(nsig+b, b)
+		nsig+=dN
+	return nsig, a
 
 # decide on detector
 if detector==0:
@@ -75,8 +84,10 @@ elif detector==2:
 Nbg = phiBg * a * t * effT
 print("Detector: {}\nExpected background count: {}".format(name, Nbg))
 
-# use gamma survival function
-Nd, prob = survivalGamma(Nbg)
+# use gamma function
+#Nd, prob = survivalGamma(Nbg)
+Nd, prob2 = cdfGamma(Nbg)
+prob = 1 - prob2
 print("\n		N = {}\n		CL = {}".format(Nd, 1 - prob))
 
 # calculate equivalent phi
