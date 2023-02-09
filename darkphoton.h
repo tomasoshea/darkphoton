@@ -54,7 +54,7 @@ double wRange = 1e3;	// range of w integral
 // read in datafiles in csv form
 vector<double> read( string name ) {
 
-	cout << "Reading file " << name << "..." << endl;
+	//cout << "Reading file " << name << "..." << endl;
 
 	// open file defined in argument
 	fstream file;
@@ -83,7 +83,7 @@ vector<double> read( string name ) {
 // read in gaunt factors from matlab matrix files
 vector<vector<double>> readGaunt( string name ) {
 
-	cout << "Reading file " << name << "..." << endl;
+	//cout << "Reading file " << name << "..." << endl;
 
 	// open file defined in argument
 	fstream file;
@@ -123,6 +123,9 @@ vector<vector<double>> readGaunt( string name ) {
 				
 				line++;
 			}
+
+			if( line == 501 ) { break; }
+
 		}
 		
 	file.close();   // close the file object.
