@@ -4,19 +4,19 @@
 
 
 from PlotFuncs import *
-%matplotlib inline
 
-fig,ax = DarkPhoton2.FigSetup()
+fig,ax = DarkPhoton.FigSetup_reduced()
 
 # # DPDM searches
-DarkPhoton2.Xenon(ax)
+DarkPhoton.Xenon(ax, text_on=False)
 #DarkPhoton2.LAMPOST(ax)
 
 # # Astrophysical bounds
-DarkPhoton2.StellarBounds(ax)
+DarkPhoton.StellarBounds(ax, text_on=False)
 
 # ADDING IAXO BOUNDS!!
-DarkPhoton2.IAXO(ax)
+DarkPhoton.IAXO(ax)
 
-MySaveFig(fig,'DarkPhoton-reduced-tPlasmon-5')
+MySaveFig(fig,'DarkPhoton-reduced')
+plt.show()
 
