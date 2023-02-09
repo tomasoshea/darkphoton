@@ -17,15 +17,15 @@ ax2.set( xlim=(1e0, 1e3), ylim=(-0.01, 1.01) )
 # T plasmon
 datT = loadtxt("data/Espectrum-1.dat")	# m = 1e-1 eV
 phiT = datT[:,1] / np.nanmax(datT[:,1])	# normalise phi
-ax2.plot(datT[:,0], phiT, ls = '--', color=(1., 0., 0.), label = 'T plasmon m = 0.1 eV')
+ax2.plot(datT[:,0], phiT, ls = '--', color=(1., 0.8, 0.), label = 'T plasmon m = 0.1 eV')
 
 datT = loadtxt("data/Espectrum0.dat")	# m = 1 eV
 phiT = datT[:,1] / np.nanmax(datT[:,1])	# normalise phi
-ax2.plot(datT[:,0], phiT, ls = '--', color=(1., 0.5, 0.), label = 'T plasmon m = 1 eV')
+ax2.plot(datT[:,0], phiT, ls = '--', color=(1., 0.4, 0.), label = 'T plasmon m = 1 eV')
 
 datT = loadtxt("data/Espectrum1.dat")	# m = 10 eV
 phiT = datT[:,1] / np.nanmax(datT[:,1])	# normalise phi
-ax2.plot(datT[:,0], phiT, ls = '--', color=(1., 1., 0.), label = 'T plasmon m = 10 eV')
+ax2.plot(datT[:,0], phiT, ls = '--', color=(1., 0., 0.), label = 'T plasmon m = 10 eV')
 
 
 # lMixing
