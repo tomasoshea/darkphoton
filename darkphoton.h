@@ -22,9 +22,9 @@ double a = (1. / 137.);		// alpha
 // solar params
 double R_raw = 149.5978707e9;	// mean earth-sun distance [m]
 double rSolar_raw = 6.9598E+10;	// solar radius [m]
-double B0 = 1e4;	// radiative zone max B [T]
-double B1 = 30;	// tachocline max B [T]
-double B2 = 2;	// outer region max B [T]
+double B0 = 3e3;	// radiative zone max B [T]
+double B1 = 50;	// tachocline max B [T]
+double B2 = 3;	// outer region max B [T]
 double r0 = 0.712;	// [R0]
 double r1 = 0.732;	// [R0]
 double d1 = 0.02;	// [R0]
@@ -54,6 +54,8 @@ double wRange = 1e3;	// range of w integral
 // read in datafiles in csv form
 vector<double> read( string name ) {
 
+	cout << "Reading file " << name << "..." << endl;
+
 	// open file defined in argument
 	fstream file;
 	file.open(name,ios::in);
@@ -80,6 +82,8 @@ vector<double> read( string name ) {
 
 // read in gaunt factors from matlab matrix files
 vector<vector<double>> readGaunt( string name ) {
+
+	cout << "Reading file " << name << "..." << endl;
 
 	// open file defined in argument
 	fstream file;

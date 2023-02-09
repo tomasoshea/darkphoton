@@ -9,7 +9,7 @@ plt.style.use("style.txt")	# import plot style
 # setup plot
 fig = plt.figure(2, figsize = [16, 9], dpi = 120)
 ax = fig.add_axes((.1,.1,.8,.8))
-ax.set( xlim=(0,1), ylim=(-50., 1.01e4) )
+ax.set( xlim=(0,1), ylim=(-5., 3.01e3) )
 ax2 = ax.twiny()
 
 # import B-field
@@ -32,6 +32,6 @@ xticklabels = [290, 200, 100, 50, 20, 10, 5, 1]
 ax2.set_xticks(xticks)
 ax2.set_xticklabels(xticklabels)
 
-fig.savefig('plots/Bfields-style.jpg')
+fig.savefig('plots/Bfields.jpg')
 
 plt.show()
