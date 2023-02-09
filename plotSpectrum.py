@@ -41,7 +41,7 @@ ax2.plot(dat[:,0], phi, color="magenta", label = 'pure L')
 
 
 # axes
-ax2.set_xlabel("Plasma frequency [eV]")
+ax2.set_xlabel("Dark photon energy [eV]")
 ax2.set_ylabel("Flux (normalised)")
 ax2.set_xscale('log')
 ax2.tick_params(axis='both')
