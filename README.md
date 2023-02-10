@@ -6,6 +6,8 @@ Note that all the code in the DPlimits folder is taken from [cajohare/AxionLimit
 
 * **filter.py** calculates solar parameters from the solar model [AGSS09](https://arxiv.org/abs/0909.2668) and outputs these as .dat files for use in C++ integration
 
+* **IAXOstats.py** calculates the limit on the flux for a given data taking period, confidence level and background flux
+
 *  **darkphoton.h** contains all the useful code to be run in the .cpp files
 
 * **tPlasmon.cpp** and **tPlasmonGas.cpp** calculate the limits for transverse DPs in the IAXO vacuum and gas runs respectively
