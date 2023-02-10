@@ -20,11 +20,11 @@ dat = loadtxt("data/limits/babyIAXO-tPlasmon-clean-gas.dat")
 ax2.plot(dat[:,0],dat[:,1], color='green', label='T-plasmon (gas)')
 
 # L-plasmon new
-dat = loadtxt("data/limits/babyIAXO-clean-lMixingRes.dat")
+dat = loadtxt("data/limits/babyIAXO-newB-lMixingRes.dat")
 ax2.plot(dat[:,0], dat[:,1], color='red', label='L-plasmon mixing')
 
 # L-plasmon new gas
-dat = loadtxt("data/limits/babyIAXO-clean-lMixingResGas.dat")
+dat = loadtxt("data/limits/babyIAXO-newB-lMixingResGas.dat")
 ax2.plot(dat[:,0], dat[:,1], color='magenta', label='L-plasmon mixing (gas)')
 
 # pure L contribution
