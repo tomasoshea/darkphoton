@@ -3,3 +3,8 @@
 
 # ignore pycache files
 *.pyc
+
+# ignore VS code shite for windows stuff
+.vscode\*
+.vscode/*
+*.json

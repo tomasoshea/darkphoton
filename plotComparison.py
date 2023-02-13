@@ -38,5 +38,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/comparison-clean.jpg')
+plt.savefig('plots/comparison.jpg')
 plt.show()

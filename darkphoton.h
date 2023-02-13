@@ -313,7 +313,7 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	int indexT2;
 	int indexX2;
 	for( int i = 1; i < 200; i++ ) {
-		if( z2[0][i] < T and z2[0][i+1] > T ) { indexT2 = i; break; }
+		if( (z2[0][i] < T) and (z2[0][i+1] > T) ) { indexT2 = i; break; }
 	}
 	for( int i = 1; i < 500; i++ ) {
 		if( (z2[i][0] * T) < w and (z2[i+1][0] * T) > w ) { indexX2 = i; break; }
@@ -595,6 +595,7 @@ double lMixingResIntegrand( double m, double ne, double T, double wp, double r, 
 
 }
 
+
 double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vector<double> wp, vector<double> rFrac, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L ) {
 
 	double total = 0;	// initiate value of sum at 0
@@ -693,6 +694,7 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 
 }
 
+
 // now to run the integral
 void lMixingRes( vector<double> n, vector<double> T, vector<double> wp, vector<double> rFrac, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L, double phi, string name ) {
 	
@@ -715,6 +717,7 @@ void lMixingRes( vector<double> n, vector<double> T, vector<double> wp, vector<d
 	write2D( path + name + ext, massIAXO, chiIAXO );
 	
 }
+
 
 void lMixingResGas( vector<double> n, vector<double> T, vector<double> wp, vector<double> rFrac, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L, double phi, string name ) {
 	
@@ -796,6 +799,7 @@ double pureLintegrate( double m, vector<double> n, vector<double> nH, vector<dou
 	return total;
 
 }
+
 
 // now to run the integral
 void pureL( vector<double> n, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<double> T, vector<double> wp,
