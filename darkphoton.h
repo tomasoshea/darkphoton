@@ -414,7 +414,9 @@ double trapeze( double w, double m, vector<double> n, vector<double> T, vector<d
 			+ integrand(w, m, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
 		double dA = abs(dr * height);
 		
-		total = total + dA;	// sum all dAs
+		// only add if real
+		if ( isnan(dA) ) { continue; }
+		else { total += dA; }
 	}
 		
 	return total;
@@ -441,8 +443,9 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 				+ ( P( w, m, L ) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
 			double dA = abs(dw * height);
 			
-			total += dA;
-			
+			// only add if real
+			if ( isnan(dA) ) { continue; }
+			else { total += dA; }
 		}
 	}
 	return total;
@@ -468,8 +471,9 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 				+ ( PgasFull( w, m, L, z2 ) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
 			double dA = abs(dw * height);
 			
-			total += dA;
-			
+			// only add if real
+			if ( isnan(dA) ) { continue; }
+			else { total += dA; }
 		}
 	}
 	return total;
@@ -502,7 +506,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 	
 		int j = len - i - 1;
 		double m = wp[j];
-		if( m > 1 ){ break; }
+		//if( m > 1 ){ break; }
 		
 		double entryIAXO = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		double chi4IAXO = phi / entryIAXO;
@@ -638,7 +642,9 @@ double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vecto
 				+ ( P( wp[j], m, L ) * lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], rFrac[j], nH[j], nHe4[j], nHe3[j], g1, g2 ) ) );
 			double dA = dr * height;
 			
-			total += dA;
+			// only add if real
+			if ( isnan(dA) ) { continue; }
+			else { total += dA; }
 			}
 	}
 	return total;
@@ -687,7 +693,9 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 				+ ( PgasFull( wp[j], m, L, z2 ) * lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], rFrac[j], nH[j], nHe4[j], nHe3[j], g1, g2 ) ) );
 			double dA = dr * height;
 			
-			total += dA;
+			// only add if real
+			if ( isnan(dA) ) { continue; }
+			else { total += dA; }
 			}
 	}
 	return total;
@@ -792,8 +800,10 @@ double pureLintegrate( double m, vector<double> n, vector<double> nH, vector<dou
 			double height = 0.5 * ( ( PpureL( m, wp[j+1], T[j+1], n[j+1], nH[j+1], nHe4[j+1], nHe3[j+1], L ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
 				+ ( PpureL( m, wp[j], T[j], n[j], nH[j], nHe4[j], nHe3[j], L) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
 			double dA = dr * height;
-				
-			total += dA;
+			
+			// only add if real
+			if ( isnan(dA) ) { continue; }
+			else { total += dA; }
 			}
 	}
 	return total;
