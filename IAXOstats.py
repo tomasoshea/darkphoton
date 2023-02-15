@@ -12,13 +12,13 @@ from matplotlib import pyplot as plt
 CL = 0.95
 
 # increment
-dN = 1e-3
+dN = 1e-5
 
 # detection time in days
 days = 4
 
 # select detector
-detector = 2	# 0-baby 1-baseline 2-upgraded
+detector = 0	# 0-baby 1-baseline 2-upgraded
 
 
 def survivalGamma(b, alpha = 1 - CL):
@@ -86,9 +86,9 @@ Nbg = phiBg * a * t * effT
 print("Detector: {}\nExpected background count: {}".format(name, Nbg))
 
 # use gamma function
-#Nd, prob = survivalGamma(Nbg)
-Nd, prob2 = cdfGamma(Nbg)
-prob = 1 - prob2
+Nd, prob = survivalGamma(Nbg)
+#Nd, prob2 = cdfGamma(Nbg)
+#prob = 1 - prob2
 print("\n		N = {}\n		CL = {}".format(Nd, 1 - prob))
 
 # calculate equivalent phi

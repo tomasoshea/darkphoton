@@ -53,7 +53,7 @@ int main( int argc, char** argv ) {
 	double Lraw = 10;	// m
 	string nameBaby = "babyIAXO" + suffix;
 //	double phiRaw = 1.04e-4;	// m-2 s-1 (1 day)
-	double phiRaw = 5.57e-5;	// m-2 s-1 (4 days)
+	double phiRaw = 6.226692336170931e-05;	// m-2 s-1 (4 days)
 
 	// convert raw values to eV
 	double phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
@@ -68,7 +68,7 @@ int main( int argc, char** argv ) {
 	Lraw = 20;	// m
 	string nameBaseline = "baselineIAXO" + suffix;
 //	phiRaw = 2.84e-6;	// m-2 s-1 (1 day)
-	phiRaw = 3.24e-6;	// m-2 s-1 (4 days)
+	phiRaw = 3.823353390285471e-06;	// m-2 s-1 (4 days)
 
 	// convert raw values to eV
 	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
@@ -82,7 +82,7 @@ int main( int argc, char** argv ) {
 	// IAXO upgraded
 	Lraw = 22;	// m
 	string nameUpgraded = "upgradedIAXO" + suffix;
-	phiRaw = 2.409e-08;	// m-2 s-1 (4 days)
+	phiRaw = 7.896761803014228e-08;	// m-2 s-1 (4 days)
 
 	// convert raw values to eV
 	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
