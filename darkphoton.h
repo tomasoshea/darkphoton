@@ -662,7 +662,9 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 		int j = len - c - 1;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
-		if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
+		//if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
+		if ( wp[j+1] < 100 ) { continue; }	// **EXPT** only detectable below 0.1 keV
+
 		
 		else {
 			
@@ -792,7 +794,7 @@ double pureLintegrate( double m, vector<double> n, vector<double> nH, vector<dou
 		int j = len - c - 1;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
-		if ( wp[j+1] > 1000 ) { continue; }	// only res comversion up to 1eV allowed
+		if ( wp[j+1] > 10 ) { continue; }	// only res conversion up to 10eV allowed
 		
 		else {
 		

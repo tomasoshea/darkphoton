@@ -18,7 +18,7 @@ dN = 1e-5
 days = 4
 
 # select detector
-detector = 0	# 0-baby 1-baseline 2-upgraded
+detector = 2	# 0-baby 1-baseline 2-upgraded
 
 
 def survivalGamma(b, alpha = 1 - CL):

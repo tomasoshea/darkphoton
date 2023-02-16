@@ -24,11 +24,11 @@ dat = loadtxt("data/limits/babyIAXO-clean-lMixingRes.dat")
 ax2.plot(dat[:,0], dat[:,1], color='red', label='L-plasmon mixing')
 
 # L-plasmon new gas
-dat = loadtxt("data/limits/babyIAXO-clean-lMixingResGas.dat")
+dat = loadtxt("data/limits/babyIAXO-newE-lMixingResGas.dat")
 ax2.plot(dat[:,0], dat[:,1], color='magenta', label='L-plasmon mixing (gas)')
 
 # pure L contribution
-dat = loadtxt("data/limits/babyIAXO-clean-pureL.dat")
+dat = loadtxt("data/limits/babyIAXO-newE-pureL.dat")
 ax2.plot(dat[:,0], dat[:,1], color='cyan', label='pure L conversion')
 
 # axes
@@ -38,5 +38,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/comparison.jpg')
+plt.savefig('plots/comparison-newE.jpg')
 plt.show()
