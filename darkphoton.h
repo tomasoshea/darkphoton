@@ -431,8 +431,10 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 	double total = 0;	// initiate value of sum at 0
 
 	// integrate by trapezium rule over w array
-	double dw = 1e2;
-	for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
+	//double dw = 1e2;
+	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
+	double dw = 1e-2;
+	for ( double w = 1e-1; w < 1e2 - dw; w+=dw ) {
 	
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
@@ -459,8 +461,10 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	double total = 0;	// initiate value of sum at 0
 
 	// integrate by trapezium rule over w array
-	double dw = 1e2;
-	for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
+	//double dw = 1e2;
+	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
+	double dw = 1e-2;
+	for ( double w = 1e-1; w < 1e2 - dw; w+=dw ) {
 	
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
@@ -611,7 +615,8 @@ double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vecto
 		int j = len - c - 1;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
-		if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
+		//if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
+		if ( wp[j+1] > 100 ) { continue; }	// only detectable below 100 eV
 		
 		else {
 			
@@ -662,8 +667,8 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 		int j = len - c - 1;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
-		if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
-		//if ( wp[j+1] < 100 ) { continue; }	// **EXPT** only detectable below 0.1 keV
+		//if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
+		if ( wp[j+1] < 100 ) { continue; }	// **EXPT** only detectable below 0.1 keV
 
 		
 		else {
