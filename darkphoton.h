@@ -662,8 +662,8 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 		int j = len - c - 1;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
-		//if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
-		if ( wp[j+1] < 100 ) { continue; }	// **EXPT** only detectable below 0.1 keV
+		if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
+		//if ( wp[j+1] < 100 ) { continue; }	// **EXPT** only detectable below 0.1 keV
 
 		
 		else {
@@ -822,7 +822,7 @@ void pureL( vector<double> n, vector<double> nH, vector<double> nHe4, vector<dou
 	vector<double> chiIAXO;
 	
 	
-	for ( double m = 1e-6; m < 3e2; m*=1.5 ) {
+	for ( double m = 1e-6; m < 10; m*=1.5 ) {
 		double entryIAXO = pureLintegrate( m, n, nH, nHe4, nHe3, T, wp, r, L );
 		double chi4IAXO = phi / entryIAXO;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
