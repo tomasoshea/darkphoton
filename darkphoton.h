@@ -44,6 +44,7 @@ double rSolar = rSolar_raw / m2eV;	// eV-1
 
 // utility constants
 double wRange = 1e3;	// range of w integral
+bool savenquit = false;	// for error catching
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,6 +227,17 @@ void merge( string name ) {
 	string ext = ".dat";
 	write2D( path + name + ext, m, chi );	
 
+}
+
+
+// allow writeout of data upon interruption
+void interrupt( int sig ) {
+
+	// give warning message
+	cout << "Keyboard interrupt" << endl;
+	cout << "writing out current data" << endl;
+
+ 	savenquit = true;
 }
 
 
@@ -433,9 +445,10 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 	// integrate by trapezium rule over w array
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e-2;
-	for ( double w = 1e-1; w < 1e2 - dw; w+=dw ) {
+	double dw = 1e-1;
+	for ( double w = 1e-1; w < 3e2 - dw; w+=dw ) {
 	
+		if ( w > m + 10 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
@@ -448,6 +461,7 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 			// only add if real
 			if ( isnan(dA) ) { continue; }
 			else { total += dA; }
+			//cout << "hola" << endl;
 		}
 	}
 	return total;
@@ -463,9 +477,10 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	// integrate by trapezium rule over w array
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e-2;
-	for ( double w = 1e-1; w < 1e2 - dw; w+=dw ) {
+	double dw = 1e-1;
+	for ( double w = 1e-1; w < 3e2 - dw; w+=dw ) {
 	
+		if ( w > m + 10 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
@@ -489,24 +504,54 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L,
 		vector<vector<double>> z1, vector<vector<double>> z2, double phi, string name ) {
 	
+	// implement new interrupt with save
+	signal( SIGINT, interrupt );
+
 	// define vectors
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
+
+	// set path for writeout
+	string path = "data/limits/";
+	string ext = ".dat";
 	
 	double min = *min_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-4; m < min; m*=1.001 ) {
+	for ( double m = 1e-4; m < min; m*=1.01 ) {
+
+		// check if interrupt
+		if( savenquit ){
+		// write out
+			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
+			// wait for other processes to save too
+			cout << "waiting 10s to let other threads finish" << endl;
+			sleep(10);
+			exit(SIGINT);
+		}
+
+		else{
 		double entryIAXO = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		double chi4IAXO = phi / entryIAXO;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
 		massIAXO.push_back( m );
 		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
+		}
 	}
 	
 	// resonant sector
 	int len = wp.size();
 	for ( int i = 0; i < len; i ++ ) {
+
+		// check if interrupt
+		if( savenquit ){
+		// write out
+			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
+			// wait for other processes to save too
+			cout << "waiting 10s to let other threads finish" << endl;
+			sleep(10);
+			exit(SIGINT);
+		}
 	
 		int j = len - i - 1;
 		double m = wp[j];
@@ -519,9 +564,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) <<endl;
 	}
 
-		// write out
-	string path = "data/limits/";
-	string ext = ".dat";
+	// write out
 	write2D( path + name + ext, massIAXO, chiIAXO );
 	
 }
@@ -531,14 +574,32 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 		vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L,
 		vector<vector<double>> z1, vector<vector<double>> z2, double phi, string name ) {
 	
+	// implement new interrupt with save
+	signal( SIGINT, interrupt );
+
 	// define vectors
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
+
+	// set path for writeout
+	string path = "data/limits/";
+	string ext = "-gas.dat";
 	
 	double min = *min_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-4; m < min; m*=1.001 ) {
+	for ( double m = 1e-4; m < min; m*=1.01 ) {
+
+		// check if interrupt
+		if( savenquit ){
+		// write out
+			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
+			// wait for other processes to save too
+			cout << "waiting 10s to let other threads finish" << endl;
+			sleep(10);
+			exit(SIGINT);
+		}
+
 		double entryIAXO = integrateGas( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		double chi4IAXO = phi / entryIAXO;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
@@ -549,6 +610,16 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	// resonant sector
 	int len = wp.size();
 	for ( int i = 0; i < len; i ++ ) {
+
+		// check if interrupt
+		if( savenquit ){
+		// write out
+			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
+			// wait for other processes to save too
+			cout << "waiting 10s to let other threads finish" << endl;
+			sleep(10);
+			exit(SIGINT);
+		}
 	
 		int j = len - i - 1;
 		double m = wp[j];
@@ -562,8 +633,6 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	}
 
 		// write out
-	string path = "data/limits/";
-	string ext = "-gas.dat";
 	write2D( path + name + ext, massIAXO, chiIAXO );
 	
 }
@@ -616,7 +685,7 @@ double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vecto
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
 		//if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
-		if ( wp[j+1] > 100 ) { continue; }	// only detectable below 100 eV
+		if ( wp[j+1] > 300 ) { continue; }	// only detectable below 100 eV
 		
 		else {
 			
@@ -668,7 +737,7 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
 		//if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
-		if ( wp[j+1] < 100 ) { continue; }	// **EXPT** only detectable below 0.1 keV
+		if ( wp[j+1] > 300 ) { continue; }	// **EXPT** only detectable below 0.1 keV
 
 		
 		else {
@@ -713,12 +782,28 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 // now to run the integral
 void lMixingRes( vector<double> n, vector<double> T, vector<double> wp, vector<double> rFrac, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L, double phi, string name ) {
 	
+	// implement new interrupt with save
+	signal( SIGINT, interrupt );
+
 	// define vectors
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
-	
+
+	string path = "data/limits/";
+	string ext = "-lMixingRes.dat";
 	
 	for ( double m = 1e-4; m < 1e3; m*=1.001 ) {
+
+		// check if interrupt
+		if( savenquit ){
+		// write out
+			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
+			// wait for other processes to save too
+			cout << "waiting 10s to let other threads finish" << endl;
+			sleep(10);
+			exit(SIGINT);
+		}
+
 		double entryIAXO = lMixingResIntegrate( m, n, T, wp, rFrac, nH, nHe4, nHe3, z1, z2, r, L );
 		double chi4IAXO = phi / entryIAXO;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
@@ -727,8 +812,6 @@ void lMixingRes( vector<double> n, vector<double> T, vector<double> wp, vector<d
 	}
 
 	// write out
-	string path = "data/limits/";
-	string ext = "-lMixingRes.dat";
 	write2D( path + name + ext, massIAXO, chiIAXO );
 	
 }
@@ -736,12 +819,28 @@ void lMixingRes( vector<double> n, vector<double> T, vector<double> wp, vector<d
 
 void lMixingResGas( vector<double> n, vector<double> T, vector<double> wp, vector<double> rFrac, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L, double phi, string name ) {
 	
+	// implement new interrupt with save
+	signal( SIGINT, interrupt );
+
 	// define vectors
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
 	
-	
+	string path = "data/limits/";
+	string ext = "-lMixingResGas.dat";
+
 	for ( double m = 1e-4; m < 1; m*=1.001 ) {
+
+		// check if interrupt
+		if( savenquit ){
+		// write out
+			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
+			// wait for other processes to save too
+			cout << "waiting 10s to let other threads finish" << endl;
+			sleep(10);
+			exit(SIGINT);
+		}
+
 		double entryIAXO = lMixingResGasIntegrate( m, n, T, wp, rFrac, nH, nHe4, nHe3, z1, z2, r, L );
 		double chi4IAXO = phi / entryIAXO;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
@@ -750,8 +849,6 @@ void lMixingResGas( vector<double> n, vector<double> T, vector<double> wp, vecto
 	}
 
 	// write out
-	string path = "data/limits/";
-	string ext = "-lMixingResGas.dat";
 	write2D( path + name + ext, massIAXO, chiIAXO );
 	
 }
@@ -821,13 +918,29 @@ double pureLintegrate( double m, vector<double> n, vector<double> nH, vector<dou
 // now to run the integral
 void pureL( vector<double> n, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<double> T, vector<double> wp,
 	 vector<double> r, double L, double phi, string name ) {
+
+	// implement new interrupt with save
+	signal( SIGINT, interrupt );
 	
 	// define vectors
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
-	
+
+	string path = "data/limits/";
+	string ext = "-pureL.dat";
 	
 	for ( double m = 1e-6; m < 10; m*=1.5 ) {
+
+		// check if interrupt
+		if( savenquit ){
+		// write out
+			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
+			// wait for other processes to save too
+			cout << "waiting 10s to let other threads finish" << endl;
+			sleep(10);
+			exit(SIGINT);
+		}
+
 		double entryIAXO = pureLintegrate( m, n, nH, nHe4, nHe3, T, wp, r, L );
 		double chi4IAXO = phi / entryIAXO;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
@@ -835,10 +948,7 @@ void pureL( vector<double> n, vector<double> nH, vector<double> nHe4, vector<dou
 	}
 
 	// write out
-	string path = "data/limits/";
-	string ext = "-pureL.dat";
 	write2D( path + name + ext, massIAXO, chiIAXO );
-	
 }
 
 
