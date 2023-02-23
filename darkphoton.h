@@ -337,7 +337,8 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 
 	// calculate conversion prob
 	double p1 = pow( m * m / (G * w), 2 );
-	double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));
+	//double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));
+	double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));	// NEW CALC - TEST!!
 	
 	double item = p1 * p2;
 	
@@ -446,7 +447,7 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	double dw = 1e-1;
-	for ( double w = 1e-1; w < 3e2 - dw; w+=dw ) {
+	for ( double w = 1e0; w < 3e5 - dw; w+=dw ) {
 	
 		if ( w > m + 10 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
@@ -477,10 +478,10 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	// integrate by trapezium rule over w array
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e-1;
-	for ( double w = 1e-1; w < 3e2 - dw; w+=dw ) {
+	double dw = 10;
+	for ( double w = 30; w < 1e5 - dw; w+=dw ) {
 	
-		if ( w > m + 10 ) { continue; }	// set integral cutoff
+		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
@@ -588,15 +589,15 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	double min = *min_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-4; m < min; m*=1.01 ) {
+	for ( double m = 1e-4; m < min; m*=1.1 ) {
 
 		// check if interrupt
 		if( savenquit ){
 		// write out
 			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
 			// wait for other processes to save too
-			cout << "waiting 10s to let other threads finish" << endl;
-			sleep(10);
+			cout << "waiting 2s to let other threads finish" << endl;
+			sleep(2);
 			exit(SIGINT);
 		}
 
@@ -623,7 +624,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	
 		int j = len - i - 1;
 		double m = wp[j];
-		if( m > 1 ){ break; }
+		if( m > 5 ){ break; }
 		
 		double entryIAXO = integrateGas( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		double chi4IAXO = phi / entryIAXO;
@@ -736,8 +737,8 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 		int j = len - c - 1;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
-		//if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
-		if ( wp[j+1] > 300 ) { continue; }	// **EXPT** only detectable below 0.1 keV
+		if ( wp[j+1] < 30 ) { continue; }	// only detectable above 0.1 keV
+		//if ( wp[j+1] > 300 ) { continue; }	// **EXPT** only detectable below 0.1 keV
 
 		
 		else {
@@ -829,15 +830,15 @@ void lMixingResGas( vector<double> n, vector<double> T, vector<double> wp, vecto
 	string path = "data/limits/";
 	string ext = "-lMixingResGas.dat";
 
-	for ( double m = 1e-4; m < 1; m*=1.001 ) {
+	for ( double m = 1e-4; m < 5; m*=1.1 ) {
 
 		// check if interrupt
 		if( savenquit ){
 		// write out
 			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
 			// wait for other processes to save too
-			cout << "waiting 10s to let other threads finish" << endl;
-			sleep(10);
+			cout << "waiting 2s to let other threads finish" << endl;
+			sleep(2);
 			exit(SIGINT);
 		}
 

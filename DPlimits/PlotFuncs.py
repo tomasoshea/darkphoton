@@ -859,7 +859,7 @@ class DarkPhoton():
         y2 = ax.get_ylim()[1]
         
         suffix = "-newE"
-        suffixGas = "-clean-gas"
+        suffixGas = "-newerE-gas"
 
         if pureL:
             col = 'yellow'
