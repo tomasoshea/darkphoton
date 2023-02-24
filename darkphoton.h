@@ -859,7 +859,7 @@ void lMixingResGas( vector<double> n, vector<double> T, vector<double> wp, vecto
 //////////////////////////////////////// PURE L-PLASMON ///////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+/*
 // resonant gas conversion in IAXOdarkphoton-pureL.cpp
 double PpureL( double m, double wp, double T, double ne, double nH, double nHe4, double nHe3, double L ) {
 
@@ -871,6 +871,40 @@ double PpureL( double m, double wp, double T, double ne, double nH, double nHe4,
 	
 	double item = p1 * p2;
 	return item;
+}
+*/
+
+double PpureLnew( double w, double m, double L, vector<vector<double>> z2, double B ) {
+
+	// define detector parameters for Gamma_t
+	double nH, nHe3 = 0;	// only 4He is used
+	double g1 = 1;
+	double T = 300 * K2eV;	// detector at room temp [eV]
+	double ne = m_e * pow(m,2) / (4 * pi * a);
+	double nHe4 = ne / 2;	// 4He ion density [eV3]
+	
+	// select Gaunt factor from matrix
+	int indexT2;
+	int indexX2;
+	for( int i = 1; i < 200; i++ ) {
+		if( (z2[0][i] < T) and (z2[0][i+1] > T) ) { indexT2 = i; break; }
+	}
+	for( int i = 1; i < 500; i++ ) {
+		if( (z2[i][0] * T) < w and (z2[i+1][0] * T) > w ) { indexX2 = i; break; }
+	}
+	double g2 = z2[ indexT2 ][ indexX2 ];
+	
+	// get gammas
+	double Gl = GammaLfull( w, T, ne, nH, nHe4, nHe3, m, m );
+	double Gt = Gamma(w, ne, T, nH, nHe4, nHe3, g1, g2);
+
+	// set B-field value
+	double eB = B * pow(m2eV,2) / s2eV;
+	double wB = eB / m_e;
+
+	double P = ( pow(wB,2) * pow(m,8) * pow(w,-6) * pow(Gt,-2) / ( pow(w,2) + pow(Gl,2) ) ) * ( 1 + exp(-Gt*L) - 2*exp(-0.5*Gt*L));
+	return P;
+
 }
 
 
@@ -886,7 +920,8 @@ double pureLintegrand( double m, double T, double wp, double r ) {
 
 }
 
-double pureLintegrate( double m, vector<double> n, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<double> T, vector<double> wp, vector<double> r, double L ) {
+double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
+						vector<double> wp, vector<double> r, double L, double B ) {
 
 	double total = 0;	// initiate value of sum at 0
 	int len = r.size();
@@ -897,13 +932,13 @@ double pureLintegrate( double m, vector<double> n, vector<double> nH, vector<dou
 		int j = len - c - 1;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
-		if ( wp[j+1] > 10 ) { continue; }	// only res conversion up to 10eV allowed
+		if ( wp[j+1] < 30 ) { continue; }	// only res conversion up to 10eV allowed
 		
 		else {
 		
 			double dr = abs(r[j+1] - r[j]);
-			double height = 0.5 * ( ( PpureL( m, wp[j+1], T[j+1], n[j+1], nH[j+1], nHe4[j+1], nHe3[j+1], L ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
-				+ ( PpureL( m, wp[j], T[j], n[j], nH[j], nHe4[j], nHe3[j], L) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
+			double height = 0.5 * ( ( PpureLnew( wp[j+1], m, L, z2, B ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
+				+ ( PpureLnew( wp[j], m, L, z2, B) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
 			double dA = dr * height;
 			
 			// only add if real
@@ -917,8 +952,8 @@ double pureLintegrate( double m, vector<double> n, vector<double> nH, vector<dou
 
 
 // now to run the integral
-void pureL( vector<double> n, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<double> T, vector<double> wp,
-	 vector<double> r, double L, double phi, string name ) {
+void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
+	 vector<double> r, double L, double phi, string name, double B ) {
 
 	// implement new interrupt with save
 	signal( SIGINT, interrupt );
@@ -942,7 +977,7 @@ void pureL( vector<double> n, vector<double> nH, vector<double> nHe4, vector<dou
 			exit(SIGINT);
 		}
 
-		double entryIAXO = pureLintegrate( m, n, nH, nHe4, nHe3, T, wp, r, L );
+		double entryIAXO = pureLintegrate( m, z2, T, wp, r, L, B );
 		double chi4IAXO = phi / entryIAXO;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
 		massIAXO.push_back( m );

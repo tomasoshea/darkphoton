@@ -30,11 +30,11 @@ int main( int argc, char** argv ) {
 	cout << "output files: " << suffix << ".dat" << endl;
 	
 	// read csv files to vectors
-	vector<double> rad = read("data/r.dat");	// sun radial distance [eV-1]
+	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
 	vector<double> rFrac = read("data/rFrac.dat");	// sun radial distance fraction
-	vector<double> temperature = read("data/T.dat");	// solar temperature [eV]
+	vector<double> T = read("data/T.dat");	// solar temperature [eV]
 	vector<double> eDensity = read("data/ne.dat");	// electron number density [eV3]
-	vector<double> omegaP = read("data/wp.dat");	// plasma frequency [eV]
+	vector<double> wp = read("data/wp.dat");	// plasma frequency [eV]
 	vector<double> nH = read("data/nH.dat");	// H ion density [eV3]
 	vector<double> nHe4 = read("data/nHe4.dat");	// He4 ion density [eV3]
 	vector<double> nHe3 = read("data/nHe3.dat");	// He3 ion density [eV3]
@@ -58,10 +58,11 @@ int main( int argc, char** argv ) {
 	// convert raw values to eV
 	double phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
 	double L = Lraw / m2eV;	// in eV^-1
+	double B = 2;	// B-field in T
 
 	// multithread to run simultaneously
 	//thread t1( gasL2, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameBaby );
-	thread t1( pureL, eDensity, nH, nHe4, nHe3, temperature, omegaP, rad, L, phi, nameBaby );
+	thread t1( pureL, z2, T, wp, r, L, phi, nameBaby, B );
 		
 	
 	//IAXO baseline
@@ -73,10 +74,11 @@ int main( int argc, char** argv ) {
 	// convert raw values to eV
 	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
 	L = Lraw / m2eV;	// in eV^-1
+	B = 2.5;	// B-field in T
 
 	// multithread to run simultaneously
 	//thread t2( gasL2, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameBaseline );
-	thread t2( pureL, eDensity, nH, nHe4, nHe3, temperature, omegaP, rad, L, phi, nameBaseline );
+	thread t2( pureL, z2, T, wp, r, L, phi, nameBaseline, B );
 
 
 	// IAXO upgraded
@@ -87,10 +89,11 @@ int main( int argc, char** argv ) {
 	// convert raw values to eV
 	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
 	L = Lraw / m2eV;	// in eV^-1
+	B = 3.5;	// B-field in T
 
 	// multithread to run simultaneously
 	//thread t3( gasL, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameUpgraded );
-	thread t3( pureL, eDensity, nH, nHe4, nHe3, temperature, omegaP, rad, L, phi, nameUpgraded );
+	thread t3( pureL, z2, T, wp, r, L, phi, nameUpgraded, B );
 
 	// wait until all threads are finished
 	t1.join();
