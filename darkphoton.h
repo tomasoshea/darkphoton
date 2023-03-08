@@ -517,6 +517,8 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 	string ext = ".dat";
 	
 	double min = *min_element( wp.begin(), wp.end() );
+	double max = *max_element( wp.begin(), wp.end() );
+
 	
 	// suppressed section
 	for ( double m = 1e-4; m < min; m*=1.01 ) {
@@ -565,6 +567,28 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) <<endl;
 	}
 
+		// unsuppressed section
+	for ( double m = max; m < 1e5; m*=1.01 ) {
+
+		// check if interrupt
+		if( savenquit ){
+		// write out
+			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
+			// wait for other processes to save too
+			cout << "waiting 10s to let other threads finish" << endl;
+			sleep(10);
+			exit(SIGINT);
+		}
+
+		else{
+		double entryIAXO = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		double chi4IAXO = phi / entryIAXO;
+		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
+		massIAXO.push_back( m );
+		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
+		}
+	}
+
 	// write out
 	write2D( path + name + ext, massIAXO, chiIAXO );
 	
@@ -589,7 +613,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	double min = *min_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-4; m < min; m*=1.1 ) {
+	for ( double m = 1e-3; m < min; m*=1.1 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -907,6 +931,22 @@ double PpureLnew( double w, double m, double L, vector<vector<double>> z2, doubl
 
 }
 
+// resonant potential crystal conversion approx
+double PpureL_crystal( double w, double m, double L ) {
+
+	// refractive indices
+	double nx = 1.380;	// 1.544;	// quartz n_o
+	double nl = 1.385;	// 1.553;	// quartz n_e
+	double nplus = pow(nl,2) + pow(nx,2) - 2;
+	double nminus = pow(nl,2) - pow(nx,2);
+
+	double dP = ( sqrt( pow(w,2) - pow(m,2) ) - w * sqrt( 1 - nplus/2 ) );
+	double dm = pow(w,2) * nplus;
+
+	double item = ( pow(w,2) * pow(m,6) * pow(nminus,2) / ( 4 * pow(dm,4) ) );// * ( 1 + 8 * pow( cos( 0.5 * dP * L ) , 2 ) );
+	//cout << pow(nminus,2) << endl;
+	return item;
+}
 
 // integrand for pure L gas conversion
 double pureLintegrand( double m, double T, double wp, double r ) {
@@ -932,13 +972,13 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 		int j = len - c - 1;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
-		if ( wp[j+1] < 30 ) { continue; }	// only res conversion up to 10eV allowed
+		//if ( wp[j+1] < 30 ) { continue; }	// only res conversion up to 10eV allowed
 		
 		else {
 		
 			double dr = abs(r[j+1] - r[j]);
-			double height = 0.5 * ( ( PpureLnew( wp[j+1], m, L, z2, B ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
-				+ ( PpureLnew( wp[j], m, L, z2, B) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
+			double height = 0.5 * ( ( PpureL_crystal( wp[j+1], m, L ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
+				+ ( PpureL_crystal( wp[j], m, L ) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
 			double dA = dr * height;
 			
 			// only add if real
@@ -956,7 +996,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 	 vector<double> r, double L, double phi, string name, double B ) {
 
 	// implement new interrupt with save
-	signal( SIGINT, interrupt );
+	//signal( SIGINT, interrupt );
 	
 	// define vectors
 	vector<double> massIAXO;
@@ -965,7 +1005,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 	string path = "data/limits/";
 	string ext = "-pureL.dat";
 	
-	for ( double m = 1e-6; m < 10; m*=1.5 ) {
+	for ( double m = 1e-6; m < 1e5; m*=1.01 ) {
 
 		// check if interrupt
 		if( savenquit ){
