@@ -74,6 +74,6 @@ plt.text(4e-9,0.15e-14,r'{\bf photon}',fontsize=27,ha='center')
 plt.text(4e-9,0.02e-14,r'{\bf DM}',fontsize=27,ha='center')
 
 
-MySaveFig(fig,'DarkPhoton-pureL-plasma')
+MySaveFig(fig,'DarkPhoton-pureL-plasma3')
 plt.show()
 

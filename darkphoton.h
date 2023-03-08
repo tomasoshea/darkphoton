@@ -706,7 +706,7 @@ double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vecto
 	// integrate by trapezium rule over r array
 	for ( int c = 0; c < len - 1; c++ ) {
 	
-		int j = len - c - 1;
+		int j = len - c - 2;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
 		//if ( wp[j+1] < 100 ) { continue; }	// only detectable above 0.1 keV
@@ -758,7 +758,7 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 	// integrate by trapezium rule over r array
 	for ( int c = 0; c < len - 1; c++ ) {
 	
-		int j = len - c - 1;
+		int j = len - c - 2;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
 		if ( wp[j+1] < 30 ) { continue; }	// only detectable above 0.1 keV
@@ -894,10 +894,11 @@ double PpureL( double m, double wp, double L ) {
 	double nHe4 = ne / 2;	// 4He ion density [eV3]
 	
 	double Gl = GammaLfull( wp, T, ne, nH, nHe4, nHe3, wp, m );
-	double Dp = m - pow( pow(wp,2) - pow(m,2) , 0.5 );
 	
 	double p1 = pow( m / Gl , 2 );
-	double p2 = 1 + exp(-Gl/L) - (2 * exp( -0.5*Gl*L) * cos( Dp * L ) );
+	double p2 = 1 + exp(-Gl/L) - (2 * exp( -0.5*Gl*L) );
+	
+	//cout << Gl << endl;
 	
 	double item = p1 * p2;
 	return item;
@@ -1014,7 +1015,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 	string path = "data/limits/";
 	string ext = "-pureL.dat";
 	
-	for ( double m = 1e-6; m < 1e5; m*=1.01 ) {
+	for ( double m = 1e-80; m < 1e5; m*=1.01 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -1185,7 +1186,7 @@ void spectrumPureL( double m ) {
 	int len = wp.size();
 	for ( int c = 0; c < len; c++ ) {
 	
-		int j = len - c - 1;
+		int j = len - c - 2;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
 		if ( wp[j] > 1000 ) { continue; }

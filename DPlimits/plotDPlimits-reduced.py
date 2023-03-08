@@ -26,5 +26,5 @@ DarkPhoton.StellarBounds(ax)
 # ADDING IAXO BOUNDS!!
 DarkPhoton.IAXO(ax)
 
-MySaveFig(fig,'DarkPhoton-lPlasmon-gas-reduced')
+MySaveFig(fig,'DarkPhoton-tPlasmon-reduced')
 plt.show()

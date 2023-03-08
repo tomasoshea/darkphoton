@@ -798,9 +798,9 @@ class DarkPhoton():
     def IAXO(ax,col='magenta',fs=30,text_on=True,lw=2.5,pureL=False):
         y2 = ax.get_ylim()[1]
         
-        suffix = "-plasma"
+        suffix = "-plasma3"
         #suffixGas = "-tPlasmon-newerE-gas"
-        suffixGas = "-tPlasmon-newerE-cutoff-gas"
+        suffixGas = "-tPlasmon-full"
 
         if pureL:
             col = 'yellow'
