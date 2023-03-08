@@ -268,7 +268,7 @@ double Gamma( double w, double number, double T, double nH, double nHe4, double 
 
 // L plasmon production rate - valid around resonance (w = wp)
 double GammaLfull( double w, double T, double ne, double nH, double nHe4, double nHe3, double wp, double m ) {
-
+	//if( w > 300 ) { cout << w << endl; }
 	double p1 = 64 * pow(pi,2) * pow(a,3) * ne;
 	double p2 = 3 * pow( 2 * pi * T , 0.5 ) * pow(m_e,1.5) * pow(w,3);
 	double F = cyl_bessel_k(0, w/2) * sinh(w/2);
@@ -883,10 +883,16 @@ void lMixingResGas( vector<double> n, vector<double> T, vector<double> wp, vecto
 //////////////////////////////////////// PURE L-PLASMON ///////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-// resonant gas conversion in IAXOdarkphoton-pureL.cpp
-double PpureL( double m, double wp, double T, double ne, double nH, double nHe4, double nHe3, double L ) {
 
+// resonant gas conversion in IAXOdarkphoton-pureL.cpp
+double PpureL( double m, double wp, double L ) {
+
+	// define detector parameters for Gamma_t
+	double nH, nHe3 = 0;	// only 4He is used
+	double T = 300 * K2eV;	// detector at room temp [eV]
+	double ne = m_e * pow(m,2) / (4 * pi * a);
+	double nHe4 = ne / 2;	// 4He ion density [eV3]
+	
 	double Gl = GammaLfull( wp, T, ne, nH, nHe4, nHe3, wp, m );
 	double Dp = m - pow( pow(wp,2) - pow(m,2) , 0.5 );
 	
@@ -896,7 +902,7 @@ double PpureL( double m, double wp, double T, double ne, double nH, double nHe4,
 	double item = p1 * p2;
 	return item;
 }
-*/
+
 
 double PpureLnew( double w, double m, double L, vector<vector<double>> z2, double B ) {
 
@@ -944,6 +950,7 @@ double PpureL_crystal( double w, double m, double L ) {
 	double dm = pow(w,2) * nplus;
 
 	double item = ( pow(w,2) * pow(m,6) * pow(nminus,2) / ( 4 * pow(dm,4) ) );// * ( 1 + 8 * pow( cos( 0.5 * dP * L ) , 2 ) );
+
 	//cout << pow(nminus,2) << endl;
 	return item;
 }
@@ -969,16 +976,18 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 	// integrate by trapezium rule over r array
 	for ( int c = 0; c < len - 1; c++ ) {
 	
-		int j = len - c - 1;
+		int j = len - c - 2;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
 		//if ( wp[j+1] < 30 ) { continue; }	// only res conversion up to 10eV allowed
 		
 		else {
-		
+			
+			if ( wp[j+1] > 300 ) { cout << wp[j+1] << endl; }
+
 			double dr = abs(r[j+1] - r[j]);
-			double height = 0.5 * ( ( PpureL_crystal( wp[j+1], m, L ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
-				+ ( PpureL_crystal( wp[j], m, L ) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
+			double height = 0.5 * ( ( PpureL( m, wp[j+1], L) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
+				+ ( PpureL( m, wp[j], L) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
 			double dA = dr * height;
 			
 			// only add if real
@@ -1019,6 +1028,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 
 		double entryIAXO = pureLintegrate( m, z2, T, wp, r, L, B );
 		double chi4IAXO = phi / entryIAXO;
+		//cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
 		massIAXO.push_back( m );
 	}

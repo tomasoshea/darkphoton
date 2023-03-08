@@ -43,72 +43,7 @@ def UpperFrequencyAxis(ax,N_Hz=1,tickdir='out',xtick_rotation=0,labelsize=25,xla
     plt.sca(ax)
 
 
-def FigSetup(xlab=r'$m_a$ [eV]',ylab='',\
-                 g_min = 1.0e-19,g_max = 1.0e-6,\
-                 m_min = 1.0e-12,m_max = 1.0e7,\
-                 lw=2.5,lfs=45,tfs=25,tickdir='out',\
-                 Grid=False,Shape='Rectangular',\
-                 mathpazo=False,TopAndRightTicks=False,\
-                xtick_rotation=20.0,tick_pad=8,x_labelpad=10,y_labelpad=10,\
-             FrequencyAxis=False,N_Hz=1,upper_xlabel=r"$\nu_a$ [Hz]",**freq_kwargs):
 
-
-
-    plt.rcParams['axes.linewidth'] = lw
-    plt.rc('text', usetex=True)
-    plt.rc('font', family='serif',size=tfs)
-
-    if mathpazo:
-            plt.rcParams.update({
-        "text.usetex": True,
-        "font.family": "serif",
-        "font.serif": ["Palatino"],
-            })
-
-    if Shape=='Wide':
-        fig = plt.figure(figsize=(16.5,5))
-    elif Shape=='Rectangular':
-        fig = plt.figure(figsize=(16.5,11))
-    elif Shape=='Square':
-        fig = plt.figure(figsize=(14.2,14))
-
-    ax = fig.add_subplot(111)
-
-    ax.set_xlabel(xlab,fontsize=lfs,labelpad=x_labelpad)
-    ax.set_ylabel(ylab,fontsize=lfs,labelpad=y_labelpad)
-
-    ax.tick_params(which='major',direction=tickdir,width=2.5,length=13,right=TopAndRightTicks,top=TopAndRightTicks,pad=tick_pad)
-    ax.tick_params(which='minor',direction=tickdir,width=1,length=10,right=TopAndRightTicks,top=TopAndRightTicks)
-
-    ax.set_yscale('log')
-    ax.set_xscale('log')
-    ax.set_xlim([m_min,m_max])
-    ax.set_ylim([g_min,g_max])
-
-    locmaj = mpl.ticker.LogLocator(base=10.0, subs=(1.0, ), numticks=50)
-    locmin = mpl.ticker.LogLocator(base=10.0, subs=arange(2, 10)*.1,numticks=100)
-    ax.xaxis.set_major_locator(locmaj)
-    ax.xaxis.set_minor_locator(locmin)
-    ax.xaxis.set_minor_formatter(mpl.ticker.NullFormatter())
-
-    locmaj = mpl.ticker.LogLocator(base=10.0, subs=(1.0, ), numticks=100)
-    locmin = mpl.ticker.LogLocator(base=10.0, subs=arange(2, 10)*.1,numticks=100)
-    ax.yaxis.set_major_locator(locmaj)
-    ax.yaxis.set_minor_locator(locmin)
-    ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
-
-    plt.xticks(rotation=xtick_rotation)
-
-    if Grid:
-        ax.grid(zorder=0)
-
-    if FrequencyAxis:
-        UpperFrequencyAxis(ax,N_Hz=N_Hz,tickdir='out',\
-                           xtick_rotation=xtick_rotation,\
-                           xlabel=upper_xlabel,\
-                           lfs=lfs/1.3,tfs=tfs,tick_pad=tick_pad-2,**freq_kwargs)
-
-    return fig,ax
 
 #==============================================================================#
 
@@ -120,7 +55,13 @@ class DarkPhoton():
              lw=2.5,lfs=40,tfs=25,tickdir='out',\
              Grid=False,Shape='Rectangular',mathpazo=True,\
              TopAndRightTicks=False,FrequencyAxis=True,FrequencyLabels=True,UnitAxis=True,f_rescale=1,\
-            tick_rotation = 20,width=20,height=10,upper_tickdir='out'):
+            tick_rotation = 20,width=20,height=10,upper_tickdir='out', reduced = False):
+        
+        if reduced:
+            chi_min = 1.0e-17
+            chi_max = 1.0e-7
+            m_min = 1e-3
+            m_max = 1e4
 
         plt.rcParams['axes.linewidth'] = lw
         plt.rc('text', usetex=True)
@@ -326,7 +267,7 @@ class DarkPhoton():
 
         if text_on:
             plt.text(8e2,2.5e-17,r'{\bf XENON}',fontsize=fs,color=col,rotation=0,rotation_mode='anchor',ha='center',va='center',clip_on=True)
-            plt.text(0.65e-3,2.4e-11,r'{\bf XENON1T}',color='w',rotation=-41,fontsize=15,path_effects=line_background(1,'k'),clip_on=True)
+            #plt.text(0.65e-3,2.4e-11,r'{\bf XENON1T}',color='w',rotation=-41,fontsize=15,path_effects=line_background(1,'k'),clip_on=True)
 
 
         return
@@ -854,29 +795,29 @@ class DarkPhoton():
 ############################# IAXO ###########################################################################################################################
 ##############################################################################################################################################################
 
-    def IAXO(ax,col='magenta',fs=30,text_on=True,lw=1.5,pureL=False):
+    def IAXO(ax,col='magenta',fs=30,text_on=True,lw=2.5,pureL=False):
         y2 = ax.get_ylim()[1]
         
-        suffix = "-newE"
+        suffix = "-plasma"
         #suffixGas = "-tPlasmon-newerE-gas"
-        suffixGas = "-newerE-lMixingResGas"
+        suffixGas = "-tPlasmon-newerE-cutoff-gas"
 
         if pureL:
             col = 'yellow'
             datGas = loadtxt("../data/limits/babyIAXO{}-pureL.dat".format(suffix))
             plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=0.301,lw=lw)
-            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=1.)
+            #plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=1.)
 
             datGas = loadtxt("../data/limits/baselineIAXO{}-pureL.dat".format(suffix))
             plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=0.301,lw=lw, ls='-')
-            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=1.)
+            #plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=1.)
             
             datGas = loadtxt("../data/limits/upgradedIAXO{}-pureL.dat".format(suffix))
             plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=0.301,lw=lw, ls='-')
-            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=1.)
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=0.6)
 
             if text_on:
-                plt.text(1e-1,5e-11,r'{\bf Upgraded IAXO}',fontsize=20,color=col,rotation=-32,rotation_mode='anchor',ha='center',va='center', zorder=105.5)
+                plt.text(1e-1,5e-11,r'{\bf IAXO}',fontsize=25,color=col,rotation=-33,rotation_mode='anchor',ha='center',va='center', zorder=105.5)
 
 
         else:

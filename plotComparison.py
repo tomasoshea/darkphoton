@@ -9,8 +9,8 @@ plt.style.use("style.txt")	# import plot style
 # setup plot
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
-#ax2.set(xlim=(3e-4,1e0), ylim=(1e-13,3e-6))
-ax2.set(xlim=(1e-6,1e5), ylim=(1e-13,3e-4))
+ax2.set(xlim=(3e-4,1e0), ylim=(1e-12,3e-6))
+#ax2.set(xlim=(1e-6,1e5), ylim=(1e-13,3e-4))
 
 # tPlasmon
 #dat = loadtxt("data/limits/babyIAXO-tPlasmon-clean.dat")
@@ -53,7 +53,7 @@ dat = loadtxt("data/limits/babyIAXO-newP-lMixingResGas.dat")
 ax2.plot(dat[:,0], dat[:,1], color='magenta',  label='L-plasmon mixing (gas)')
 
 # pure L contribution
-dat = loadtxt("data/limits/babyIAXO-crystal-pureL.dat")
+dat = loadtxt("data/limits/babyIAXO-plasma-pureL.dat")
 ax2.plot(dat[:,0], dat[:,1], color='cyan', label='pure L conversion')
 
 # axes
@@ -63,5 +63,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/comparison-crystal.jpg')
+plt.savefig('plots/comparison-3.jpg')
 plt.show()

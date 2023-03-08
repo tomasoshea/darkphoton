@@ -4,28 +4,27 @@
 
 from PlotFuncs import *
 
-fs = 20
-
-fig,ax = DarkPhoton.FigSetup_reduced()
+fig,ax = DarkPhoton.FigSetup(reduced=True)
 
 # # DPDM searches
-DarkPhoton.Xenon(ax, text_on=False)
-#DarkPhoton2.LAMPOST(ax)
+DarkPhoton.Xenon(ax)
+DarkPhoton.DAMIC(ax)
+DarkPhoton.SENSEI(ax)
+DarkPhoton.SuperCDMS(ax)
+DarkPhoton.SHUKET(ax)
+DarkPhoton.DarkEfield(ax)
+DarkPhoton.WISPDMX(ax)
+DarkPhoton.SQuAD(ax)
+DarkPhoton.DMPathfinder(ax)
+DarkPhoton.ORPHEUS(ax)
+DarkPhoton.DOSUE(ax)
+DarkPhoton.FAST(ax)
 
-# # Astrophysical bounds
-DarkPhoton.StellarBounds(ax, text_on=False)
+# # Astrophysical boundse
+DarkPhoton.StellarBounds(ax)
 
 # ADDING IAXO BOUNDS!!
-DarkPhoton.IAXO(ax, text_on=False)
+DarkPhoton.IAXO(ax)
 
-# text
-plt.text(2e-1,5e-12,r'{\bf babyIAXO}',fontsize=fs,color='black',rotation=-18,rotation_mode='anchor',ha='center',va='center', zorder=15.5)
-plt.text(2e-1,2e-12,r'{\bf baselineIAXO}',fontsize=fs,color='black',rotation=-18,rotation_mode='anchor',ha='center',va='center', zorder=15.5)
-plt.text(2e-1,6e-13,r'{\bf upgradedIAXO}',fontsize=fs,color='black',rotation=-18,rotation_mode='anchor',ha='center',va='center', zorder=15.5)
-plt.text(2e-1,5e-11,r'{\bf Solar}',fontsize=fs,color='white',rotation=-0,rotation_mode='anchor',ha='center',va='center', zorder=15.5)
-plt.text(2e-0,5e-13,r'{\bf Xenon}',fontsize=fs,color='crimson',rotation=-18,rotation_mode='anchor',ha='center',va='center', zorder=15.5)
-
-
-
-MySaveFig(fig,'DarkPhoton-reduced')
+MySaveFig(fig,'DarkPhoton-lPlasmon-gas-reduced')
 plt.show()
