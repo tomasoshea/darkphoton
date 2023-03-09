@@ -14,7 +14,7 @@ DarkPhoton.Haloscopes(ax)
 # # LSW/Helioscopes
 DarkPhoton.LSW(ax)
 DarkPhoton.CAST(ax)
-DarkPhoton.SHIPS(ax)
+DarkPhoton.SHIPS(ax, text_on=False)
 
 # Tests of coulomb law
 DarkPhoton.Coulomb(ax)
@@ -56,7 +56,7 @@ DarkPhoton.NeutronStarCooling(ax)
 
 
 # ADDING IAXO BOUNDS!!
-DarkPhoton.IAXO(ax)
+DarkPhoton.IAXO(ax, text_on=False)
 
 
 # BHSR
@@ -74,7 +74,9 @@ plt.text(4e-9,0.8e-14,r'{\bf Dark}',fontsize=27,ha='center')
 plt.text(4e-9,0.15e-14,r'{\bf photon}',fontsize=27,ha='center')
 plt.text(4e-9,0.02e-14,r'{\bf DM}',fontsize=27,ha='center')
 
+plt.text(1e-1,5e-10,r'{\bf IAXO}',fontsize=30,color='white',rotation=-32,rotation_mode='anchor',ha='center',va='center', zorder=105.5)
 
-MySaveFig(fig,'DarkPhoton-tPlasmon-gas-cutoff')
+
+MySaveFig(fig,'DarkPhoton-tPlasmon-oldE')
 plt.show()
 

@@ -338,7 +338,7 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	// calculate conversion prob
 	double p1 = pow( m * m / (G * w), 2 );
 	//double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));
-	double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));	// NEW CALC - TEST!!
+	double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));
 	
 	double item = p1 * p2;
 	
@@ -446,10 +446,10 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 	// integrate by trapezium rule over w array
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e-1;
-	for ( double w = 1e0; w < 3e5 - dw; w+=dw ) {
+	double dw = 100;
+	for ( double w = 100; w < 1e5 - dw; w+=dw ) {
 	
-		if ( w > m + 10 ) { continue; }	// set integral cutoff
+		if ( w > m + 1000 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
@@ -478,10 +478,12 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	// integrate by trapezium rule over w array
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
-	double dw = 10;
+	//double dw = 100;
+	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
+	double dw = 1e2;
 	for ( double w = 30; w < 1e5 - dw; w+=dw ) {
 	
-		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
+		if ( w > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
@@ -600,7 +602,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 		vector<vector<double>> z1, vector<vector<double>> z2, double phi, string name ) {
 	
 	// implement new interrupt with save
-	signal( SIGINT, interrupt );
+	//signal( SIGINT, interrupt );
 
 	// define vectors
 	vector<double> massIAXO;
@@ -634,7 +636,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	
 	// resonant sector
 	int len = wp.size();
-	for ( int i = 0; i < len; i ++ ) {
+	for ( int i = 0; i < len; i = i+2 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -905,7 +907,7 @@ double PpureL( double m, double wp, double L ) {
 }
 
 
-double PpureLnew( double w, double m, double L, vector<vector<double>> z2, double B ) {
+double PpureLConversion( double w, double m, double L, vector<vector<double>> z2, double B ) {
 
 	// define detector parameters for Gamma_t
 	double nH, nHe3 = 0;	// only 4He is used
@@ -926,14 +928,19 @@ double PpureLnew( double w, double m, double L, vector<vector<double>> z2, doubl
 	double g2 = z2[ indexT2 ][ indexX2 ];
 	
 	// get gammas
-	double Gl = GammaLfull( w, T, ne, nH, nHe4, nHe3, m, m );
 	double Gt = Gamma(w, ne, T, nH, nHe4, nHe3, g1, g2);
+	double Gl = GammaLfull( w, T, ne, nH, nHe4, nHe3, m, m );
 
 	// set B-field value
 	double eB = B * pow(m2eV,2) / s2eV;
 	double wB = eB / m_e;
 
-	double P = ( pow(wB,2) * pow(m,8) * pow(w,-6) * pow(Gt,-2) / ( pow(w,2) + pow(Gl,2) ) ) * ( 1 + exp(-Gt*L) - 2*exp(-0.5*Gt*L));
+	// full version
+	double P = pow(m,8) * pow(wB,2) * ( 1 + exp(-Gt*L) - 2*exp(-0.5*Gt*L) ) / ( 2 * pow(w,4) * pow(Gt,2) * ( pow( pow(w,2) - pow(m,2) , 2 ) + pow(w*Gl,2) ) );
+
+	// low m limit
+	//double P = pow(m,8) * pow(wB,2) * pow(L,2) / ( 2 * pow(w,6) * ( pow(w,2) + pow(Gl,2) ) );
+
 	return P;
 
 }
@@ -960,7 +967,7 @@ double PpureL_crystal( double w, double m, double L ) {
 double pureLintegrand( double m, double T, double wp, double r ) {
 
 	double p1 = pow( r / (2*R) , 2 ) / pi;
-	double p2 = wp * pow(m,2) * pow( pow(wp,2) - pow(m,2) , 0.5 );
+	double p2 = wp * pow(m,2) * sqrt( pow(wp,2) - pow(m,2) );
 	double p3 = exp( wp / T ) - 1;
 	
 	double item = p1 * p2 / p3;
@@ -987,8 +994,10 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 			if ( wp[j+1] > 300 ) { cout << wp[j+1] << endl; }
 
 			double dr = abs(r[j+1] - r[j]);
-			double height = 0.5 * ( ( PpureL( m, wp[j+1], L) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
-				+ ( PpureL( m, wp[j], L) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
+			//double height = 0.5 * ( ( PpureL( m, wp[j+1], L) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
+			//	+ ( PpureL( m, wp[j], L) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
+			double height = 0.5 * ( ( PpureLConversion( wp[j+1], m, L, z2, B ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
+				+ ( PpureLConversion( wp[j], m, L, z2, B ) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
 			double dA = dr * height;
 			
 			// only add if real
@@ -1015,7 +1024,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 	string path = "data/limits/";
 	string ext = "-pureL.dat";
 	
-	for ( double m = 1e-80; m < 1e5; m*=1.01 ) {
+	for ( double m = 1e-6; m < 1e5; m*=2 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -1029,7 +1038,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 
 		double entryIAXO = pureLintegrate( m, z2, T, wp, r, L, B );
 		double chi4IAXO = phi / entryIAXO;
-		//cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
+		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
 		massIAXO.push_back( m );
 	}

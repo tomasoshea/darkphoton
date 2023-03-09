@@ -47,7 +47,7 @@ ax2.set_xscale('log')
 ax2.tick_params(axis='both')
 ax2.legend()
 
-fig2.savefig('plots/spectrum.jpg')
+fig2.savefig('plots/spectrum2.jpg')
 
 plt.show()
 
