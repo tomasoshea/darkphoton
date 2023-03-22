@@ -60,7 +60,7 @@ class DarkPhoton():
         if reduced:
             chi_min = 1.0e-17
             chi_max = 1.0e-7
-            m_min = 1e-3
+            m_min = 1e-4
             m_max = 1e4
 
         plt.rcParams['axes.linewidth'] = lw
@@ -798,9 +798,9 @@ class DarkPhoton():
     def IAXO(ax,col='magenta',fs=30,text_on=True,lw=2.5,pureL=False):
         y2 = ax.get_ylim()[1]
         
-        suffix = "-plasma3"
+        suffix = "-10eV"
         #suffixGas = "-tPlasmon-newerE-gas"
-        suffixGas = "-tPlasmon-clean2-gas"
+        suffixGas = "-tPlasmon-10eV-gas"
 
         if pureL:
             col = 'yellow'
@@ -823,19 +823,43 @@ class DarkPhoton():
         else:
     #		babyIAXO
             datGas = loadtxt("../data/limits/babyIAXO{}.dat".format(suffixGas))
-            plt.plot(datGas[:,0],datGas[:,1],color='cyan',alpha=1,zorder=100.301,lw=lw)
+            plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw)
             plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
 
     #		baselineIAXO
             datGas = loadtxt("../data/limits/baselineIAXO{}.dat".format(suffixGas))
-            plt.plot(datGas[:,0],datGas[:,1],color='cyan',alpha=1,zorder=100.301,lw=lw, ls='-')
+            plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw, ls='-')
             plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
             
     #		upgradedIAXO
             datGas = loadtxt("../data/limits/upgradedIAXO{}.dat".format(suffixGas))
-            plt.plot(datGas[:,0],datGas[:,1],color='cyan',alpha=1,zorder=100.301,lw=lw, ls='-')
+            plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw, ls='-')
             plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
             plt.vlines(datGas[-1,0], datGas[-1,1], 1, zorder=0.301,lw=lw, color='cyan')
+
+            """datGas = loadtxt("../data/limits/babyIAXO-tPlasmon-3K-gas.dat")
+            plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw)
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
+
+            datGas = loadtxt("../data/limits/babyIAXO-tPlasmon-30K-gas.dat")
+            plt.plot(datGas[:,0],datGas[:,1],color='cyan',alpha=1,zorder=100.301,lw=lw)
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
+
+            datGas = loadtxt("../data/limits/babyIAXO-tPlasmon-1K-gas.dat")
+            plt.plot(datGas[:,0],datGas[:,1],color='red',alpha=1,zorder=100.301,lw=lw)
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
+
+            datGas = loadtxt("../data/limits/babyIAXO-tPlasmon-20K-gas.dat")
+            plt.plot(datGas[:,0],datGas[:,1],color='blue',alpha=1,zorder=100.301,lw=lw)
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
+
+            datGas = loadtxt("../data/limits/babyIAXO-tPlasmon-25K-gas.dat")
+            plt.plot(datGas[:,0],datGas[:,1],color='magenta',alpha=1,zorder=100.301,lw=lw)
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
+
+            datGas = loadtxt("../data/limits/babyIAXO-tPlasmon-300K-gas.dat")
+            plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw)
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)"""
 
             if text_on:
                 plt.text(1e-1,5e-11,r'{\bf IAXO}',fontsize=fs,color='white',rotation=-32,rotation_mode='anchor',ha='center',va='center', zorder=105.5)

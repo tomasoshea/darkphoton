@@ -316,8 +316,8 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	
 	// define detector parameters for Gamma_t
 	double nH, nHe3 = 0;	// only 4He is used
-	double g1 = 0;
-	double T = 25 * K2eV;	// detector at room temp [eV]
+	double g1 = 1;
+	double T = 3 * K2eV;	// detector at room temp [eV]
 	double ne = m_e * pow(m,2) / (4 * pi * a);
 	double nHe4 = ne / 2;	// 4He ion density [eV3]
 	
@@ -327,18 +327,12 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	for( int i = 1; i < 200; i++ ) {
 		if( (z2[0][i] < T) and (z2[0][i+1] > T) ) { indexT2 = i; break; }
 	}
-	if( indexT2 == 1 ) { cout << "bad gaunt!!" << endl;}
-	else if( indexT2 == 199 ) { cout << "bad gaunt!!" << endl;}
-
-
 	for( int i = 1; i < 500; i++ ) {
 		if( (z2[i][0] * T) < w and (z2[i+1][0] * T) > w ) { indexX2 = i; break; }
 	}
-	if( indexX2 == 1 ) { cout << "bad gaunt!!" << endl;}
-	else if( indexX2 == 499 ) { cout << "bad gaunt!!" << endl;}
-
-
 	double g2 = z2[ indexT2 ][ indexX2 ];
+
+	//cout << "g1 = " << g1 << "\ng2 = " << g2 << endl;
 	
 	// calculate detector Gamma
 	double G = Gamma(w, ne, T, nH, nHe4, nHe3, g1, g2);
@@ -454,8 +448,8 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 	// integrate by trapezium rule over w array
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e-1;
-	for ( double w = 1e-1; w < 1e2 - dw; w+=dw ) {
+	double dw = 100;
+	for ( double w = 100; w < 1e5 - dw; w+=dw ) {
 	
 		if ( w > m + 1000 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
@@ -488,10 +482,10 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	//double dw = 100;
 	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e-1;
-	for ( double w = 1e-1; w < 1e2 - dw; w+=dw ) {
+	double dw = 1e2;
+	for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	
-		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
+		if ( w > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
@@ -623,7 +617,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	double min = *min_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-4; m < min; m*=1.1 ) {
+	for ( double m = 1e-3; m < min; m*=1.1 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -644,7 +638,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	
 	// resonant sector
 	int len = wp.size();
-	for ( int i = 0; i < len; i = i+5 ) {
+	for ( int i = 0; i < len; i = i+2 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -995,7 +989,7 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 		int j = len - c - 2;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
-		if ( wp[j+1] > 10 ) { continue; }	// only res conversion up to 10eV allowed
+		//if ( wp[j+1] < 30 ) { continue; }	// only res conversion up to 10eV allowed
 		
 		else {
 			
@@ -1032,7 +1026,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 	string path = "data/limits/";
 	string ext = "-pureL.dat";
 	
-	for ( double m = 1e-6; m < 1e5; m*=1.1 ) {
+	for ( double m = 1e-6; m < 1e5; m*=2 ) {
 
 		// check if interrupt
 		if( savenquit ){

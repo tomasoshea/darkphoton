@@ -59,7 +59,7 @@ int main( int argc, char** argv ) {
 	double L = Lraw / m2eV;	// in eV^-1
 	
 	// multithread to run simultaneously
-	thread t2( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi, nameBaby );	
+	thread t2( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi/1e3, nameBaby );	
 
 	
 	//IAXO baseline
@@ -72,7 +72,7 @@ int main( int argc, char** argv ) {
 	L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t4( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi, nameBaseline );
+	thread t4( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi/1e3, nameBaseline );
 
 	/// IAXO upgraded
 	Lraw = 22;	// m
@@ -84,7 +84,7 @@ int main( int argc, char** argv ) {
 	L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t6( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi, nameUpgraded );
+	thread t6( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi/1e3, nameUpgraded );
 
 
 	// wait until all threads are finished
