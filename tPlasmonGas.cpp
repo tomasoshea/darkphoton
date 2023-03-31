@@ -10,6 +10,9 @@
 
 using namespace std;
 
+// factor to multiply flux for dE changes
+double factor = sqrt( 7e1/1e5 );
+
 // argc counts number of command line inputs (including the script itself)
 // argv is a vector containing cmd args separated by space (including script itself)
 int main( int argc, char** argv ) {
@@ -46,7 +49,6 @@ int main( int argc, char** argv ) {
 	for( int i = 1; i < 201; i++ ) { z1[0][i] = z1[0][i] * m_e; }
 	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
 	
-
 	// babyIAXO
 	
 	double Lraw = 10;	// m
@@ -59,7 +61,7 @@ int main( int argc, char** argv ) {
 	double L = Lraw / m2eV;	// in eV^-1
 	
 	// multithread to run simultaneously
-	thread t2( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi/1e3, nameBaby );	
+	thread t2( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi*factor, nameBaby );	
 
 	
 	//IAXO baseline
@@ -72,7 +74,7 @@ int main( int argc, char** argv ) {
 	L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t4( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi/1e3, nameBaseline );
+	thread t4( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi*factor, nameBaseline );
 
 	/// IAXO upgraded
 	Lraw = 22;	// m
@@ -84,7 +86,7 @@ int main( int argc, char** argv ) {
 	L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t6( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi/1e3, nameUpgraded );
+	thread t6( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi*factor, nameUpgraded );
 
 
 	// wait until all threads are finished

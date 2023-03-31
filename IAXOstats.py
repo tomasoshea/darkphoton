@@ -12,16 +12,16 @@ from matplotlib import pyplot as plt
 CL = 0.95
 
 # increment
-dN = 1e-3
+dN = 1e-2
 
 # detection time in days
 days = 5
 
 # E range
-dE = 0.1	# 100eV
+dE = 1e4	# 100eV
 
 # select detector
-detector = 2	# 0-baby 1-baseline 2-upgraded
+detector = 0	# 0-baby 1-baseline 2-upgraded
 
 
 def survivalGamma(b, alpha = 1 - CL):

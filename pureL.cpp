@@ -62,7 +62,7 @@ int main( int argc, char** argv ) {
 
 	// multithread to run simultaneously
 	//thread t1( gasL2, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameBaby );
-	thread t1( pureL, z2, T, wp, r, L, phi/1e4, nameBaby, B );
+	thread t1( pureL, z2, T, wp, r, L, phi/1e3, nameBaby, B );
 		
 	
 	//IAXO baseline
@@ -78,7 +78,7 @@ int main( int argc, char** argv ) {
 
 	// multithread to run simultaneously
 	//thread t2( gasL2, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameBaseline );
-	thread t2( pureL, z2, T, wp, r, L, phi/1e4, nameBaseline, B );
+	thread t2( pureL, z2, T, wp, r, L, phi/1e3, nameBaseline, B );
 
 
 	// IAXO upgraded
@@ -93,7 +93,7 @@ int main( int argc, char** argv ) {
 
 	// multithread to run simultaneously
 	//thread t3( gasL, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameUpgraded );
-	thread t3( pureL, z2, T, wp, r, L, phi/1e4, nameUpgraded, B );
+	thread t3( pureL, z2, T, wp, r, L, phi/1e3, nameUpgraded, B );
 
 	// wait until all threads are finished
 	t1.join();

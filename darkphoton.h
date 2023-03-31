@@ -21,7 +21,7 @@ double a = (1. / 137.);		// alpha
 
 // solar params
 double R_raw = 149.5978707e9;	// mean earth-sun distance [m]
-double rSolar_raw = 6.9598E+10;	// solar radius [m]
+double rSolar_raw = 6.957e8;	// solar radius [m]
 double B0 = 3e3;	// radiative zone max B [T]
 double B1 = 50;	// tachocline max B [T]
 double B2 = 3;	// outer region max B [T]
@@ -229,6 +229,22 @@ void merge( string name ) {
 
 }
 
+// complex sqrt of (a + ib), starting points at sqrts and results stored at pointa, pointb
+void csqrt( double a, double b, double* pointa, double* pointb ) {
+
+	double x = sqrt(a);
+	double y = sqrt(b);
+	int n = 0;
+
+	while( n < 10 ) {
+		x = 0.5 * ( x + (a*x + b*y) / ( pow(x,2) + pow(y,2) ) );
+		y = 0.5 * ( y + (b*x - a*y) / ( pow(x,2) + pow(y,2) ) );
+		n++;
+	}
+
+	*pointa = x;
+	*pointb = y;
+}
 
 // allow writeout of data upon interruption
 void interrupt( int sig ) {
@@ -411,6 +427,7 @@ double trapeze( double w, double m, vector<double> n, vector<double> T, vector<d
 	// perform integration by looping over r values
 	for ( int c = 0; c < len - 1; c++ ) {
 
+		//if ( r[c] > 0.1 * rSolar ) { continue; }
 		// select g(w, T) value from matrix
 		int indexT1;
 		int indexT2;
@@ -454,8 +471,8 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 	// integrate by trapezium rule over w array
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e-1;
-	for ( double w = 1e-1; w < 1e2 - dw; w+=dw ) {
+	double dw = 1e0;
+	for ( double w = 1e3; w < 1e5 - dw; w+=dw ) {
 	
 		if ( w > m + 1000 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
@@ -488,8 +505,8 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	//double dw = 100;
 	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e-1;
-	for ( double w = 1e-1; w < 1e2 - dw; w+=dw ) {
+	double dw = 1e0;
+	for ( double w = 30; w < 1e2 - dw; w+=dw ) {
 	
 		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
@@ -531,7 +548,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 
 	
 	// suppressed section
-	for ( double m = 1e-4; m < min; m*=1.01 ) {
+	for ( double m = 1e-4; m < min; m*=2 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -554,7 +571,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 	
 	// resonant sector
 	int len = wp.size();
-	for ( int i = 0; i < len; i ++ ) {
+	for ( int i = 0; i < len; i = i+5 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -623,7 +640,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	double min = *min_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-4; m < min; m*=1.1 ) {
+	for ( double m = 1e-3; m < min; m*=2 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -644,7 +661,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	
 	// resonant sector
 	int len = wp.size();
-	for ( int i = 0; i < len; i = i+5 ) {
+	for ( int i = 0; i < len; i=i+5 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -906,12 +923,11 @@ double PpureL( double m, double wp, double L ) {
 	double Gl = GammaLfull( wp, T, ne, nH, nHe4, nHe3, wp, m );
 	
 	double p1 = pow( m / Gl , 2 );
-	double p2 = 1 + exp(-Gl/L) - (2 * exp( -0.5*Gl*L) );
-	
-	//cout << Gl << endl;
-	
-	double item = p1 * p2;
-	return item;
+	double p2 = 1 + exp(-Gl*L) - (2 * exp( -0.5*Gl*L) );
+		
+	if( Gl * L < 1e-6 ) { double item = pow( m * L / 2 , 2 ); return item; }
+	else { double item = p2 * p1; return item; }
+
 }
 
 
@@ -947,10 +963,10 @@ double PpureLConversion( double w, double m, double L, vector<vector<double>> z2
 	double P = pow(m,8) * pow(wB,2) * ( 1 + exp(-Gt*L) - 2*exp(-0.5*Gt*L) ) / ( 2 * pow(w,4) * pow(Gt,2) * ( pow( pow(w,2) - pow(m,2) , 2 ) + pow(w*Gl,2) ) );
 
 	// low m limit
-	//double P = pow(m,8) * pow(wB,2) * pow(L,2) / ( 2 * pow(w,6) * ( pow(w,2) + pow(Gl,2) ) );
+	double Plow = pow(m,8) * pow(wB,2) * pow(L,2) / ( 4 * pow(w,4) * ( pow(w,2) + pow(Gl,2) ) );
 
-	return P;
-
+	if ( Gt*L < 1e-6 ) { return Plow; }
+	else { return P; }
 }
 
 // resonant potential crystal conversion approx
@@ -995,7 +1011,7 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 		int j = len - c - 2;
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
-		if ( wp[j+1] > 10 ) { continue; }	// only res conversion up to 10eV allowed
+		//if ( wp[j+1] > 10 ) { continue; }	// only res conversion up to 5eV allowed
 		
 		else {
 			
@@ -1032,7 +1048,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 	string path = "data/limits/";
 	string ext = "-pureL.dat";
 	
-	for ( double m = 1e-6; m < 1e5; m*=1.1 ) {
+	for ( double m = 1e-4; m < 1e1; m*=2 ) {
 
 		// check if interrupt
 		if( savenquit ){

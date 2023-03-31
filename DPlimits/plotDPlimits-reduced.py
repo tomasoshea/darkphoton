@@ -27,5 +27,5 @@ DarkPhoton.StellarBounds(ax)
 DarkPhoton.IAXO(ax)#, text_on=False)
 #plt.text(1e-1,5e-10,r'{\bf IAXO}',fontsize=30,color='white',rotation=-20,rotation_mode='anchor',ha='center',va='center', zorder=105.5)
 
-MySaveFig(fig,'DarkPhoton-tPlasmon-10eV-reduced')
+MySaveFig(fig,'DarkPhoton-tPlasmon-100eV-10pct-gas-reduced')
 plt.show()

@@ -60,7 +60,7 @@ class DarkPhoton():
         if reduced:
             chi_min = 1.0e-17
             chi_max = 1.0e-7
-            m_min = 1e-4
+            m_min = 1e-3
             m_max = 1e4
 
         plt.rcParams['axes.linewidth'] = lw
@@ -798,9 +798,9 @@ class DarkPhoton():
     def IAXO(ax,col='magenta',fs=30,text_on=True,lw=2.5,pureL=False):
         y2 = ax.get_ylim()[1]
         
-        suffix = "-10eV"
+        suffix = "-conversion"
         #suffixGas = "-tPlasmon-newerE-gas"
-        suffixGas = "-tPlasmon-10eV-gas"
+        suffixGas = "-tPlasmon-100eV-10pct-gas"
 
         if pureL:
             col = 'yellow'
