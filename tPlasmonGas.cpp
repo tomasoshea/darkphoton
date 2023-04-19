@@ -10,9 +10,6 @@
 
 using namespace std;
 
-// factor to multiply flux for dE changes
-double factor = sqrt( 7e1/1e5 );
-
 // argc counts number of command line inputs (including the script itself)
 // argv is a vector containing cmd args separated by space (including script itself)
 int main( int argc, char** argv ) {
