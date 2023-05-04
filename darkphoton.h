@@ -45,6 +45,7 @@ double rSolar = rSolar_raw / m2eV;	// eV-1
 // utility constants
 double wRange = 1e3;	// range of w integral
 bool savenquit = false;	// for error catching
+int line = 0;	// for REST writeout
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,6 +197,40 @@ void write2D( string name, vector<double> data1, vector<double> data2) {
 	
 	fout.close();
 	
+}
+
+// 2D writeout for REST flux
+// https://github.com/rest-for-physics/axionlib-data/tree/cae7d4df4ca2f0bef5a2268602cf090fdf4a208d/solarFlux
+void writeREST( string name, vector<double> data ){	// data vector needs values of w for constant r
+
+	int piece = 0;	// for newlining
+
+	// delete old file if extant
+	if ( line == 0 ) {
+	if ( remove(name.c_str()) == 0 ) {
+		cout << "file " << name << " deleted." << endl;
+		}
+	}
+
+	// file pointer
+	fstream fout;
+
+	// creates new csv file
+	fout.open(name, ios::out | ios::app);
+
+	// Read the input from vector
+	for ( double item : data ) {
+		// Insert the data to file
+		fout << item << "	";
+	}
+
+	// newline at end of w range
+	fout << endl;
+	line++;
+
+	if( line == 1 ){ cout << "file " << name << " created...\n\n" << endl; }
+	
+	fout.close();
 }
 
 
@@ -487,7 +522,6 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 			// only add if real
 			if ( isnan(dA) ) { continue; }
 			else { total += dA; }
-			//cout << "hola" << endl;
 		}
 	}
 	return total;
@@ -1073,6 +1107,143 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////// REST DATA /////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// integral over r
+double trapezeREST( double w, double m, vector<double> n, vector<double> T, vector<double> wp,
+	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
+	  vector<vector<double>> z1, vector<vector<double>> z2, double low ) {
+
+	int len = r.size();	// get length of vector
+
+	double total = 0;	// initiate value of sum at 0
+	double high = low + 0.01*rSolar;
+	
+	// perform integration by looping over r values
+	for ( int c = 0; c < len - 1; c++ ) {
+
+		if ( r[c] < low ) { continue; }
+		else if ( r[c] > high ) { continue; }
+
+		// select g(w, T) value from matrix
+		int indexT1;
+		int indexT2;
+		int indexX1;
+		int indexX2;
+		
+		for( int i = 1; i < 200; i++ ) {
+			if( z1[0][i] < T[c] and z1[0][i+1] > T[c] ) { indexT1 = i; }
+			if( z2[0][i] < T[c] and z2[0][i+1] > T[c] ) { indexT2 = i; }
+		}
+		
+		for( int i = 1; i < 500; i++ ) {
+			if( (z1[i][0] * T[c]) < w and (z1[i+1][0] * T[c]) > w ) { indexX1 = i; }
+			if( (z2[i][0] * T[c]) < w and (z2[i+1][0] * T[c]) > w ) { indexX2 = i; }
+		}
+		
+		double g1 = z1[ indexT1 ][ indexX1 ];
+		double g2 = z2[ indexT2 ][ indexX2 ];
+
+		double dr = r[c+1] - r[c];	// define trapezium spacing
+		double height = 0.5 * ( integrand(w, m, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
+			+ integrand(w, m, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
+		double dA = abs(dr * height);
+		
+		// only add if real
+		if ( isnan(dA) ) { continue; }
+		else { total += dA; }
+	}
+		
+	return total;
+		
+}
+
+
+// full integration over omega
+double integrateREST( double m, vector<double> n, vector<double> T, vector<double> wp,
+	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
+	  vector<vector<double>> z1, vector<vector<double>> z2, double wlow, double rlow ) {
+	
+	double total = 0;	// initiate value of sum at 0
+
+	// integrate by trapezium rule over w array
+	//double dw = 1e2;
+	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
+	double whigh = wlow + 100;	// eV
+	double dw = 1e0;
+	for ( double w = wlow; w < whigh - dw; w+=dw ) {
+	
+		if ( w <= m ) { continue; }	// only allow when energy greater than mass
+		
+		else {
+		
+			double height = 0.5 * ( trapezeREST( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow ) 
+				+  trapezeREST( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow ) );
+			double dA = abs(dw * height);
+			
+			// only add if real
+			if ( isnan(dA) ) { continue; }
+			else { total += dA; }
+		}
+	}
+	return total;
+}
+
+// m in eV
+void fluxREST( double m, double chi ) {
+
+	// read csv files to vectors
+	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
+	vector<double> rFrac = read("data/rFrac.dat");	// sun radial distance as fraction
+	vector<double> T = read("data/T.dat");	// solar temperature [eV]
+	vector<double> n = read("data/ne.dat");	// electron number density [eV3]
+	vector<double> wp = read("data/wp.dat");	// plasma frequency [eV]
+	vector<double> nH = read("data/nH.dat");	// H ion density [eV3]
+	vector<double> nHe4 = read("data/nHe4.dat");	// He4 ion density [eV3]
+	vector<double> nHe3 = read("data/nHe3.dat");	// He3 ion density [eV3]
+	
+	// get gaunt factors
+	vector<vector<double>> z1 = readGaunt("data/Z1.dat");	// gaunt factors for Z=1
+	vector<vector<double>> z2 = readGaunt("data/Z2.dat");	// gaunt factors for Z=2
+	
+	// convert Gaunt factor Theta to T in eV
+	for( int i = 1; i < 201; i++ ) { z1[0][i] = z1[0][i] * m_e; }
+	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
+
+	int len = r.size();	// get length of vector
+	double i = 1;	// to get solar radius fraction
+
+	// initialise vector etc
+	vector<double> flux;
+	int intm = (int)log10(m);
+	int intchi = (int)log10(chi);
+	string name = "data/flux_m" + to_string(intm) + "_X" + to_string(intchi) + ".dat";
+
+	for ( double rlow = 0; rlow < 0.99*rSolar; rlow += 0.01*rSolar ) {
+		for ( double wlow = 0; wlow < 19.9e3; wlow += 100 ) {
+	
+			double avg = pow(chi,2) * integrateREST( m, n, T, wp, r, nH,
+						 nHe4, nHe3, z1, z2, wlow, rlow ) / 100;	// eV2
+			
+			// convert eV2 to cm-2 s-1 keV-1
+			avg *= pow( m2eV, 2 ) * 1e-1 / s2eV;
+			flux.push_back(avg);
+		}
+		writeREST( name, flux );
+		flux.clear();
+		//int percent = (100 * rlow / rSolar );
+		// note here:	\033[A moves up a line
+		// 				\33[2K deletes line
+		// 				\r goes to start of line
+		cout << "\033[A\33[2K\r" << line << "\% complete..." << endl;
+	}
+	cout << "creation of file " << name << " completed!" << endl;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// SPECTRA ETC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1080,6 +1251,9 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 // function to output E spectrum for T-plasmon
 void spectrum( double m ) {
 	
+	//set chi
+	double chi = 1e-11;
+
 	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
 	vector<double> T = read("data/T.dat");	// solar temperature [eV]
 	vector<double> n = read("data/ne.dat");	// electron number density [eV3]
@@ -1100,12 +1274,12 @@ void spectrum( double m ) {
 	vector<double> phi;
 	vector<double> E;
 	
-	for ( double w = 1; w < 1e5; w *= 1.01 ) {
+	for ( double w = 0; w < 2e4; w += 100 ) {
 
 		if ( w <= m ) { continue; }	// only for m < wp
 		
 		// compute dphi/dE
-		double entry = trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 );
+		double entry = pow(chi,2) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 );
 		E.push_back(w);
 		phi.push_back(entry);
 		
