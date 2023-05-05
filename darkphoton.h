@@ -45,7 +45,7 @@ double rSolar = rSolar_raw / m2eV;	// eV-1
 // utility constants
 double wRange = 1e3;	// range of w integral
 bool savenquit = false;	// for error catching
-int line = 0;	// for REST writeout
+//int line = 0;	// for REST writeout
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,9 +201,9 @@ void write2D( string name, vector<double> data1, vector<double> data2) {
 
 // 2D writeout for REST flux
 // https://github.com/rest-for-physics/axionlib-data/tree/cae7d4df4ca2f0bef5a2268602cf090fdf4a208d/solarFlux
-void writeREST( string name, vector<double> data ){	// data vector needs values of w for constant r
+void writeREST( string name, vector<double> data, int line ){	// data vector needs values of w for constant r
 
-	int piece = 0;	// for newlining
+	//int piece = 0;	// for newlining
 
 	// delete old file if extant
 	if ( line == 0 ) {
@@ -226,9 +226,8 @@ void writeREST( string name, vector<double> data ){	// data vector needs values 
 
 	// newline at end of w range
 	fout << endl;
-	line++;
 
-	if( line == 1 ){ cout << "file " << name << " created...\n\n" << endl; }
+	if( line == 0 ){ cout << "file " << name << " created...\n\n" << endl; }
 	
 	fout.close();
 }
@@ -514,9 +513,11 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 		else if ( w > m + wRange ) { continue; }
 		
 		else {
-		
-			double height = 0.5 * ( ( P( w+dw, m, L ) * trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
-				+ ( P( w, m, L ) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
+
+			//double height = 0.5 * ( ( P( w+dw, m, L ) * trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
+			//	+ ( P( w, m, L ) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
+			double height = 0.5 * ( ( trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
+				+ ( trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
 			double dA = abs(dw * height);
 			
 			// only add if real
@@ -567,7 +568,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		vector<vector<double>> z1, vector<vector<double>> z2, double phi, string name ) {
 	
 	// implement new interrupt with save
-	signal( SIGINT, interrupt );
+	//signal( SIGINT, interrupt );
 
 	// define vectors
 	vector<double> massIAXO;
@@ -579,11 +580,10 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 	
 	double min = *min_element( wp.begin(), wp.end() );
 	double max = *max_element( wp.begin(), wp.end() );
-
 	
 	// suppressed section
 	for ( double m = 1e-4; m < min; m*=2 ) {
-
+m=1;
 		// check if interrupt
 		if( savenquit ){
 		// write out
@@ -600,6 +600,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
 		massIAXO.push_back( m );
 		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
+		cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
 		}
 	}
 	
@@ -626,6 +627,9 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
 		massIAXO.push_back( m );
 		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) <<endl;
+		cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
+
+
 	}
 
 		// unsuppressed section
@@ -1191,8 +1195,15 @@ double integrateREST( double m, vector<double> n, vector<double> T, vector<doubl
 	return total;
 }
 
+
+// suppressed section (approx m << wp, m << w )
+double supREST( )
+
+
 // m in eV
 void fluxREST( double m, double chi ) {
+
+	int line = 0;	// for REST writeout
 
 	// read csv files to vectors
 	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
@@ -1225,13 +1236,14 @@ void fluxREST( double m, double chi ) {
 		for ( double wlow = 0; wlow < 19.9e3; wlow += 100 ) {
 	
 			double avg = pow(chi,2) * integrateREST( m, n, T, wp, r, nH,
-						 nHe4, nHe3, z1, z2, wlow, rlow ) / 100;	// eV2
+						 nHe4, nHe3, z1, z2, wlow, rlow ) / 0.1;	// eV3 keV-1
 			
 			// convert eV2 to cm-2 s-1 keV-1
-			avg *= pow( m2eV, 2 ) * 1e-1 / s2eV;
+			avg *= pow( m2eV, -2 ) * 1e-4 / s2eV;
 			flux.push_back(avg);
 		}
-		writeREST( name, flux );
+		writeREST( name, flux, line );
+		line++;
 		flux.clear();
 		//int percent = (100 * rlow / rSolar );
 		// note here:	\033[A moves up a line

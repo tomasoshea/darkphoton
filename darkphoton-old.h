@@ -457,8 +457,10 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 		
 		else {
 		
-			double height = 0.5 * ( ( P( w+dw, m, L ) * trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
-				+ ( P( w, m, L ) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
+			//double height = 0.5 * ( ( P( w+dw, m, L ) * trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
+			//	+ ( P( w, m, L ) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
+		double height = 0.5 * ( ( trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
+				+ ( trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
 			double dA = abs(dw * height);
 			
 			// only add if real
@@ -526,7 +528,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 	
 	// suppressed section
 	for ( double m = 1e-4; m < min; m*=1.01 ) {
-
+m=1;
 		// check if interrupt
 		if( savenquit ){
 		// write out

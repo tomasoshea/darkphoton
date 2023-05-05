@@ -27,6 +27,23 @@ int main(){
     t6.join();
     t7.join();
 	
+    /*
+    fluxREST( 1e-3, 1e-11);
+    fluxREST( 1e-3, 1e-12);
+    fluxREST( 1e-2, 1e-11);
+    fluxREST( 1e-2, 1e-12);
+    fluxREST( 1e-1, 1e-11);
+    fluxREST( 1e-1, 1e-12);
+    fluxREST( 1e0, 1e-11);
+    fluxREST( 1e0, 1e-12);
+    fluxREST( 1e1, 1e-11);
+    fluxREST( 1e1, 1e-12);
+    fluxREST( 1e2, 1e-11);
+    fluxREST( 1e2, 1e-12);
+    fluxREST( 1e3, 1e-11);
+    fluxREST( 1e3, 1e-12);
+*/
+
 	return(0);
 
 }
