@@ -227,7 +227,7 @@ void writeREST( string name, vector<double> data, int line ){	// data vector nee
 	// newline at end of w range
 	fout << endl;
 
-	if( line == 0 ){ cout << "file " << name << " created...\n\n" << endl; }
+	if( line == 0 ){ cout << "\nfile " << name << " created..." << endl; }
 	
 	fout.close();
 }
@@ -1216,8 +1216,6 @@ double trapezeREST2( double w, vector<double> n, vector<double> T, vector<double
 			if( (z1[i][0] * T[c]) < w and (z1[i+1][0] * T[c]) > w ) { indexX1 = i; }
 			if( (z2[i][0] * T[c]) < w and (z2[i+1][0] * T[c]) > w ) { indexX2 = i; }
 		}
-
-		cout << c << endl;
 		
 		double g1 = z1[ indexT1 ][ indexX1 ];
 		double g2 = z2[ indexT2 ][ indexX2 ];
@@ -1348,7 +1346,7 @@ void fluxREST( int select ) {
 	string name = "data/flux_" + to_string(select) + ".dat";
 
 	for ( double rlow = 0; rlow < 0.99*rSolar; rlow += 0.01*rSolar ) {
-		for ( double wlow = 0; wlow < 19.9e3; wlow += 100 ) {
+		for ( double wlow = 1; wlow < 20e3; wlow += 100 ) {
 	
 			double avg = integrateREST2(n, T, wp, r, nH,
 						 nHe4, nHe3, z1, z2, wlow, rlow, select ) / 0.1;	// eV3 keV-1
@@ -1364,9 +1362,11 @@ void fluxREST( int select ) {
 		// note here:	\033[A moves up a line
 		// 				\33[2K deletes line
 		// 				\r goes to start of line
-		cout << "\033[A\33[2K\r" << line << "\% complete..." << endl;
+		//cout << "\033[A\33[2K\r" << line << "\% complete..." << endl;
+		cout << "\33[2K\r" << line << "\% complete..." << endl;
+
 	}
-	cout << "creation of file " << name << " completed!" << endl;
+	cout << "	creation of file " << name << " completed!" << endl;
 }
 
 
@@ -1592,6 +1592,13 @@ void Bfields() {
 	write2D( name , E, B );
 	write2D( nameR , R, B );
 
+}
+
+// calculate photon mfp from gamma
+void mfp(){
+
+	double w = 1e3;	// set at 1keV for now
+	G = Gamma( w, number, T, nH, nHe4, nHe3, g1, g2 )
 }
 
 
