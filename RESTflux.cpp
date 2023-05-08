@@ -10,6 +10,16 @@ using namespace std;
 
 int main(){
 
+    // 0: suppressed, 1: resonant, 2: unsuppressed
+    thread t0( fluxREST, 0 );
+    //thread t1( fluxREST, 1 );
+    //thread t2( fluxREST, 2 );
+
+    t0.join();
+   // t1.join();
+  //  t2.join();
+
+    /*
     // m [eV] and chi as args
     thread t1(fluxREST, 1e-3, 1e-11 );
     thread t2(fluxREST, 1e-2, 1e-11 );
@@ -27,7 +37,7 @@ int main(){
     t6.join();
     t7.join();
 	
-    /*
+    
     fluxREST( 1e-3, 1e-11);
     fluxREST( 1e-3, 1e-12);
     fluxREST( 1e-2, 1e-11);

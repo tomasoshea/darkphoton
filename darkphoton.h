@@ -1115,6 +1115,27 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+// suppressed section (approx m << wp, m << w) (missing chi2 m4)
+double supREST( double w, double n, double T, double wp, double r, double nH, double nHe4, double nHe3, double g1, double g2 ) {
+
+	double G = Gamma(w, n, T, nH, nHe4, nHe3, g1, g2);
+	return pow(r*w/(pi*R*wp*wp), 2) * G / ( exp(w/T) - 1 );
+}
+
+// resonant section (approx m ~ wp, m << w) (missing chi2 m4)
+double resREST( double w, double n, double T, double wp, double r, double nH, double nHe4, double nHe3, double g1, double g2 ) {
+
+	double G = Gamma(w, n, T, nH, nHe4, nHe3, g1, g2);
+	return pow(r/(pi*R), 2) / G / ( exp(w/T) - 1 );
+}
+
+// unsuppresed section (approx m >> wp, m << w) (missing chi2)
+double unsupREST( double w, double n, double T, double wp, double r, double nH, double nHe4, double nHe3, double g1, double g2 ) {
+
+	double G = Gamma(w, n, T, nH, nHe4, nHe3, g1, g2);
+	return pow(r*w/(pi*R), 2) * G / ( exp(w/T) - 1 );
+}
+
 // integral over r
 double trapezeREST( double w, double m, vector<double> n, vector<double> T, vector<double> wp,
 	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
@@ -1164,6 +1185,80 @@ double trapezeREST( double w, double m, vector<double> n, vector<double> T, vect
 		
 }
 
+// integral over r
+double trapezeREST2( double w, vector<double> n, vector<double> T, vector<double> wp,
+	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
+	  vector<vector<double>> z1, vector<vector<double>> z2, double low, int select ) {
+
+	int len = r.size();	// get length of vector
+
+	double total = 0;	// initiate value of sum at 0
+	double high = low + 0.01*rSolar;
+	
+	// perform integration by looping over r values
+	for ( int c = 0; c < len - 1; c++ ) {
+
+		if ( r[c] < low ) { continue; }
+		else if ( r[c] > high ) { continue; }
+
+		// select g(w, T) value from matrix
+		int indexT1;
+		int indexT2;
+		int indexX1;
+		int indexX2;
+		
+		for( int i = 1; i < 200; i++ ) {
+			if( z1[0][i] < T[c] and z1[0][i+1] > T[c] ) { indexT1 = i; }
+			if( z2[0][i] < T[c] and z2[0][i+1] > T[c] ) { indexT2 = i; }
+		}
+		
+		for( int i = 1; i < 500; i++ ) {
+			if( (z1[i][0] * T[c]) < w and (z1[i+1][0] * T[c]) > w ) { indexX1 = i; }
+			if( (z2[i][0] * T[c]) < w and (z2[i+1][0] * T[c]) > w ) { indexX2 = i; }
+		}
+
+		cout << c << endl;
+		
+		double g1 = z1[ indexT1 ][ indexX1 ];
+		double g2 = z2[ indexT2 ][ indexX2 ];
+
+		double dr = r[c+1] - r[c];	// define trapezium spacing
+
+		// choose version
+		if( select == 0 ) {
+		double height = 0.5 * ( supREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
+			+ supREST(w, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
+		double dA = abs(dr * height);		
+		// only add if real
+		if ( isnan(dA) ) { continue; }
+		else { total += dA; }
+		}
+
+		else if( select == 1 ) {
+		double height = 0.5 * ( resREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
+			+ resREST(w, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
+		double dA = abs(dr * height);		
+		// only add if real
+		if ( isnan(dA) ) { continue; }
+		else { total += dA; }
+		}
+
+		else if( select == 2 ) {
+		double height = 0.5 * ( unsupREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
+			+ unsupREST(w, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
+		double dA = abs(dr * height);		
+		// only add if real
+		if ( isnan(dA) ) { continue; }
+		else { total += dA; }
+		}
+
+		else { cout << "error: select 0, 1 or 2..." << endl; }
+
+	}
+		
+	return total;
+		
+}
 
 // full integration over omega
 double integrateREST( double m, vector<double> n, vector<double> T, vector<double> wp,
@@ -1195,13 +1290,33 @@ double integrateREST( double m, vector<double> n, vector<double> T, vector<doubl
 	return total;
 }
 
+// full integration over omega
+double integrateREST2( vector<double> n, vector<double> T, vector<double> wp,
+	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
+	  vector<vector<double>> z1, vector<vector<double>> z2, double wlow, double rlow, int select ) {
+	
+	double total = 0;	// initiate value of sum at 0
 
-// suppressed section (approx m << wp, m << w )
-double supREST( )
+	// integrate by trapezium rule over w array
+	//double dw = 1e2;
+	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
+	double whigh = wlow + 100;	// eV
+	double dw = 1e0;
+	for ( double w = wlow; w < whigh - dw; w+=dw ) {
+			double height = 0.5 * ( trapezeREST2( w+dw, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow, select ) 
+				+  trapezeREST2( w, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow, select ) );
+			double dA = abs(dw * height);
+
+			// only add if real
+			if ( isnan(dA) ) { continue; }
+			else { total += dA; }
+	}
+	return total;
+}
 
 
 // m in eV
-void fluxREST( double m, double chi ) {
+void fluxREST( int select ) {
 
 	int line = 0;	// for REST writeout
 
@@ -1228,15 +1343,15 @@ void fluxREST( double m, double chi ) {
 
 	// initialise vector etc
 	vector<double> flux;
-	int intm = (int)log10(m);
-	int intchi = (int)log10(chi);
-	string name = "data/flux_m" + to_string(intm) + "_X" + to_string(intchi) + ".dat";
+//	int intm = (int)log10(m);
+//	int intchi = (int)log10(chi);
+	string name = "data/flux_" + to_string(select) + ".dat";
 
 	for ( double rlow = 0; rlow < 0.99*rSolar; rlow += 0.01*rSolar ) {
 		for ( double wlow = 0; wlow < 19.9e3; wlow += 100 ) {
 	
-			double avg = pow(chi,2) * integrateREST( m, n, T, wp, r, nH,
-						 nHe4, nHe3, z1, z2, wlow, rlow ) / 0.1;	// eV3 keV-1
+			double avg = integrateREST2(n, T, wp, r, nH,
+						 nHe4, nHe3, z1, z2, wlow, rlow, select ) / 0.1;	// eV3 keV-1
 			
 			// convert eV2 to cm-2 s-1 keV-1
 			avg *= pow( m2eV, -2 ) * 1e-4 / s2eV;
