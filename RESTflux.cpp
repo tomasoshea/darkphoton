@@ -11,13 +11,13 @@ using namespace std;
 int main(){
 
     // 0: suppressed, 1: resonant, 2: unsuppressed
-    thread t0( fluxREST, 0 );
+    //thread t0( fluxREST, 0 );
     thread t1( fluxREST, 1 );
-    thread t2( fluxREST, 2 );
+    //thread t2( fluxREST, 2 );
 
-    t0.join();
+    //t0.join();
     t1.join();
-    t2.join();
+    //t2.join();
 
     /*
     // m [eV] and chi as args

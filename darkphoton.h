@@ -540,7 +540,7 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	//double dw = 100;
 	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e0;
+	double dw = 1e-1;
 	for ( double w = 30; w < 1e2 - dw; w+=dw ) {
 	
 		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
@@ -583,7 +583,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 	
 	// suppressed section
 	for ( double m = 1e-4; m < min; m*=2 ) {
-m=1;
+
 		// check if interrupt
 		if( savenquit ){
 		// write out
@@ -604,6 +604,7 @@ m=1;
 		}
 	}
 	
+
 	// resonant sector
 	int len = wp.size();
 	for ( int i = 0; i < len; i = i+5 ) {
@@ -628,8 +629,6 @@ m=1;
 		massIAXO.push_back( m );
 		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) <<endl;
 		cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
-
-
 	}
 
 		// unsuppressed section
@@ -678,7 +677,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	double min = *min_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-3; m < min; m*=2 ) {
+	for ( double m = 1e-3; m < min; m*=1.01 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -699,15 +698,15 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	
 	// resonant sector
 	int len = wp.size();
-	for ( int i = 0; i < len; i=i+5 ) {
+	for ( int i = 0; i < len; i++ ) {
 
 		// check if interrupt
 		if( savenquit ){
 		// write out
 			write2D( path + name + "-INT" + ext, massIAXO, chiIAXO );
 			// wait for other processes to save too
-			cout << "waiting 10s to let other threads finish" << endl;
-			sleep(10);
+			cout << "waiting 2s to let other threads finish" << endl;
+			sleep(2);
 			exit(SIGINT);
 		}
 	
@@ -1233,12 +1232,8 @@ double trapezeREST2( double w, vector<double> n, vector<double> T, vector<double
 		}
 
 		else if( select == 1 ) {
-		double height = 0.5 * ( resREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
-			+ resREST(w, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
-		double dA = abs(dr * height);		
-		// only add if real
-		if ( isnan(dA) ) { continue; }
-		else { total += dA; }
+		total = 0.01 * rSolar * resREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2);
+		break;
 		}
 
 		else if( select == 2 ) {
@@ -1358,12 +1353,11 @@ void fluxREST( int select ) {
 		writeREST( name, flux, line );
 		line++;
 		flux.clear();
-		//int percent = (100 * rlow / rSolar );
 		// note here:	\033[A moves up a line
 		// 				\33[2K deletes line
 		// 				\r goes to start of line
-		//cout << "\033[A\33[2K\r" << line << "\% complete..." << endl;
-		cout << "\33[2K\r" << line << "\% complete..." << endl;
+		cout << "\033[A\33[2K\r" << line << "\% complete..." << endl;
+		//cout << "\33[2K\r" << line << "\% complete...";
 
 	}
 	cout << "	creation of file " << name << " completed!" << endl;
@@ -1597,8 +1591,56 @@ void Bfields() {
 // calculate photon mfp from gamma
 void mfp(){
 
-	double w = 1e3;	// set at 1keV for now
-	G = Gamma( w, number, T, nH, nHe4, nHe3, g1, g2 )
+	vector<double> r = read("data/rFrac.dat");	// sun radial distance [eV-1]
+	vector<double> T = read("data/T.dat");	// solar temperature [eV]
+	vector<double> ne = read("data/ne.dat");	// electron number density [eV3]
+	vector<double> nH = read("data/nH.dat");	// H ion density [eV3]
+	vector<double> nHe4 = read("data/nHe4.dat");	// He4 ion density [eV3]
+	vector<double> nHe3 = read("data/nHe3.dat");	// He3 ion density [eV3]
+	
+	// get gaunt factors
+	vector<vector<double>> z1 = readGaunt("data/Z1.dat");	// gaunt factors for Z=1
+	vector<vector<double>> z2 = readGaunt("data/Z2.dat");	// gaunt factors for Z=2
+
+	// convert Gaunt factor Theta to T in eV
+	for( int i = 1; i < 201; i++ ) { z1[0][i] = z1[0][i] * m_e; }
+	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
+	
+	// initialise mfp vector
+	vector<double> mfp;
+	double w = 1e1;	// set at 1keV for now
+	
+	int len = r.size();
+	
+	// get phi values for each w = wp for resonance
+	for ( int j = 0; j < len; j++ ) {
+		
+		// select g(w, T) value from matrix
+		int indexT1;
+		int indexT2;
+		int indexX1;
+		int indexX2;
+		
+		for( int i = 1; i < 200; i++ ) {
+			if( z1[0][i] < T[j] and z1[0][i+1] > T[j] ) { indexT1 = i; }
+			if( z2[0][i] < T[j] and z2[0][i+1] > T[j] ) { indexT2 = i; }
+		}
+		
+		for( int i = 1; i < 500; i++ ) {
+			if( (z1[i][0] * T[j]) < w and (z1[i+1][0] * T[j]) > w ) { indexX1 = i; }
+			if( (z2[i][0] * T[j]) < w and (z2[i+1][0] * T[j]) > w ) { indexX2 = i; }
+		}
+		
+		double g1 = z1[ indexT1 ][ indexX1 ];
+		double g2 = z2[ indexT2 ][ indexX2 ];
+
+		double G = Gamma( w, ne[j], T[j], nH[j], nHe4[j], nHe3[j], g1, g2 );	// eV
+		mfp.push_back( m2eV * 1e2 / G );	// cm
+	}
+
+	// write out
+	string name = "data/mfp.dat";
+	write2D( name, r, mfp );
 }
 
 

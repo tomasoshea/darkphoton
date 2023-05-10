@@ -14,23 +14,23 @@ from matplotlib import pyplot as plt
 CL = 0.95
 
 # increment
-dN = 1e-2
+dN = 1
 
 # limit on number of iterations
 limit = int(1e6)
 
 # detection time in days
-days = 1.5 * 365
+days = 120
 
 # E range
-dE = 1e4	# in keV
+dE = 0.1	# in keV
 
 # select detector
-detector = 1	# 0-baby 1-baseline 2-upgraded,	-1 for CAST
+detector = 0	# 0-baby 1-baseline 2-upgraded,	-1 for CAST
 
 # homemade gamma CDF
-def pdf(x, a):
-	return x**(a-1) * exp(-x) / G(a)
+def pdf(n, mu):
+	return mu**(n) * exp(-mu) / G(n+1)
 
 def CDF(b):
 	# integrate until CDF = CL
@@ -126,14 +126,19 @@ if detector != -1:
 	print("Detector: {}\nExpected background count: {}".format(name, Nbg))
 
 	# use gamma function
-	Nd, prob = survivalGamma(Nbg)
+	#Nd, prob = survivalGamma(Nbg)
 	#Nd, prob2 = cdfGamma(Nbg)
 	#Nd, prob2 = CDF(Nbg)
 	#prob = 1 - prob2
-	print("\n		N = {}\n		CL = {}".format(Nd, 1 - prob))
+	#print("\n		N = {}\n		CL = {}".format(Nd, 1 - prob))
+	rng = random.default_rng()
+	dist = rng.poisson(0.1)
+	print(dist)
+
+
 
 	# calculate equivalent phi
-	phiLimit = Nd / ( A * effO * effD * effT * t )
+	#phiLimit = Nd / ( A * effO * effD * effT * t )
 
 # CAST option
 elif detector == -1:
@@ -152,5 +157,5 @@ elif detector == -1:
 
 
 
-print("\nBackground phi:	{} m-2 s-1".format(phiBg))
-print("{}% CL phi:	{} m-2 s-1".format(round((1 - prob)*1e2), phiLimit))
+#print("\nBackground phi:	{} m-2 s-1".format(phiBg))
+#print("{}% CL phi:	{} m-2 s-1".format(round((1 - prob)*1e2), phiLimit))

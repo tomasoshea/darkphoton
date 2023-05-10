@@ -50,40 +50,39 @@ int main( int argc, char** argv ) {
 	
 	double Lraw = 10;	// m
 	string nameBaby = "babyIAXO-tPlasmon" + suffix;
-//	double phiRaw = 1.04e-4;	// m-2 s-1 (1 day)
-	double phiRaw = 5.57e-5;	// m-2 s-1 (4 days)
+	double phiRaw = 7.35e-5;	// 5 days [m-2 s-1]
 
 	// convert raw values to eV
 	double phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
 	double L = Lraw / m2eV;	// in eV^-1
 	
 	// multithread to run simultaneously
-	thread t2( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi*factor, nameBaby );	
+	thread t2( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi, nameBaby );	
 
 	
 	//IAXO baseline
 	Lraw = 20;	// m
 	string nameBaseline = "baselineIAXO-tPlasmon" + suffix;
-	phiRaw = 3.24e-6;	// m-2 s-1 (4 days)
+	phiRaw = 1.08e-5;	// 5 days [m-2 s-1]
 
 	// convert raw values to eV
 	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
 	L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t4( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi*factor, nameBaseline );
+	thread t4( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi, nameBaseline );
 
 	/// IAXO upgraded
 	Lraw = 22;	// m
 	string nameUpgraded = "upgradedIAXO-tPlasmon" + suffix;
-	phiRaw = 2.409e-08;	// m-2 s-1 (4 days)
+	phiRaw = 6.35e-6;	// 5 days [m-2 s-1]
 
 	// convert raw values to eV
 	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
 	L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t6( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi*factor, nameUpgraded );
+	thread t6( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi, nameUpgraded );
 
 
 	// wait until all threads are finished
