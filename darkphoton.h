@@ -505,19 +505,18 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 	// integrate by trapezium rule over w array
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e0;
-	for ( double w = 1e3; w < 1e5 - dw; w+=dw ) {
+	double dw = 1e1;
+	for ( double w = 1e2; w < 1e4 - dw; w+=dw ) {
 	
-		if ( w > m + 1000 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
 		else {
 
-			//double height = 0.5 * ( ( P( w+dw, m, L ) * trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
-			//	+ ( P( w, m, L ) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
-			double height = 0.5 * ( ( trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
-				+ ( trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
+			double height = 0.5 * ( ( P( w+dw, m, L ) * trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
+				+ ( P( w, m, L ) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
+			//double height = 0.5 * ( ( trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
+			//	+ ( trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
 			double dA = abs(dw * height);
 			
 			// only add if real
@@ -540,7 +539,7 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	//double dw = 100;
 	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e-1;
+	double dw = 1e0;
 	for ( double w = 30; w < 1e2 - dw; w+=dw ) {
 	
 		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
@@ -582,7 +581,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 	double max = *max_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-4; m < min; m*=2 ) {
+	for ( double m = 1e-4; m < min; m*=1.1 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -600,14 +599,14 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
 		massIAXO.push_back( m );
 		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
-		cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
+		//cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
 		}
 	}
 	
 
 	// resonant sector
 	int len = wp.size();
-	for ( int i = 0; i < len; i = i+5 ) {
+	for ( int i = 0; i < len; i = i+2 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -628,11 +627,11 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
 		massIAXO.push_back( m );
 		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) <<endl;
-		cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
+		//cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
 	}
 
 		// unsuppressed section
-	for ( double m = max; m < 1e5; m*=1.01 ) {
+	for ( double m = max; m < 1e4; m*=1.1 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -677,7 +676,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	double min = *min_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-3; m < min; m*=1.01 ) {
+	for ( double m = 1e-3; m < min; m*=1.1 ) {
 
 		// check if interrupt
 		if( savenquit ){

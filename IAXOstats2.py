@@ -1,21 +1,42 @@
 # Tom O'Shea 2022
 
 # script to find the upper limit on phi for a given number of observed events
-# using a poisson distribution at CL = 95%, for use in IAXO dark photon analysis
+# using a poisson distribution, for use in IAXO dark photon analysis
 
 from numpy import *
+from scipy.special import factorial
+
+# confidence level
+CL = 0.95
 
 # detection time in days
 days = 5
 
 # E range
-dE = 0.07	# in keV
+dE = 10	# in keV
 
 # size of sample
 size = int(1e3)
 
 # select detector
 detector = 2	# 0-baby 1-baseline 2-upgraded,	-1 for CAST
+
+# find mu for given N in poissonian
+def poiss( N, m ):
+	return m**(N) * exp(-m) / factorial(N)
+
+def get_mu( N ):
+	p = 1
+	m = N
+	dm = 1e-3
+	dp = 1e-3
+	while (p - (1-CL)) > dp:
+		p = poiss( N, m )
+		m += dm
+		#print(p)
+	return m
+
+#print(get_mu(20))
 
 if detector != -1:
 
@@ -67,11 +88,7 @@ if detector != -1:
 	# calculate weighted average from distro
 	total = 0
 	for i in dist:
-		if i==0: total+=2.99573
-		elif i==1: total+=4.49976
-		elif i==2: total+=5.8279
-		elif i==3: total+=7.0727
-		else: print("get N=4 value!!")
+		total += get_mu(i)
 	Nd = total / size
 	
 	# calculate equivalent phi

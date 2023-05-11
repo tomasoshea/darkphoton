@@ -53,7 +53,7 @@ int main( int argc, char** argv ) {
 	string nameBaby = "babyIAXO-tPlasmon" + suffix;
 //	double phiRaw = 6.72e-7;	// m-2 s-1 (95% CL)
 //	double phiBaby = 1.03e-6;	// m-2 s-1 (99% CL)
-	double phiRaw = 1.6920e-05;	// m-2 s-1 (pure background)
+	double phiRaw = 3.921045184367817e-06;	// m-2 s-1 (pure background)
 
 	// convert raw values to eV
 	double phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
@@ -68,7 +68,9 @@ int main( int argc, char** argv ) {
 	string nameBaseline = "baselineIAXO-tPlasmon" + suffix;
 //	phiRaw = 4.92e-8;	// m-2 s-1 (95% CL)
 //	double phiBaseline = 7.55e-8;	// m-2 s-1 (99% CL)	
-	phiRaw = 5.6646e-07;	// m-2 s-1 (pure background)
+	//phiRaw = 5.6646e-07;	// m-2 s-1 (pure background)
+	phiRaw = 1.6610628284374218e-07;	// m-2 s-1 (95%)
+
 
 	// convert raw values to eV
 	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
@@ -80,9 +82,8 @@ int main( int argc, char** argv ) {
 	/// IAXO upgraded
 	Lraw = 22;	// m
 	string nameUpgraded = "upgradedIAXO-tPlasmon" + suffix;
-//	phiRaw = 1.74e-8;	// m-2 s-1 (95% CL)
-//	double phiUpgraded = 2.67e-8;	// m-2 s-1 (99% CL)
-	phiRaw = 3.47253e-08;	// m-2 s-1 (pure background)
+	//phiRaw = 3.47253e-08;	// m-2 s-1 (pure background)
+	phiRaw = 2.562332441981082e-08;	// m-2 s-1 (95%)
 
 	// convert raw values to eV
 	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV

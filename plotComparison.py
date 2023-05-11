@@ -25,17 +25,17 @@ ax2.plot(dat[:,0],dat[:,1], color='black', label='T-plasmon')
 dat = loadtxt("data/limits/babyIAXO-tPlasmon-clean-gas.dat")
 ax2.plot(dat[:,0],dat[:,1], color='green', label='T-plasmon (gas)')
 
-# tPlasmon gas newE
-#dat = loadtxt("data/limits/babyIAXO-tPlasmon-newE-gas.dat")
-#ax2.plot(dat[:,0],dat[:,1], color='green', ls=':', label='T-plasmon (gas)')
+# tPlasmon gas new phi
+dat = loadtxt("data/limits/babyIAXO-tPlasmon-newphi-gas.dat")
+ax2.plot(dat[:,0],dat[:,1], color='green', ls=':', label='T-plasmon (gas)')
 
-# tPlasmon gas newE newP
-#dat = loadtxt("data/limits/babyIAXO-tPlasmon-newP-gas.dat")
-#ax2.plot(dat[:,0],dat[:,1], color='green',  label='T-plasmon (gas)')
+# tPlasmon gas newE
+dat = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-gas.dat")
+ax2.plot(dat[:,0],dat[:,1], color='green',  label='T-plasmon (gas)')
 
 # L-plasmon
-dat = loadtxt("data/limits/babyIAXO-clean-lMixingRes.dat")
-ax2.plot(dat[:,0], dat[:,1], color='red', label='L-plasmon mixing')
+#dat = loadtxt("data/limits/babyIAXO-clean-lMixingRes.dat")
+#ax2.plot(dat[:,0], dat[:,1], color='red', label='L-plasmon mixing')
 
 # L-plasmon newE
 #dat = loadtxt("data/limits/babyIAXO-newE-lMixingRes.dat")
@@ -54,8 +54,8 @@ ax2.plot(dat[:,0], dat[:,1], color='magenta', label='L-plasmon mixing (gas)')
 #ax2.plot(dat[:,0], dat[:,1], color='magenta',  label='L-plasmon mixing (gas)')
 
 # pure L contribution
-dat = loadtxt("data/limits/babyIAXO-conversion-pureL.dat")
-ax2.plot(dat[:,0], dat[:,1], color='cyan', label='IAXO B-field conversion')
+#dat = loadtxt("data/limits/babyIAXO-conversion-pureL.dat")
+#ax2.plot(dat[:,0], dat[:,1], color='cyan', label='IAXO B-field conversion')
 
 # axes
 ax2.set_xlabel("Dark photon mass [eV]")
@@ -64,5 +64,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/comparison-conversion5.jpg')
+plt.savefig('plots/comparison-t1.jpg')
 plt.show()
