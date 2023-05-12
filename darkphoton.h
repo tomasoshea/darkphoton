@@ -564,7 +564,7 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 // void functions for splitting jobs
 void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L,
-		vector<vector<double>> z1, vector<vector<double>> z2, double phi, string name ) {
+		vector<vector<double>> z1, vector<vector<double>> z2, string name ) {
 	
 	// implement new interrupt with save
 	//signal( SIGINT, interrupt );
@@ -594,11 +594,10 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		}
 
 		else{
-		double entryIAXO = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
-		double chi4IAXO = phi / entryIAXO;
-		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
+		double phi = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		chiIAXO.push_back( phi );
 		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
+		cout << name << ":	m = " << m << "	phi X-2 = " << phi << endl;
 		//cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
 		}
 	}
@@ -622,11 +621,10 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		double m = wp[j];
 		//if( m > 1 ){ break; }
 		
-		double entryIAXO = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
-		double chi4IAXO = phi / entryIAXO;
-		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
+		double phi = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		chiIAXO.push_back( phi );
 		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) <<endl;
+		cout << name << ":	m = " << m << "	phi X-2 = " << phi <<endl;
 		//cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
 	}
 
@@ -644,11 +642,10 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		}
 
 		else{
-		double entryIAXO = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
-		double chi4IAXO = phi / entryIAXO;
-		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
+		double phi = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		chiIAXO.push_back( phi );
 		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
+		cout << name << ":	m = " << m << "	phi X-2 = " << phi << endl;
 		}
 	}
 
@@ -660,7 +657,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 
 void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 		vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L,
-		vector<vector<double>> z1, vector<vector<double>> z2, double phi, string name ) {
+		vector<vector<double>> z1, vector<vector<double>> z2, string name ) {
 	
 	// implement new interrupt with save
 	//signal( SIGINT, interrupt );
@@ -688,11 +685,10 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 			exit(SIGINT);
 		}
 
-		double entryIAXO = integrateGas( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
-		double chi4IAXO = phi / entryIAXO;
-		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
+		double phi = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		chiIAXO.push_back( phi );
 		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) <<endl;
+		cout << name << ":	m = " << m << "	phi X-2 = " << phi <<endl;
 	}
 	
 	// resonant sector
@@ -712,12 +708,11 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 		int j = len - i - 1;
 		double m = wp[j];
 		if( m > 5 ){ break; }
-		
-		double entryIAXO = integrateGas( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
-		double chi4IAXO = phi / entryIAXO;
-		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
+
+		double phi = integrateGas( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		chiIAXO.push_back( phi );
 		massIAXO.push_back( m );
-		cout<< name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) <<endl;
+		cout<< name << ":	m = " << m << "	phi X-2 = " << phi <<endl;
 	}
 
 		// write out

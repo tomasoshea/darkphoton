@@ -1,9 +1,9 @@
-// Tom O'Shea 2022
+// Tom O'Shea 2023
 
 // script to generate a function of dark photon mixing parameter against dark photon mass
 // to give a theoretical upper limit on these parameters that IAXO could achieve
 
-// t-plasmon integral for IAXO gas run 
+// t-plasmon integral for IAXO gas run
 
 #include "darkphoton.h"	// home of the real code
 #include <thread>
@@ -60,7 +60,7 @@ int main( int argc, char** argv ) {
 	double L = Lraw / m2eV;	// in eV^-1
 	
 	// multithread to run simultaneously
-	thread t2( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi, nameBaby );	
+	thread t2( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, nameBaby );	
 
 	
 	//IAXO baseline
@@ -75,7 +75,7 @@ int main( int argc, char** argv ) {
 	L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t4( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi, nameBaseline );
+	thread t4( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, nameBaseline );
 
 	/// IAXO upgraded
 	Lraw = 22;	// m
@@ -91,7 +91,7 @@ int main( int argc, char** argv ) {
 	L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t6( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, phi, nameUpgraded );
+	thread t6( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, nameUpgraded );
 
 
 	// wait until all threads are finished
