@@ -196,7 +196,6 @@ void write2D( string name, vector<double> data1, vector<double> data2) {
 	else { cout << "ERROR - ensure vectors are of equal length" << endl; }
 	
 	fout.close();
-	
 }
 
 // 2D writeout for REST flux

@@ -1,4 +1,4 @@
-# Tom O'Shea 2022
+# Tom O'Shea 2023
 
 # script to find the upper limit on phi for a given number of observed events
 # using a poisson distribution, for use in IAXO dark photon analysis

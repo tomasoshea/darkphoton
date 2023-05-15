@@ -29,9 +29,13 @@ ax2.plot(dat[:,0],dat[:,1], color='green', label='T-plasmon (gas)')
 dat = loadtxt("data/limits/babyIAXO-tPlasmon-newphi-gas.dat")
 ax2.plot(dat[:,0],dat[:,1], color='green', ls=':', label='T-plasmon (gas)')
 
+# tPlasmon new 95%
+dat = loadtxt("data/stats-babyIAXO.dat")
+ax2.plot(dat[:,0],dat[:,1], color='red', label='T-plasmon (gas) CL95')
+
 # tPlasmon gas newE
-dat = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-gas.dat")
-ax2.plot(dat[:,0],dat[:,1], color='green',  label='T-plasmon (gas)')
+#dat = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-gas.dat")
+#ax2.plot(dat[:,0],dat[:,1], color='green',  label='T-plasmon (gas)')
 
 # L-plasmon
 #dat = loadtxt("data/limits/babyIAXO-clean-lMixingRes.dat")
@@ -64,5 +68,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/comparison-t1.jpg')
+plt.savefig('plots/comparison-cl95.jpg')
 plt.show()
