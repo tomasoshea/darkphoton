@@ -8,9 +8,9 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 5;	// detection time
+double days = 500;	// detection time
 double dE = 0.07;	// E range [keV]
-int samplesize = 1e3;		// size of random sample
+int samplesize = 1e4;		// size of random sample
 
 
 // read 2nd column from 2 column datafile
@@ -24,19 +24,21 @@ vector<double> loadtxt( string name, int col ) {
 	
 	char delim('	');	// define delimiter for file parsing (tab)
 	
-	if (file.is_open()){   // checking whether the file is open
+	if ( file.is_open() ){   // checking whether the file is open
 		string temp;	// define temporary storage string
 		vector<double> row1, row2;	// define vector to store input values and return
+		vector<string> v;
 		
-		int c = 0;	// use to separate columns
-		
-		while(getline(file, temp, delim)){  // put separated data into temp
-			double rem = remainder(c,2);	// select which vector
-			double item = stod(temp);	// convert string to double
-			// divide columns
-			if( rem == 0 ) { row1.push_back(item); }
-			else { row2.push_back(item); }
-			c++;
+		while( getline(file, temp) ){ v.push_back( temp ); }
+
+		for ( string i : v ) {
+
+			stringstream X(i);
+			string temp;
+			vector<string> vec;
+			while ( getline(X, temp, delim ) ) { vec.push_back(temp); }
+			row1.push_back( stod(vec[0]) );
+			row2.push_back( stod(vec[1]) );
 		}
 		
 	file.close();   // close the file object.
@@ -48,6 +50,7 @@ vector<double> loadtxt( string name, int col ) {
 	}
 	else{ cout << "file " << name << " doesn't exist" << endl; return {69.}; }
 }
+
 
 // write out 2 column datafile
 void write2D( string name, vector<double> data1, vector<double> data2) {
@@ -83,6 +86,7 @@ void write2D( string name, vector<double> data1, vector<double> data2) {
 	fout.close();
 }
 
+
 // factorial
 int factorial( int N ) {
 
@@ -90,69 +94,70 @@ int factorial( int N ) {
 	for ( int c = 1; c <= N; c++ ) { total *= c; }
 	return total;
 }
-		
-
-// poisson distro
-double poisson( int N, double m ){
-	return pow(m,N) * exp(-m) / factorial(N);
-}
-
-
-// find mu for given N in poissonian
-double get_mu( int N ){
-	double p = 0.9;
-	double m = N;
-	double dm = 1e-3;
-	double dp = 1e-3;
-	while( (p - (1-CL)) > dp) {
-		p = poisson( N, m );
-		m += dm;
-	}
-	return m;
-}
 
 
 // function to minimise
-double f( double x, double b, double s, int n ){
+long double f( long double x, long double b, long double s, int n ){
 
-	double mu = b + ( pow(x,4) * s );
-	if( n == 0 ) { return mu; }
-	else { return mu - ( n * ( log(mu) + 1 - log(n) ) ); }
+	long double mu = b + ( pow(x,4) * s );
+	return ( 0 - mu + ( n * ( log(mu) + 1 - log(n) ) ) );
 }
 
 
 // minimisation fn
 double min( double b, double s, int n ){
 
-	double x = 1e-1;	// starting chi
-	int lim = 1e6;		// no. iterations cutoff
+	long double x = 1.;	// starting chi
+	int lim = 1e3;		// no. iterations cutoff
 	bool done = false;	// completion marker
-	double save = 0;	// save final result here
 	int c = 0;	// for cutoff
 
 	while( true ) {
 
-		double val = f( x, b, s, n );
-		double val2 = f( x/2, b, s, n );
-		if( val2 < val ) { x /= 2; }
+		long double plus = f( x, b, s, n );
+		long double minus = f( x/2, b, s, n );
+		//cout << plus << endl;
+		if( minus < plus ) { x /= 2; }
 		else{ break; }
 	}
 	
-	double dx = x/1000;
+	long double dx = x/100;
 	while( true ) {
-		
-		c++;
-		double minus = f( x-dx, b, s, n );
-		double plus = f( x+dx, b, s, n );
+
+		long double minus = f( x-dx, b, s, n );
+		long double plus = f( x+dx, b, s, n );
 		if( minus < plus ) { x -= dx; }
 		else if( plus < minus ) { x += dx; }
 		else { break; }
-		
+		c++;
 		if ( c > lim ) { break; }
 	}
 	//cout << x << endl;
 	return x;
 }
+
+double L( double x, double b, double s, double n ) {
+	double mu = b + ( pow(x,4) * s );
+	return exp(n - mu) * pow(mu/n, n);
+}
+
+// integral for getting CL
+double integral( double b, double s, double n ) {
+
+	double x = 1e-20;
+	double mx = 1.01;
+	//double total = 0.5 * x * ( exp( - f( x, b, s, n ) ) + exp( - f( 0, b, s, n ) ) );
+	double total = 0.5 * x * ( L( x, b, s, n ) + L( 0, b, s, n ) );
+
+	// integrate
+	while ( total < CL ) {
+		double dx = x * (mx - 1);
+		total += 0.5 * dx * ( L( x, b, s, n ) + L( x*mx, b, s, n ) );
+		x *= mx;
+	}
+	return x;
+}
+
 
 void chis( int detector ) {
 
@@ -228,19 +233,19 @@ void chis( int detector ) {
 		
 		// get sample of random N from poisson
 		for ( int i = 0; i < samplesize; i++ ) {
-			int n = distro(generator);	// get random n from poisson
-			//cout << n << endl;
-			//if ( n != 0 ) { cout << n << endl; }
-			total += min( Nbg, Nsig, n );
+			double n = distro(generator);	// get random n from poisson
+			if ( n == 0 ) { continue; }
+			//else { total += min( Nbg, Nsig, n ); }
+			else { total += integral( Nbg, Nsig, n ); }
 		}
 			
 		chi.push_back( total / samplesize );
-		//cout << c+1 << " out of " << len << ":	" << total / sample << endl;
+		cout << c+1 << " out of " << len << ":	" << total / samplesize << endl;
 	}
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/stats-" + name + ".dat";
+	string savename = "data/limits/stats-" + name + "2.dat";
 	write2D( savename, m, chi );
 }
 
@@ -249,14 +254,14 @@ void chis( int detector ) {
 int main(){
 	
 	// thread all 3 at same time
-	thread t1(chis, 0); usleep(1);	// baby
-	thread t2(chis, 1); usleep(1);	// baseline
-	thread t3(chis, 2); usleep(1);	// upgraded
+	thread t1(chis, 0); usleep(100);	// baby
+	thread t2(chis, 1); usleep(100);	// baseline
+	thread t3(chis, 2); usleep(100);	// upgraded
 	
 	t1.join();
 	t2.join();
 	t3.join();
 	
-	cout << "\n¡¡Complete!!" << endl;
+	cout << "\n¡¡complete!!" << endl;
 	return 0;
 }

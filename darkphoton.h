@@ -1107,10 +1107,30 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+// T-plasmon flux integrand in REST approx (w >> m)
+double integrandREST( double w, double number, double T, double wp, double r, double nH, double nHe4, double nHe3, double g1, double g2, int sel ) {
+
+	double G = Gamma(w, number, T, nH, nHe4, nHe3, g1, g2);
+	
+	double p1 = pow(r,2) * pow(pi * R, -2);
+	double p2 = pow(w,2) * G;
+	double p3 = exp(w/T) - 1;
+	double p5;
+
+	if ( sel == 0 ) { p5 = pow( pow(wp,2), 2) + pow(w * G, 2); }	// sup
+	else if ( sel == 1 ) { p5 = pow(w * G, 2); }	// res
+	else if ( sel == 2 ) { p5 = 1; }	// unsup
+
+	double item = p1 * p2 / (p3 * p5);
+	
+	return item;
+}
+
 // suppressed section (approx m << wp, m << w) (missing chi2 m4)
 double supREST( double w, double n, double T, double wp, double r, double nH, double nHe4, double nHe3, double g1, double g2 ) {
 
 	double G = Gamma(w, n, T, nH, nHe4, nHe3, g1, g2);
+	cout << pow( wp*wp / ( w * G ), 2 ) << endl;
 	return pow(r*w/(pi*R*wp*wp), 2) * G / ( exp(w/T) - 1 );
 }
 
@@ -1118,6 +1138,8 @@ double supREST( double w, double n, double T, double wp, double r, double nH, do
 double resREST( double w, double n, double T, double wp, double r, double nH, double nHe4, double nHe3, double g1, double g2 ) {
 
 	double G = Gamma(w, n, T, nH, nHe4, nHe3, g1, g2);
+	//cout << "r = " << r/rSolar << "	w = " << w << "		" << pow( wp*wp / ( w * G ), 2 ) << endl;
+
 	return pow(r/(pi*R), 2) / G / ( exp(w/T) - 1 );
 }
 
@@ -1129,9 +1151,9 @@ double unsupREST( double w, double n, double T, double wp, double r, double nH, 
 }
 
 // integral over r
-double trapezeREST( double w, double m, vector<double> n, vector<double> T, vector<double> wp,
+double trapezeREST( double w, vector<double> n, vector<double> T, vector<double> wp,
 	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
-	  vector<vector<double>> z1, vector<vector<double>> z2, double low ) {
+	  vector<vector<double>> z1, vector<vector<double>> z2, double low, int sel ) {
 
 	int len = r.size();	// get length of vector
 
@@ -1164,8 +1186,8 @@ double trapezeREST( double w, double m, vector<double> n, vector<double> T, vect
 		double g2 = z2[ indexT2 ][ indexX2 ];
 
 		double dr = r[c+1] - r[c];	// define trapezium spacing
-		double height = 0.5 * ( integrand(w, m, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
-			+ integrand(w, m, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
+		double height = 0.5 * ( integrandREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2, sel ) 
+			+ integrandREST(w, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2, sel ) );
 		double dA = abs(dr * height);
 		
 		// only add if real
@@ -1247,9 +1269,9 @@ double trapezeREST2( double w, vector<double> n, vector<double> T, vector<double
 }
 
 // full integration over omega
-double integrateREST( double m, vector<double> n, vector<double> T, vector<double> wp,
+double integrateREST( vector<double> n, vector<double> T, vector<double> wp,
 	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
-	  vector<vector<double>> z1, vector<vector<double>> z2, double wlow, double rlow ) {
+	  vector<vector<double>> z1, vector<vector<double>> z2, double wlow, double rlow, int sel ) {
 	
 	double total = 0;	// initiate value of sum at 0
 
@@ -1260,18 +1282,18 @@ double integrateREST( double m, vector<double> n, vector<double> T, vector<doubl
 	double dw = 1e0;
 	for ( double w = wlow; w < whigh - dw; w+=dw ) {
 	
-		if ( w <= m ) { continue; }	// only allow when energy greater than mass
+		//if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		
-		else {
+		//else {
 		
-			double height = 0.5 * ( trapezeREST( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow ) 
-				+  trapezeREST( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow ) );
+			double height = 0.5 * ( trapezeREST( w+dw, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow, sel ) 
+				+  trapezeREST( w, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow, sel ) );
 			double dA = abs(dw * height);
 			
 			// only add if real
 			if ( isnan(dA) ) { continue; }
 			else { total += dA; }
-		}
+		//}
 	}
 	return total;
 }
@@ -1302,7 +1324,8 @@ double integrateREST2( vector<double> n, vector<double> T, vector<double> wp,
 
 
 // m in eV
-void fluxREST( int select ) {
+//void fluxREST( int select ) {
+void fluxREST( double m, double chi, int sel ) {
 
 	int line = 0;	// for REST writeout
 
@@ -1329,27 +1352,30 @@ void fluxREST( int select ) {
 
 	// initialise vector etc
 	vector<double> flux;
-//	int intm = (int)log10(m);
-//	int intchi = (int)log10(chi);
-	string name = "data/flux_" + to_string(select) + ".dat";
+	int intm = (int)log10(m);
+	int intchi = (int)log10(chi);
+	string name = "data/flux_" + to_string(sel) + "-again.dat";
+	//string name = "data/flux_m" + to_string(intm) + "_X" + to_string(intchi) + "-again.dat";
 
 	for ( double rlow = 0; rlow < 0.99*rSolar; rlow += 0.01*rSolar ) {
 		for ( double wlow = 1; wlow < 20e3; wlow += 100 ) {
 	
-			double avg = integrateREST2(n, T, wp, r, nH,
-						 nHe4, nHe3, z1, z2, wlow, rlow, select ) / 0.1;	// eV3 keV-1
-			
+//			double avg = integrateREST2(n, T, wp, r, nH,
+//						 nHe4, nHe3, z1, z2, wlow, rlow, select ) / 0.1;	// eV3 keV-1
+			double avg = integrateREST( n, T, wp, r, nH,
+						 nHe4, nHe3, z1, z2, wlow, rlow, sel ) / 0.1;	// eV3 keV-1			
 			// convert eV2 to cm-2 s-1 keV-1
 			avg *= pow( m2eV, -2 ) * 1e-4 / s2eV;
-			flux.push_back(avg);
+			//flux.push_back(avg);
+			flux.push_back( avg );
 		}
 		writeREST( name, flux, line );
 		line++;
 		flux.clear();
-		// note here:	\033[A moves up a line
+		// note here:	\33[A moves up a line
 		// 				\33[2K deletes line
 		// 				\r goes to start of line
-		cout << "\033[A\33[2K\r" << line << "\% complete..." << endl;
+		cout << "\33[A\33[2K\r" << line << "\% complete..." << endl;
 		//cout << "\33[2K\r" << line << "\% complete...";
 
 	}
@@ -1599,8 +1625,8 @@ void mfp(){
 	for( int i = 1; i < 201; i++ ) { z1[0][i] = z1[0][i] * m_e; }
 	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
 	
-	// initialise mfp vector
-	vector<double> mfp;
+	// initialise vectors
+	vector<double> mfp, GammaT;
 	double w = 1e1;	// set at 1keV for now
 	
 	int len = r.size();
@@ -1629,11 +1655,111 @@ void mfp(){
 
 		double G = Gamma( w, ne[j], T[j], nH[j], nHe4[j], nHe3[j], g1, g2 );	// eV
 		mfp.push_back( m2eV * 1e2 / G );	// cm
+		GammaT.push_back(G);
 	}
 
 	// write out
-	string name = "data/mfp.dat";
-	write2D( name, r, mfp );
+	string name1 = "data/mfp.dat";
+	string name2 = "data/GammaT.dat";
+
+	write2D( name1, r, mfp );
+	write2D( name2, r, GammaT );
+}
+
+// get gamma array for resonance width
+void gammaOut(){
+
+	vector<double> r = read("data/rFrac.dat");	// sun radial distance [eV-1]
+	vector<double> T = read("data/T.dat");	// solar temperature [eV]
+	vector<double> ne = read("data/ne.dat");	// electron number density [eV3]
+	vector<double> nH = read("data/nH.dat");	// H ion density [eV3]
+	vector<double> nHe4 = read("data/nHe4.dat");	// He4 ion density [eV3]
+	vector<double> nHe3 = read("data/nHe3.dat");	// He3 ion density [eV3]
+	
+	// get gaunt factors
+	vector<vector<double>> z1 = readGaunt("data/Z1.dat");	// gaunt factors for Z=1
+	vector<vector<double>> z2 = readGaunt("data/Z2.dat");	// gaunt factors for Z=2
+
+	// convert Gaunt factor Theta to T in eV
+	for( int i = 1; i < 201; i++ ) { z1[0][i] = z1[0][i] * m_e; }
+	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
+	
+	// initialise vectors
+	vector<double> mfp, GammaT, wGammaT;
+
+	int len = r.size();
+	int line = 0;
+	int rval = 0;
+	
+	// names for writeout
+	string name1 = "data/mfp2.dat";
+	string name2 = "data/GammaT2.dat";
+	string name3 = "data/wGammaT2.dat";
+
+	// get phi values for each w = wp for resonance
+	for ( int j = 0; j < len; j++ ) { 
+	
+	if ( 0.01 * rval > r[j] ) { continue; }
+	else{		
+	//mfp.push_back(r[j]);
+	//GammaT.push_back(r[j]);
+	//wGammaT.push_back(r[j]);
+
+	for ( double w = 50; w <= 20e3; w += 100 ) {
+
+		// select g(w, T) value from matrix
+		int indexT1;
+		int indexT2;
+		int indexX1;
+		int indexX2;
+		
+		for( int i = 1; i < 200; i++ ) {
+			if( z1[0][i] < T[j] and z1[0][i+1] > T[j] ) { indexT1 = i; }
+			if( z2[0][i] < T[j] and z2[0][i+1] > T[j] ) { indexT2 = i; }
+		}
+		
+		for( int i = 1; i < 500; i++ ) {
+			if( (z1[i][0] * T[j]) < w and (z1[i+1][0] * T[j]) > w ) { indexX1 = i; }
+			if( (z2[i][0] * T[j]) < w and (z2[i+1][0] * T[j]) > w ) { indexX2 = i; }
+		}
+		
+		double g1 = z1[ indexT1 ][ indexX1 ];
+		double g2 = z2[ indexT2 ][ indexX2 ];
+
+		double G = Gamma( w, ne[j], T[j], nH[j], nHe4[j], nHe3[j], g1, g2 );	// eV
+		mfp.push_back( m2eV * 1e2 / G );	// cm
+		GammaT.push_back(G);	// eV
+		wGammaT.push_back(w*G);	// eV2
+
+	}
+
+	writeREST( name1, mfp, line );
+	writeREST( name2, GammaT, line );
+	writeREST( name3, wGammaT, line );
+	line++;
+	rval++;
+	// note here:	\33[A moves up a line
+	// 				\33[2K deletes line
+	// 				\r goes to start of line
+	cout << "\33[A\33[2K\r" << ( rval +1 ) << "\% complete..." << endl;
+//	cout << "\33[A\33[2K\r" << ( 100 * line / len ) << "\% complete..." << endl;
+	mfp.clear();
+	GammaT.clear();
+	wGammaT.clear();
+	}
+	}
+
+	while ( rval < 100 ) {
+		vector<double> temp;
+		for ( int c = 0; c < 200; c++ ) { temp.push_back(0); }
+		writeREST( name1, temp, line );
+		writeREST( name2, temp, line );
+		writeREST( name3, temp, line );
+		line++;
+		rval++;
+	}
+
+	cout << "creation of files:\n	" << name1 << "\n	" << name2 << "\n	" << name3 << "\ncompleted!" << endl;
 }
 
 

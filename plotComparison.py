@@ -9,7 +9,7 @@ plt.style.use("style.txt")	# import plot style
 # setup plot
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
-ax2.set(xlim=(1e-3,1e0), ylim=(1e-12,3e-6))
+ax2.set(xlim=(1e-3,1e0), ylim=(1e-12,3e-1))
 #ax2.set(xlim=(1e-80,1e0), ylim=(1e-100,3e-6))
 #ax2.set(xlim=(1e-6,1e5), ylim=(1e-13,3e-4))
 
@@ -32,6 +32,10 @@ ax2.plot(dat[:,0],dat[:,1], color='green', ls=':', label='T-plasmon (gas)')
 # tPlasmon new 95%
 dat = loadtxt("data/stats-babyIAXO.dat")
 ax2.plot(dat[:,0],dat[:,1], color='red', label='T-plasmon (gas) CL95')
+
+# tPlasmon new 95%
+dat = loadtxt("data/stats-babyIAXO2.dat")
+ax2.plot(dat[:,0],dat[:,1], color='red', ls=':', label='T-plasmon (gas) (2) CL95')
 
 # tPlasmon gas newE
 #dat = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-gas.dat")
