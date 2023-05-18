@@ -10,7 +10,7 @@ using namespace std;
 double CL = 0.95;	// confidence level
 double days = 500;	// detection time
 double dE = 0.07;	// E range [keV]
-int samplesize = 1e4;		// size of random sample
+int samplesize = 1e2;		// size of random sample
 
 
 // read 2nd column from 2 column datafile
@@ -144,17 +144,41 @@ double L( double x, double b, double s, double n ) {
 // integral for getting CL
 double integral( double b, double s, double n ) {
 
-	double x = 1e-20;
+	double x = 1e-12;
+	double x2 = x;
+	double dx = x;
+	//cout << x2 << endl;
 	double mx = 1.01;
 	//double total = 0.5 * x * ( exp( - f( x, b, s, n ) ) + exp( - f( 0, b, s, n ) ) );
-	double total = 0.5 * x * ( L( x, b, s, n ) + L( 0, b, s, n ) );
+	double total= 0.5 * x * ( L( x, b, s, n ) + L( 0, b, s, n ) );
+	double norm = total;
 
-	// integrate
-	while ( total < CL ) {
-		double dx = x * (mx - 1);
-		total += 0.5 * dx * ( L( x, b, s, n ) + L( x*mx, b, s, n ) );
-		x *= mx;
+	// normalise with intg to inf
+	while(true) {
+		//double dx = x2 * (mx - 1);
+		double L1 = L( x2, b, s, n );
+		//double L2 = L( x2*mx, b, s, n );
+		double L2 = L( x2+dx, b, s, n );
+		if ( isnan(L1 + L2) ) { continue; }
+		else { norm += 0.5 * dx * ( L1 + L2 ); }
+		if ( L2 + L1 == 0 ) { break; }
+		x2 += dx;
+		//x2 *= mx;
 	}
+
+	// integrate up to CL
+	while ( ( total / norm ) < CL ) {
+		//double dx = x * (mx - 1);
+		double L1 = L( x, b, s, n );
+		double L2 = L( x+dx, b, s, n );
+		//double L2 = L( x*mx, b, s, n );
+		if ( isnan(L1 + L2) ) { continue; }
+		else { total += 0.5 * dx * ( L1 + L2 ); }
+		//cout << total * dx / norm << endl;
+		//x *= mx;
+		x2 += dx;
+	}
+
 	return x;
 }
 
@@ -255,12 +279,12 @@ int main(){
 	
 	// thread all 3 at same time
 	thread t1(chis, 0); usleep(100);	// baby
-	thread t2(chis, 1); usleep(100);	// baseline
-	thread t3(chis, 2); usleep(100);	// upgraded
+//	thread t2(chis, 1); usleep(100);	// baseline
+//	thread t3(chis, 2); usleep(100);	// upgraded
 	
 	t1.join();
-	t2.join();
-	t3.join();
+//	t2.join();
+//	t3.join();
 	
 	cout << "\n¡¡complete!!" << endl;
 	return 0;

@@ -34,7 +34,7 @@ dat = loadtxt("data/stats-babyIAXO.dat")
 ax2.plot(dat[:,0],dat[:,1], color='red', label='T-plasmon (gas) CL95')
 
 # tPlasmon new 95%
-dat = loadtxt("data/stats-babyIAXO2.dat")
+dat = loadtxt("data/limits/stats-babyIAXO2.dat")
 ax2.plot(dat[:,0],dat[:,1], color='red', ls=':', label='T-plasmon (gas) (2) CL95')
 
 # tPlasmon gas newE
