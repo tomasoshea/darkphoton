@@ -10,10 +10,11 @@ using namespace std;
 
 int main(){
 
+    // ( m, chi, sel ) but m & chi arent used
     // 0: suppressed, 1: resonant, 2: unsuppressed
-    thread t0( fluxREST, 0, 1e2, 1e-11 );
-    thread t1( fluxREST, 1, 1e2, 1e-11 );
-    thread t2( fluxREST, 2, 1e2, 1e-11 );
+    thread t0( fluxREST, 1, 1, 0 );
+    thread t1( fluxREST, 1, 1, 1 );
+    thread t2( fluxREST, 1, 1, 2 );
 //    thread t4( fluxREST, 0, 1e1, 1e-11 );
 //    thread t5( fluxREST, 1, 1e1, 1e-11 );
 //    thread t6( fluxREST, 2, 1e1, 1e-11 );

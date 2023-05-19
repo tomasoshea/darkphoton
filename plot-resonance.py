@@ -16,9 +16,9 @@ col = 100
 
 
 ### CALCULATED ###
-sup = loadtxt("data/flux_0.dat", usecols=col)	# suppressed flux * m-4 * chi-2
-res = loadtxt("data/flux_1.dat", usecols=col)    # resonant flux * m-4 * chi-2
-unsup = loadtxt("data/flux_2.dat", usecols=col)	# unsuppressed flux * chi-2
+sup = loadtxt("data/flux_0-again.dat", usecols=col)	# suppressed flux * m-4 * chi-2
+res = loadtxt("data/flux_1-again.dat", usecols=col)    # resonant flux * m-4 * chi-2
+unsup = loadtxt("data/flux_2-again.dat", usecols=col)	# unsuppressed flux * chi-2
 wp = loadtxt("data/rvwp2")[:,1]    # curve of wp against r
 wG = loadtxt("data/wGammaT2.dat", usecols=col) # omega Gamma for resonance width
 chi = 1e-11
@@ -132,9 +132,9 @@ datT = loadtxt("data/flux_m2_X-11.dat", usecols=col)	# m = 100 eV
 #datT = datT / np.nanmax(datT)
 ax2.plot(x, datT, color='red', label = 'm = 100 eV')
 
-datT = loadtxt("data/flux_m2_X-11-again.dat", usecols=col)	# m = 100 eV
+#datT = loadtxt("data/flux_m2_X-11-again.dat", usecols=col)	# m = 100 eV
 #datT = datT / np.nanmax(datT)
-ax2.plot(x, datT, color='green', ls=':')
+#ax2.plot(x, datT, color='green', ls=':')
 
 #
 #datT = loadtxt("data/flux_m1_X-11.dat", usecols=col)	# m = 10 eV

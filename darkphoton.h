@@ -226,7 +226,7 @@ void writeREST( string name, vector<double> data, int line ){	// data vector nee
 	// newline at end of w range
 	fout << endl;
 
-	if( line == 0 ){ cout << "\nfile " << name << " created..." << endl; }
+	if( line == 0 ){ cout << "file " << name << " created...\n" << endl; }
 	
 	fout.close();
 }
@@ -1115,8 +1115,9 @@ double integrandREST( double w, double number, double T, double wp, double r, do
 	double p1 = pow(r,2) * pow(pi * R, -2);
 	double p2 = pow(w,2) * G;
 	double p3 = exp(w/T) - 1;
-	double p5;
+	//double p5 = pow( pow(wp,2) - pow(m,2), 2 ) + pow(w * G, 2);
 
+	double p5;
 	if ( sel == 0 ) { p5 = pow( pow(wp,2), 2) + pow(w * G, 2); }	// sup
 	else if ( sel == 1 ) { p5 = pow(w * G, 2); }	// res
 	else if ( sel == 2 ) { p5 = 1; }	// unsup
@@ -1654,16 +1655,19 @@ void mfp(){
 		double g2 = z2[ indexT2 ][ indexX2 ];
 
 		double G = Gamma( w, ne[j], T[j], nH[j], nHe4[j], nHe3[j], g1, g2 );	// eV
-		mfp.push_back( m2eV * 1e2 / G );	// cm
+		mfp.push_back( m2eV / G );	// [m]
 		GammaT.push_back(G);
 	}
 
 	// write out
 	string name1 = "data/mfp.dat";
 	string name2 = "data/GammaT.dat";
+	string name = "data/mfp-m.dat";
 
-	write2D( name1, r, mfp );
-	write2D( name2, r, GammaT );
+	write(name1, mfp);
+
+	//write2D( name1, r, mfp );
+	//write2D( name2, r, GammaT );
 }
 
 // get gamma array for resonance width
