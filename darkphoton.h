@@ -1108,7 +1108,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 
 
 // T-plasmon flux integrand in REST approx (w >> m)
-double integrandREST( double w, double number, double T, double wp, double r, double nH, double nHe4, double nHe3, double g1, double g2, int sel ) {
+double integrandREST( double w, double number, double T, double wp, double r, double nH, double nHe4, double nHe3, double g1, double g2, int sel, double m ) {
 
 	double G = Gamma(w, number, T, nH, nHe4, nHe3, g1, g2);
 	
@@ -1120,7 +1120,7 @@ double integrandREST( double w, double number, double T, double wp, double r, do
 	double p5;
 	if ( sel == 0 ) { p5 = pow( pow(wp,2), 2) + pow(w * G, 2); }	// sup
 	else if ( sel == 1 ) { p5 = pow(w * G, 2); }	// res
-	else if ( sel == 2 ) { p5 = 1; }	// unsup
+	else if ( sel == 2 ) { p5 = 1; }	// unsup (divide by m4)
 
 	double item = p1 * p2 / (p3 * p5);
 	
@@ -1154,7 +1154,7 @@ double unsupREST( double w, double n, double T, double wp, double r, double nH, 
 // integral over r
 double trapezeREST( double w, vector<double> n, vector<double> T, vector<double> wp,
 	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
-	  vector<vector<double>> z1, vector<vector<double>> z2, double low, int sel ) {
+	  vector<vector<double>> z1, vector<vector<double>> z2, double low, int sel, double m ) {
 
 	int len = r.size();	// get length of vector
 
@@ -1187,8 +1187,8 @@ double trapezeREST( double w, vector<double> n, vector<double> T, vector<double>
 		double g2 = z2[ indexT2 ][ indexX2 ];
 
 		double dr = r[c+1] - r[c];	// define trapezium spacing
-		double height = 0.5 * ( integrandREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2, sel ) 
-			+ integrandREST(w, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2, sel ) );
+		double height = 0.5 * ( integrandREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2, sel, m ) 
+			+ integrandREST(w, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2, sel, m ) );
 		double dA = abs(dr * height);
 		
 		// only add if real
@@ -1272,7 +1272,7 @@ double trapezeREST2( double w, vector<double> n, vector<double> T, vector<double
 // full integration over omega
 double integrateREST( vector<double> n, vector<double> T, vector<double> wp,
 	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
-	  vector<vector<double>> z1, vector<vector<double>> z2, double wlow, double rlow, int sel ) {
+	  vector<vector<double>> z1, vector<vector<double>> z2, double wlow, double rlow, int sel, double m ) {
 	
 	double total = 0;	// initiate value of sum at 0
 
@@ -1287,8 +1287,8 @@ double integrateREST( vector<double> n, vector<double> T, vector<double> wp,
 		
 		//else {
 		
-			double height = 0.5 * ( trapezeREST( w+dw, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow, sel ) 
-				+  trapezeREST( w, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow, sel ) );
+			double height = 0.5 * ( trapezeREST( w+dw, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow, sel, m ) 
+				+  trapezeREST( w, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow, sel, m ) );
 			double dA = abs(dw * height);
 			
 			// only add if real
@@ -1355,7 +1355,7 @@ void fluxREST( double m, double chi, int sel ) {
 	vector<double> flux;
 	int intm = (int)log10(m);
 	int intchi = (int)log10(chi);
-	string name = "data/flux_" + to_string(sel) + "-again.dat";
+	string name = "data/flux_" + to_string(sel) + "-full.dat";
 	//string name = "data/flux_m" + to_string(intm) + "_X" + to_string(intchi) + "-again.dat";
 
 	for ( double rlow = 0; rlow < 0.99*rSolar; rlow += 0.01*rSolar ) {
@@ -1364,7 +1364,7 @@ void fluxREST( double m, double chi, int sel ) {
 //			double avg = integrateREST2(n, T, wp, r, nH,
 //						 nHe4, nHe3, z1, z2, wlow, rlow, select ) / 0.1;	// eV3 keV-1
 			double avg = integrateREST( n, T, wp, r, nH,
-						 nHe4, nHe3, z1, z2, wlow, rlow, sel ) / 0.1;	// eV3 keV-1			
+						 nHe4, nHe3, z1, z2, wlow, rlow, sel, m ) / 0.1;	// eV3 keV-1			
 			// convert eV2 to cm-2 s-1 keV-1
 			avg *= pow( m2eV, -2 ) * 1e-4 / s2eV;
 			//flux.push_back(avg);
