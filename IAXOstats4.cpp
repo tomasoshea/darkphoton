@@ -7,7 +7,7 @@
 
 using namespace std;
 
-double CL = 0.95;	// confidence level
+double CL = 0.05;	// confidence level
 double days = 500;	// detection time
 double dE = 0.07;	// E range [keV]
 int samplesize = 1e3;		// size of random sample
@@ -96,93 +96,60 @@ int factorial( int N ) {
 }
 
 
-// logL
-long double f( long double x, long double b, long double s, auto generator ){
+// likelihood function
+double L( double x, double b, double s ){
 
-		double r1, r2;
-		for ( int c = 0; c < samplesize; c++ ) {
-			double n = distro(generator);	// get random n from poisson
-			if ( n == 0 ) { continue; }
-			
-        }
-}
-
-
-// minimisation fn
-double min( double b, double s, int n ){
-
-	long double x = 1.;	// starting chi
-	int lim = 1e3;		// no. iterations cutoff
-	bool done = false;	// completion marker
-	int c = 0;	// for cutoff
-
-	while( true ) {
-
-		long double plus = f( x, b, s, n );
-		long double minus = f( x/2, b, s, n );
-		//cout << plus << endl;
-		if( minus < plus ) { x /= 2; }
-		else{ break; }
+	double r1, r2;
+	double total = 1.;
+	default_random_engine generator;
+	poisson_distribution<int> distro(b);
+	for ( int c = 0; c < samplesize; c++ ) {
+		double n = distro(generator);	// get random n from poisson
+		if ( n == 0 ) { continue; }
+		else { total *= ( b + pow(x,4) * s ); cout << "yaas" << endl;}
 	}
-	
-	long double dx = x/100;
-	while( true ) {
-
-		long double minus = f( x-dx, b, s, n );
-		long double plus = f( x+dx, b, s, n );
-		if( minus < plus ) { x -= dx; }
-		else if( plus < minus ) { x += dx; }
-		else { break; }
-		c++;
-		if ( c > lim ) { break; }
-	}
-	//cout << x << endl;
-	return x;
-}
-
-double L( double x, double b, double s, double n ) {
-	double mu = b + ( pow(x,4) * s );
-	return exp(n - mu) * pow(mu/n, n);
+	//cout << exp( pow(x,4) * s * samplesize ) << endl;
+	return ( exp( - pow(x,4) * s * samplesize ) * total );
 }
 
 // integral for getting CL
-double integral( double b, double s, double n ) {
+double integral( double b, double s ) {
 
-	double x = 1e-12;
+	double x = 1e-9;
 	double x2 = x;
-	double dx = x;
-	//cout << x2 << endl;
 	double mx = 1.01;
+	//double dx = x;
+	//cout << x2 << endl;
 	//double total = 0.5 * x * ( exp( - f( x, b, s, n ) ) + exp( - f( 0, b, s, n ) ) );
-	double total= 0.5 * x * ( L( x, b, s, n ) + L( 0, b, s, n ) );
+	double total= 0.5 * x * ( L( x, b, s ) + L( 0, b, s ) );
 	double norm = total;
 
 	// normalise with intg to inf
 	while(true) {
-		//double dx = x2 * (mx - 1);
-		double L1 = L( x2, b, s, n );
-		//double L2 = L( x2*mx, b, s, n );
-		double L2 = L( x2+dx, b, s, n );
+		double dx = x2 * (mx - 1);
+		double L1 = L( x2, b, s );
+		double L2 = L( x2*mx, b, s );
+		//double L2 = L( x2+dx, b, s );
 		if ( isnan(L1 + L2) ) { continue; }
 		else { norm += 0.5 * dx * ( L1 + L2 ); }
 		if ( L2 + L1 == 0 ) { break; }
-		x2 += dx;
-		//x2 *= mx;
+		//x2 += dx;
+		x2 *= mx;
+		//cout << L1 << endl;
 	}
 
 	// integrate up to CL
 	while ( ( total / norm ) < CL ) {
-		//double dx = x * (mx - 1);
-		double L1 = L( x, b, s, n );
-		double L2 = L( x+dx, b, s, n );
-		//double L2 = L( x*mx, b, s, n );
+		double dx = x * (mx - 1);
+		double L1 = L( x, b, s );
+		//double L2 = L( x+dx, b, s );
+		double L2 = L( x*mx, b, s );
 		if ( isnan(L1 + L2) ) { continue; }
 		else { total += 0.5 * dx * ( L1 + L2 ); }
 		//cout << total * dx / norm << endl;
-		//x *= mx;
-		x2 += dx;
+		x *= mx;
+		//x2 += dx;
 	}
-
 	return x;
 }
 
@@ -244,11 +211,8 @@ void chis( int detector ) {
 	// calculate background count
 	double Nbg = phiBg * a * t * effT / samplesize;
 	cout << "Detector: "<< name << endl;
-	cout << "Expected background count: " << Nbg << endl << endl;
+	cout << "Expected background count: " << Nbg * samplesize << endl << endl;
 
-	// get poisson random number
-	default_random_engine generator;
-	poisson_distribution<int> distro( Nbg );
 
 	vector<double> chi;	// initialise chi vector
 
@@ -257,15 +221,7 @@ void chis( int detector ) {
 		
 		// signal flux for chi = 1 for small dt
 		double Nsig = ( flux[c] ) * A * effO * effD * effT * t / samplesize;
-		double total = 0;	// keep total of all runs
-		
-		// get sample of random N from poisson
-		for ( int i = 0; i < samplesize; i++ ) {
-			double n = distro(generator);	// get random n from poisson
-			if ( n == 0 ) { continue; }
-			//else { total += min( Nbg, Nsig, n ); }
-			else { total += integral( Nbg, Nsig, n ); }
-		}
+		double total = integral( Nbg, Nsig );
 			
 		chi.push_back( total );
 		cout << c+1 << " out of " << len << ":	" << total << endl;
@@ -273,7 +229,7 @@ void chis( int detector ) {
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-" + name + "2.dat";
+	string savename = "data/limits/stats-" + name + "3.dat";
 	write2D( savename, m, chi );
 }
 
