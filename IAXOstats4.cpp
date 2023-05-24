@@ -96,11 +96,15 @@ int factorial( int N ) {
 }
 
 
-// function to minimise
-long double f( long double x, long double b, long double s, int n ){
+// logL
+long double f( long double x, long double b, long double s, auto generator ){
 
-	long double mu = b + ( pow(x,4) * s );
-	return ( 0 - mu + ( n * ( log(mu) + 1 - log(n) ) ) );
+		double r1, r2;
+		for ( int c = 0; c < samplesize; c++ ) {
+			double n = distro(generator);	// get random n from poisson
+			if ( n == 0 ) { continue; }
+			
+        }
 }
 
 

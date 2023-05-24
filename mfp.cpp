@@ -5,6 +5,6 @@
 #include "darkphoton.h"
 
 int main() {
-    mfp();
+    wGout();
     return 0;
 }
