@@ -449,7 +449,7 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	double dw = 100;
-	for ( double w = 100; w < 1e5 - dw; w+=dw ) {
+	for ( double w = 100; w < 1e4 - dw; w+=dw ) {
 	
 		if ( w > m + 1000 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass

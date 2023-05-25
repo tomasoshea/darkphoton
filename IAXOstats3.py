@@ -48,7 +48,7 @@ def min0( x, b, N ):
 
 
 # import fluxes
-dat = loadtxt("data/limits/babyIAXO-tPlasmonflux-gas.dat")
+dat = loadtxt("data/limits/babyIAXO-tPlasmon-flux.dat")
 m = dat[:,0]
 flux = dat[:,1]
 

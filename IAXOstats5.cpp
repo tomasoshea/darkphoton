@@ -97,27 +97,28 @@ int factorial( int N ) {
 
 
 // 1/2 chi2 for 1 density step
-double chi2( double x, double b, double s, int n ) {
+double L( double x, double b, double s, int n, double m, vector<double> ne,
+	vector<double> T, vector<double> wp, vector<double> r,
+    vector<double> nH, vector<double> nHe4, vector<double> nHe3,
+    double L, vector<vector<double>> z1, vector<vector<double>> z2  ) {
 
-	if ( n == 0 ) { return ( b + pow(x,4)*s ); }
-	else if ( n == 1 ) { return ( ( b + pow(x,4)*s ) - log( b + pow(x,4)*s ) - 1 ); }
-	else { return ( ( b + pow(x,4)*s ) - n * ( log( b + pow(x,4)*s ) + 1 - log(n) ) ); }
+	double s = pow(x,4) * 
+        integrateGas( m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+	
+	double item;
+
+	if ( n == 0 ) { item = ( b + pow(x,4)*s ); }
+	else if ( n == 1 ) { item = ( ( b + pow(x,4)*s ) - log( b + pow(x,4)*s ) - 1 ); }
+	else { item = ( ( b + pow(x,4)*s ) - n * ( log( b + pow(x,4)*s ) + 1 - log(n) ) ); }
+
+	return exp(-item);
 }
 
-// total L for all density steps
-double L( double x, double b, vector<double> flux, vector<double> n ) {
-
-	double total = 0;
-	for ( int c = 0; c < flux.size(); c++ ) {
-		total += chi2( x, b, flux[c], n[c] );
-	}
-	return exp(-total);
-}
 
 // integral for getting CL
 double integral( double b, vector<double> s, vector<double> n ) {
 
-	double x = 1e-9;
+	double x = 1e-10;
 	double x2 = x;
 	double mx = 1.01;
 	//double dx = x;
@@ -158,10 +159,27 @@ double integral( double b, vector<double> s, vector<double> n ) {
 
 void chis( int detector ) {
 
+	// import shite
+	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
+	vector<double> rFrac = read("data/rFrac.dat");	// sun radial distance as fraction
+	vector<double> T = read("data/T.dat");	// solar temperature [eV]
+	vector<double> ne = read("data/ne.dat");	// electron number density [eV3]
+	vector<double> wp = read("data/wp.dat");	// plasma frequency [eV]
+	vector<double> nH = read("data/nH.dat");	// H ion density [eV3]
+	vector<double> nHe4 = read("data/nHe4.dat");	// He4 ion density [eV3]
+	vector<double> nHe3 = read("data/nHe3.dat");	// He3 ion density [eV3]
+	
+	// get gaunt factors
+	vector<vector<double>> z1 = readGaunt("data/Z1.dat");	// gaunt factors for Z=1
+	vector<vector<double>> z2 = readGaunt("data/Z2.dat");	// gaunt factors for Z=2
+	
+	// convert Gaunt factor Theta to T in eV
+	for( int i = 1; i < 201; i++ ) { z1[0][i] = z1[0][i] * m_e; }
+	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
+
 	// initialise parameters
 	double A, phiBg, a, t, effD, effO, effT, len;
 	string name;
-	vector<double> flux, m;
 
 	// choose detector
 
@@ -219,6 +237,8 @@ void chis( int detector ) {
 	vector<double> n;
 	default_random_engine generator;
 	poisson_distribution<int> distro( Nbg );
+	for ( int c = 0; c < samplesize; c++ ) { n.push_back( distro(generator) ); }
+
 
 	//vector<double> chi;	// initialise chi vector
 			
@@ -231,14 +251,12 @@ void chis( int detector ) {
 		for ( int c = 0; c < flux.size(); c++ ) { n.push_back( distro(generator) ); }
 		total += integral( Nbg, Nsig, n );
 	}
-
-	cout << total / samplesize << endl;
 			
 		//chi.push_back( total );
 		//cout << c+1 << " out of " << len << ":	" << total << endl;
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-" + name + "3.dat";
+	string savename = "data/limits/stats-" + name + "5.dat";
 	//write2D( savename, m, chi );
 }
 

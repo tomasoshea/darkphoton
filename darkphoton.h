@@ -538,10 +538,10 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	//double dw = 100;
 	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e0;
-	for ( double w = 30; w < 1e2 - dw; w+=dw ) {
+	double dw = 1e1;
+	for ( double w = 1e2; w < 1e4 - dw; w+=dw ) {
 	
-		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
+		if ( w > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
@@ -593,11 +593,11 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		}
 
 		else{
-		double phi = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
-		chiIAXO.push_back( phi );
-		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	phi X-2 = " << phi << endl;
-		//cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
+			double phi = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+			chiIAXO.push_back( phi );
+			massIAXO.push_back( m );
+			cout << name << ":	m = " << m << "	phi X-4 = " << phi << endl;
+			//cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
 		}
 	}
 	
@@ -623,7 +623,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		double phi = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		chiIAXO.push_back( phi );
 		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	phi X-2 = " << phi <<endl;
+		cout << name << ":	m = " << m << "	phi X-4 = " << phi <<endl;
 		//cout << " flux: " << entryIAXO * sqrt(chi4IAXO) * pow(m2eV,-2) / s2eV << endl;
 	}
 
@@ -650,7 +650,6 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 
 	// write out
 	write2D( path + name + ext, massIAXO, chiIAXO );
-	
 }
 
 
@@ -684,7 +683,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 			exit(SIGINT);
 		}
 
-		double phi = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		double phi = integrateGas( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		chiIAXO.push_back( phi );
 		massIAXO.push_back( m );
 		cout << name << ":	m = " << m << "	phi X-2 = " << phi <<endl;
@@ -723,6 +722,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////// L-PLASMON MIXING /////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // integrand for pure L gas conversion
 double lMixingResIntegrand( double m, double ne, double T, double wp, double r, double rFrac, double nH, double nHe4, double nHe3, double g1, double g2 ) {

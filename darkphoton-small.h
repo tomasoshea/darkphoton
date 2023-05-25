@@ -312,6 +312,48 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	return item;
 }
 
+
+// conversion probability for gas resonance
+double PgasStats( double w, double m, double L, vector<vector<double>> z2, double den ) {
+	
+	// define detector parameters for Gamma_t
+	double nH, nHe3 = 0;	// only 4He is used
+	double g1 = 0;
+	double T = 25 * K2eV;	// detector at room temp [eV]
+	double ne = m_e * pow(m,2) / (4 * pi * a);
+	double nHe4 = ne / 2;	// 4He ion density [eV3]
+	
+	// select Gaunt factor from matrix
+	int indexT2;
+	int indexX2;
+	for( int i = 1; i < 200; i++ ) {
+		if( (z2[0][i] < T) and (z2[0][i+1] > T) ) { indexT2 = i; break; }
+	}
+	if( indexT2 == 1 ) { cout << "bad gaunt!!" << endl;}
+	else if( indexT2 == 199 ) { cout << "bad gaunt!!" << endl;}
+
+
+	for( int i = 1; i < 500; i++ ) {
+		if( (z2[i][0] * T) < w and (z2[i+1][0] * T) > w ) { indexX2 = i; break; }
+	}
+	if( indexX2 == 1 ) { cout << "bad gaunt!!" << endl;}
+	else if( indexX2 == 499 ) { cout << "bad gaunt!!" << endl;}
+
+
+	double g2 = z2[ indexT2 ][ indexX2 ];
+	
+	// calculate detector Gamma
+	double G = Gamma(w, ne, T, nH, nHe4, nHe3, g1, g2);
+
+	// calculate conversion prob
+	double p1 = pow(m,4) / ( pow( pow(den,2) - pow(m,2), 2 ) + pow(w*G,2) );
+	double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));
+	
+	double item = p1 * p2;
+	
+	return item;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// T-PLASMON /////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////

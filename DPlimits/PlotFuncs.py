@@ -822,17 +822,17 @@ class DarkPhoton():
 
         else:
     #		babyIAXO
-            datGas = loadtxt("../data/limits/{}babyIAXO2.dat".format(suffixGas))
+            datGas = loadtxt("../data/limits/{}babyIAXO-tPlasmonGas.dat".format(suffixGas))
             plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw)
             plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
 
     #		baselineIAXO
-            datGas = loadtxt("../data/limits/{}baselineIAXO2.dat".format(suffixGas))
+            datGas = loadtxt("../data/limits/{}baselineIAXO-tPlasmonGas.dat".format(suffixGas))
             plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw, ls='-')
             plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
             
     #		upgradedIAXO
-            datGas = loadtxt("../data/limits/{}upgradedIAXO2.dat".format(suffixGas))
+            datGas = loadtxt("../data/limits/{}upgradedIAXO-tPlasmonGas.dat".format(suffixGas))
             plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw, ls='-')
             plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
             plt.vlines(datGas[-1,0], datGas[-1,1], 1, zorder=0.301,lw=lw, color='cyan')

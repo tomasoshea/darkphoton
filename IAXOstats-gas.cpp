@@ -8,10 +8,16 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 500;	// detection time
+double days = 5;	// detection time
 double dE = 0.07;	// E range [keV]
-int samplesize = 1e2;		// size of random sample
+int samplesize = 1e3;		// size of random sample
 
+// conversion factors
+double s2eV = (6.582119569e-16);	// Hz to eV
+double J2eV = (1. / 1.602176634e-19);	// Joules to eV (1 / e)
+double m2eV = (1.973269804e-7);	// m-1 to eV
+double K2eV = (8.617333262e-5);	// Kelvin to eV
+double kg2eV = 5.609588604e35;	// from hbar/c2
 
 // read 2nd column from 2 column datafile
 vector<double> loadtxt( string name, int col ) {
@@ -96,32 +102,65 @@ int factorial( int N ) {
 }
 
 
-// 1/2 chi2 for 1 density step
-double chi2( double x, double b, double s, int n ) {
+// function to minimise
+long double f( long double x, long double b, long double s, int n ){
 
-	if ( n == 0 ) { return ( b + pow(x,4)*s ); }
-	else if ( n == 1 ) { return ( ( b + pow(x,4)*s ) - log( b + pow(x,4)*s ) - 1 ); }
-	else { return ( ( b + pow(x,4)*s ) - n * ( log( b + pow(x,4)*s ) + 1 - log(n) ) ); }
+	long double mu = b + ( pow(x,4) * s );
+	return ( 0 - mu + ( n * ( log(mu) + 1 - log(n) ) ) );
 }
 
-// total L for all density steps
-double L( double x, double b, vector<double> flux, vector<double> n ) {
 
-	double total = 0;
-	for ( int c = 0; c < flux.size(); c++ ) {
-		total += chi2( x, b, flux[c], n[c] );
+// minimisation fn
+double min( double b, double s, int n ){
+
+	long double x = 1.;	// starting chi
+	int lim = 1e3;		// no. iterations cutoff
+	bool done = false;	// completion marker
+	int c = 0;	// for cutoff
+
+	while( true ) {
+
+		long double plus = f( x, b, s, n );
+		long double minus = f( x/2, b, s, n );
+		//cout << plus << endl;
+		if( minus < plus ) { x /= 2; }
+		else{ break; }
 	}
-	return exp(-total);
+	
+	long double dx = x/100;
+	while( true ) {
+
+		long double minus = f( x-dx, b, s, n );
+		long double plus = f( x+dx, b, s, n );
+		if( minus < plus ) { x -= dx; }
+		else if( plus < minus ) { x += dx; }
+		else { break; }
+		c++;
+		if ( c > lim ) { break; }
+	}
+	//cout << x << endl;
+	return x;
+}
+
+double L( double x, double b, double s, double n ) {
+
+	double item;
+
+	if ( n == 0 ) { item = ( b + pow(x,4)*s ); }
+	else if ( n == 1 ) { item = ( ( b + pow(x,4)*s ) - log( b + pow(x,4)*s ) - 1 ); }
+	else { item = ( ( b + pow(x,4)*s ) - n * ( log( b + pow(x,4)*s ) + 1 - log(n) ) ); }
+
+	return exp(-item);
 }
 
 // integral for getting CL
-double integral( double b, vector<double> s, vector<double> n ) {
+double integral( double b, double s, double n ) {
 
-	double x = 1e-9;
+	double x = 1e-16;
 	double x2 = x;
-	double mx = 1.01;
 	//double dx = x;
 	//cout << x2 << endl;
+	double mx = 1.001;
 	//double total = 0.5 * x * ( exp( - f( x, b, s, n ) ) + exp( - f( 0, b, s, n ) ) );
 	double total= 0.5 * x * ( L( x, b, s, n ) + L( 0, b, s, n ) );
 	double norm = total;
@@ -130,28 +169,28 @@ double integral( double b, vector<double> s, vector<double> n ) {
 	while(true) {
 		double dx = x2 * (mx - 1);
 		double L1 = L( x2, b, s, n );
-		double L2 = L( x2*mx, b, s, n );
-		//double L2 = L( x2+dx, b, s );
+		//double L2 = L( x2*mx, b, s, n );
+		double L2 = L( x2+dx, b, s, n );
 		if ( isnan(L1 + L2) ) { continue; }
 		else { norm += 0.5 * dx * ( L1 + L2 ); }
 		if ( L2 + L1 == 0 ) { break; }
 		//x2 += dx;
 		x2 *= mx;
-		//cout << L1 << endl;
 	}
 
 	// integrate up to CL
 	while ( ( total / norm ) < CL ) {
 		double dx = x * (mx - 1);
 		double L1 = L( x, b, s, n );
-		//double L2 = L( x+dx, b, s );
-		double L2 = L( x*mx, b, s, n );
+		double L2 = L( x+dx, b, s, n );
+		//double L2 = L( x*mx, b, s, n );
 		if ( isnan(L1 + L2) ) { continue; }
 		else { total += 0.5 * dx * ( L1 + L2 ); }
 		//cout << total * dx / norm << endl;
 		x *= mx;
 		//x2 += dx;
 	}
+
 	return x;
 }
 
@@ -175,8 +214,8 @@ void chis( int detector ) {
 		effD = 0.7;	// detectior efficiency
 		effO = 0.35;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		m = loadtxt("data/limits/babyIAXO-tPlasmonflux-gas.dat",0);
-		flux = loadtxt("data/limits/babyIAXO-tPlasmonflux-gas.dat",1);
+		m = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-gas.dat",0);
+		flux = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-gas.dat",1);
 		len = flux.size();
 		}
 
@@ -190,8 +229,8 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		m = loadtxt("data/limits/baselineIAXO-tPlasmonflux-gas.dat",0);
-		flux = loadtxt("data/limits/baselineIAXO-tPlasmonflux-gas.dat",1);
+		m = loadtxt("data/limits/baselineIAXO-tPlasmon-100eV-gas.dat",0);
+		flux = loadtxt("data/limits/baselineIAXO-tPlasmon-100eV-gas.dat",1);
 		len = flux.size();
 		}
 
@@ -205,8 +244,8 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		m = loadtxt("data/limits/upgradedIAXO-tPlasmonflux-gas.dat",0);
-		flux = loadtxt("data/limits/upgradedIAXO-tPlasmonflux-gas.dat",1);
+		m = loadtxt("data/limits/upgradedIAXO-tPlasmon-100eV-gas.dat",0);
+		flux = loadtxt("data/limits/upgradedIAXO-tPlasmon-100eV-gas.dat",1);
 		len = flux.size();
 		}
 
@@ -216,30 +255,34 @@ void chis( int detector ) {
 	cout << "Expected background count: " << Nbg << endl << endl;
 
 	// get poisson random number
-	vector<double> n;
 	default_random_engine generator;
 	poisson_distribution<int> distro( Nbg );
 
-	//vector<double> chi;	// initialise chi vector
-			
-	// signal flux for chi = 1 for small dt
-	vector<double> Nsig;
-	for ( int c = 0; c < flux.size(); c++ ) { Nsig.push_back( flux[c] * A * effO * effD * effT * t ); }
+	vector<double> chi;	// initialise chi vector
 
-	double total = 0;
-	for ( int j = 0; j < samplesize; j++ ) {
-		for ( int c = 0; c < flux.size(); c++ ) { n.push_back( distro(generator) ); }
-		total += integral( Nbg, Nsig, n );
+	// get 95% chi for each m value my minimisation
+	for ( int c = 0; c < len; c++ ) {
+		
+		// signal flux for chi = 1 for small dt
+		double Nsig = ( flux[c] * pow(m2eV, -2) / s2eV ) * A * effO * effD * effT * t;
+		double total = 0;	// keep total of all runs
+		
+		// get sample of random N from poisson
+		for ( int i = 0; i < samplesize; i++ ) {
+			double n = distro(generator);	// get random n from poisson
+			//if ( n == 0 ) { continue; }
+			//else { total += min( Nbg, Nsig, n ); }
+			total += integral( Nbg, Nsig, n );
+		}
+			
+		chi.push_back( total / samplesize );
+		cout << c+1 << " out of " << len << ":	" << total / samplesize << endl;
 	}
-
-	cout << total / samplesize << endl;
-			
-		//chi.push_back( total );
-		//cout << c+1 << " out of " << len << ":	" << total << endl;
+	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-" + name + "3.dat";
-	//write2D( savename, m, chi );
+	string savename = "data/limits/stats-" + name + "-tPlasmonGas.dat";
+	write2D( savename, m, chi );
 }
 
 
@@ -248,12 +291,12 @@ int main(){
 	
 	// thread all 3 at same time
 	thread t1(chis, 0); usleep(100);	// baby
-//	thread t2(chis, 1); usleep(100);	// baseline
-//	thread t3(chis, 2); usleep(100);	// upgraded
+	thread t2(chis, 1); usleep(100);	// baseline
+	thread t3(chis, 2); usleep(100);	// upgraded
 	
 	t1.join();
-//	t2.join();
-//	t3.join();
+	t2.join();
+	t3.join();
 	
 	cout << "\n¡¡complete!!" << endl;
 	return 0;
