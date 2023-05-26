@@ -3,7 +3,7 @@
 // script to generate a function of dark photon mixing parameter against dark photon mass
 // to give a theoretical upper limit on these parameters that IAXO could achieve
 
-// L plasmon mixing integral for IAXO gas run
+// l-plasmon mixing for IAXO vacuum run
 
 #include "darkphoton.h"	// home of the real code
 #include <thread>
@@ -28,10 +28,9 @@ int main( int argc, char** argv ) {
 	// define suffix for version/energy/whatever
 	string suffix = argv[1];
 	cout << "output files: " << suffix << ".dat" << endl;
-	
+
 	// read csv files to vectors
 	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
-	vector<double> rFrac = read("data/rFrac.dat");	// sun radial distance fraction
 	vector<double> T = read("data/T.dat");	// solar temperature [eV]
 	vector<double> ne = read("data/ne.dat");	// electron number density [eV3]
 	vector<double> wp = read("data/wp.dat");	// plasma frequency [eV]
@@ -52,42 +51,43 @@ int main( int argc, char** argv ) {
 	
 	double Lraw = 10;	// m
 	string nameBaby = "babyIAXO" + suffix;
-//	double phiRaw = 1.04e-4;	// m-2 s-1 (1 day)
-	double phiRaw = 5.57e-5;	// m-2 s-1 (4 days)
-
-	// convert raw values to eV
-	double phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
+	//double phiRaw = 1.6920e-05;	// m-2 s-1 (pure background)
+//
+	//// convert raw values to eV
+	//double phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
 	double L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t1( lMixingResGas, ne, T, wp, rFrac, nH, nHe4, nHe3, z1, z2, r, L, phi, nameBaby );
+	//thread t1( gasL2, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameBaby );
+	thread t1( lMixingResGas, ne, T, wp, nH, nHe4, nHe3, z1, z2, r, L, nameBaby );
 		
 	
 	//IAXO baseline
 	Lraw = 20;	// m
 	string nameBaseline = "baselineIAXO" + suffix;
-//	phiRaw = 2.84e-6;	// m-2 s-1 (1 day)
-	phiRaw = 3.24e-6;	// m-2 s-1 (4 days)
+	//phiRaw = 5.6646e-07;	// m-2 s-1 (pure background)
 
 	// convert raw values to eV
-	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
+	//phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
 	L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t2( lMixingResGas, ne, T, wp, rFrac, nH, nHe4, nHe3, z1, z2, r, L, phi, nameBaseline );
+	//thread t2( gasL2, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameBaseline );
+	thread t2( lMixingResGas, ne, T, wp, nH, nHe4, nHe3, z1, z2, r, L, nameBaseline );
 
 
 	// IAXO upgraded
 	Lraw = 22;	// m
 	string nameUpgraded = "upgradedIAXO" + suffix;
-	phiRaw = 2.409e-08;	// m-2 s-1 (4 days)
-
-	// convert raw values to eV
-	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
+	//phiRaw = 3.47253e-08;	// m-2 s-1 (pure background)
+//
+	//// convert raw values to eV
+	//phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
 	L = Lraw / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t3( lMixingResGas, ne, T, wp, rFrac, nH, nHe4, nHe3, z1, z2, r, L, phi, nameUpgraded );
+	//thread t3( gasL, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameUpgraded );
+	thread t3( lMixingResGas, ne, T, wp, nH, nHe4, nHe3, z1, z2, r, L, nameUpgraded );
 
 	// wait until all threads are finished
 	t1.join();

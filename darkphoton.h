@@ -538,10 +538,10 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	//double dw = 100;
 	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
-	double dw = 1e1;
-	for ( double w = 1e2; w < 1e4 - dw; w+=dw ) {
+	double dw = 1;
+	for ( double w = 30; w < 100 - dw; w+=dw ) {
 	
-		if ( w > m + 1e3 ) { continue; }	// set integral cutoff
+		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
@@ -644,7 +644,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 		double phi = integrate( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		chiIAXO.push_back( phi );
 		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	phi X-2 = " << phi << endl;
+		cout << name << ":	m = " << m << "	phi X-4 = " << phi << endl;
 		}
 	}
 
@@ -686,7 +686,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 		double phi = integrateGas( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		chiIAXO.push_back( phi );
 		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	phi X-2 = " << phi <<endl;
+		cout << name << ":	m = " << m << "	phi X-4 = " << phi <<endl;
 	}
 	
 	// resonant sector
@@ -710,7 +710,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 		double phi = integrateGas( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		chiIAXO.push_back( phi );
 		massIAXO.push_back( m );
-		cout<< name << ":	m = " << m << "	phi X-2 = " << phi <<endl;
+		cout<< name << ":	m = " << m << "	phi X-4 = " << phi <<endl;
 	}
 
 		// write out
@@ -725,10 +725,11 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 
 
 // integrand for pure L gas conversion
-double lMixingResIntegrand( double m, double ne, double T, double wp, double r, double rFrac, double nH, double nHe4, double nHe3, double g1, double g2 ) {
+double lMixingResIntegrand( double m, double ne, double T, double wp, double r, double nH, double nHe4, double nHe3, double g1, double g2 ) {
 
 	// set values of solar B-field
 	double eB;
+	double rFrac = r / rSolar;
 
 	// impoved model
 	if ( rFrac <= r0 ) {
@@ -740,22 +741,25 @@ double lMixingResIntegrand( double m, double ne, double T, double wp, double r, 
 	else if ( rFrac > (r2 - d2) and rFrac < (r2 + d2) ) {
 		eB = tachocline( rFrac, r2, d2, B2 ) * pow(m2eV,2) / s2eV;
 		}
+	else { eB = 0; }
 	
-	double wB = eB / m_e;
-	double Gt = Gamma(wp, ne, T, nH, nHe4, nHe3, g1, g2);
+	if ( eB == 0 ) { return 0; }
+	else{
+		double wB = eB / m_e;
+		double Gt = Gamma(wp, ne, T, nH, nHe4, nHe3, g1, g2);
 
-	double p1 = pow( r/R , 2 ) / (8*pi);
-	double p2 = wp * pow(m,4) * pow(wB,2) * pow( pow(wp,2) - pow(m,2) , 0.5 );
-	double p3 = exp( wp / T ) - 1;
-	double p4 = pow( pow(m,2) - pow(wp,2) , 2 ) + pow(wp*Gt,2);
-	
-	double item = p1 * p2 / ( p3 * p4 );
-	return item;
-
+		double p1 = pow( r/R , 2 ) / (8*pi);
+		double p2 = wp * pow(m,4) * pow(wB,2) * pow( pow(wp,2) - pow(m,2) , 0.5 );
+		double p3 = exp( wp / T ) - 1;
+		double p4 = pow( pow(m,2) - pow(wp,2) , 2 ) + pow(wp*Gt,2);
+		
+		double item = p1 * p2 / ( p3 * p4 );
+		return item;
+	}
 }
 
 
-double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vector<double> wp, vector<double> rFrac, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L ) {
+double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vector<double> wp, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L ) {
 
 	double total = 0;	// initiate value of sum at 0
 	int len = r.size();
@@ -794,8 +798,8 @@ double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vecto
 			
 		
 			double dr = abs( r[j+1] - r[j] );
-			double height = 0.5 * ( ( P( wp[j+1], m, L )* lMixingResIntegrand( m, ne[j+1], T[j+1], wp[j+1], r[j+1], rFrac[j+1], nH[j+1], nHe4[j+1], nHe3[j+1], g1, g2 ))
-				+ ( P( wp[j], m, L ) * lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], rFrac[j], nH[j], nHe4[j], nHe3[j], g1, g2 ) ) );
+			double height = 0.5 * ( ( P( wp[j+1], m, L )* lMixingResIntegrand( m, ne[j+1], T[j+1], wp[j+1], r[j+1], nH[j+1], nHe4[j+1], nHe3[j+1], g1, g2 ))
+				+ ( P( wp[j], m, L ) * lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], nH[j], nHe4[j], nHe3[j], g1, g2 ) ) );
 			double dA = dr * height;
 			
 			// only add if real
@@ -807,7 +811,7 @@ double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vecto
 
 }
 
-double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, vector<double> wp, vector<double> rFrac, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L ) {
+double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, vector<double> wp, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L ) {
 
 	double total = 0;	// initiate value of sum at 0
 	int len = r.size();
@@ -847,8 +851,8 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 			
 		
 			double dr = abs( r[j+1] - r[j] );
-			double height = 0.5 * ( ( PgasFull( wp[j+1], m, L, z2 ) * lMixingResIntegrand( m, ne[j+1], T[j+1], wp[j+1], r[j+1], rFrac[j+1], nH[j+1], nHe4[j+1], nHe3[j+1], g1, g2 ))
-				+ ( PgasFull( wp[j], m, L, z2 ) * lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], rFrac[j], nH[j], nHe4[j], nHe3[j], g1, g2 ) ) );
+			double height = 0.5 * ( ( PgasFull( wp[j+1], m, L, z2 ) * lMixingResIntegrand( m, ne[j+1], T[j+1], wp[j+1], r[j+1], nH[j+1], nHe4[j+1], nHe3[j+1], g1, g2 ))
+				+ ( PgasFull( wp[j], m, L, z2 ) * lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], nH[j], nHe4[j], nHe3[j], g1, g2 ) ) );
 			double dA = dr * height;
 			
 			// only add if real
@@ -862,17 +866,18 @@ double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, ve
 
 
 // now to run the integral
-void lMixingRes( vector<double> n, vector<double> T, vector<double> wp, vector<double> rFrac, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L, double phi, string name ) {
+void lMixingRes( vector<double> n, vector<double> T, vector<double> wp,	vector<double> nH, vector<double> nHe4,
+				vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L, string name ) {
 	
 	// implement new interrupt with save
-	signal( SIGINT, interrupt );
+	//signal( SIGINT, interrupt );
 
 	// define vectors
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
 
 	string path = "data/limits/";
-	string ext = "-lMixingRes.dat";
+	string ext = "-lMixingRes-flux.dat";
 	
 	for ( double m = 1e-4; m < 1e3; m*=1.001 ) {
 
@@ -886,11 +891,10 @@ void lMixingRes( vector<double> n, vector<double> T, vector<double> wp, vector<d
 			exit(SIGINT);
 		}
 
-		double entryIAXO = lMixingResIntegrate( m, n, T, wp, rFrac, nH, nHe4, nHe3, z1, z2, r, L );
-		double chi4IAXO = phi / entryIAXO;
-		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
+		double entryIAXO = lMixingResIntegrate( m, n, T, wp, nH, nHe4, nHe3, z1, z2, r, L );
+		chiIAXO.push_back( entryIAXO );
 		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
+		//cout << name << ":	m = " << m << "	flux X-4 = " << entryIAXO << endl;
 	}
 
 	// write out
@@ -899,17 +903,18 @@ void lMixingRes( vector<double> n, vector<double> T, vector<double> wp, vector<d
 }
 
 
-void lMixingResGas( vector<double> n, vector<double> T, vector<double> wp, vector<double> rFrac, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L, double phi, string name ) {
+void lMixingResGas( vector<double> n, vector<double> T, vector<double> wp,vector<double> nH, vector<double> nHe4,
+				vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L, string name ) {
 	
 	// implement new interrupt with save
-	signal( SIGINT, interrupt );
+	//signal( SIGINT, interrupt );
 
 	// define vectors
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
 	
 	string path = "data/limits/";
-	string ext = "-lMixingResGas.dat";
+	string ext = "-lMixingResGas-flux.dat";
 
 	for ( double m = 1e-4; m < 5; m*=1.1 ) {
 
@@ -923,11 +928,10 @@ void lMixingResGas( vector<double> n, vector<double> T, vector<double> wp, vecto
 			exit(SIGINT);
 		}
 
-		double entryIAXO = lMixingResGasIntegrate( m, n, T, wp, rFrac, nH, nHe4, nHe3, z1, z2, r, L );
-		double chi4IAXO = phi / entryIAXO;
-		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
+		double entryIAXO = lMixingResGasIntegrate( m, n, T, wp, nH, nHe4, nHe3, z1, z2, r, L );
+		chiIAXO.push_back( entryIAXO );
 		massIAXO.push_back( m );
-		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
+		cout << name << ":	m = " << m << "	flux X-4 = " << entryIAXO << endl;
 	}
 
 	// write out
@@ -1572,7 +1576,7 @@ void spectrumResL( double m ) {
 			double g2 = z2[ indexT2 ][ indexX2 ];
 		
 			double dr = r[j+1] - r[j];
-			double entry = lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], rFrac[j], nH[j], nHe4[j], nHe3[j], g1, g2 );
+			double entry = lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], nH[j], nHe4[j], nHe3[j], g1, g2 );
 			E.push_back(wp[j]);
 			phi.push_back(entry);
 			R.push_back(rFrac[j]);

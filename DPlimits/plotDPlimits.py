@@ -77,6 +77,6 @@ plt.text(4e-9,0.02e-14,r'{\bf DM}',fontsize=27,ha='center')
 plt.text(1e-1,5e-10,r'{\bf IAXO}',fontsize=30,color='white',rotation=-32,rotation_mode='anchor',ha='center',va='center', zorder=105.5)
 
 
-MySaveFig(fig,'DarkPhoton-tPlasmonGas-stats')
+MySaveFig(fig,'DarkPhoton-tPlasmonGas-100eV')
 plt.show()
 
