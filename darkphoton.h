@@ -402,6 +402,47 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	return item;
 }
 
+// full conversion prob for logL of gas run
+double PgasFlux( double w, double m, double wpIAXO, double L, vector<vector<double>> z2 ) {
+	
+	// define detector parameters for Gamma_t
+	double nH, nHe3 = 0;	// only 4He is used
+	double g1 = 0;
+	double T = 25 * K2eV;	// detector at room temp [eV]
+	double ne = m_e * pow(m,2) / (4 * pi * a);
+	double nHe4 = ne / 2;	// 4He ion density [eV3]
+	
+	// select Gaunt factor from matrix
+	int indexT2;
+	int indexX2;
+	for( int i = 1; i < 200; i++ ) {
+		if( (z2[0][i] < T) and (z2[0][i+1] > T) ) { indexT2 = i; break; }
+	}
+	if( indexT2 == 1 ) { cout << "bad gaunt!!" << endl;}
+	else if( indexT2 == 199 ) { cout << "bad gaunt!!" << endl;}
+
+
+	for( int i = 1; i < 500; i++ ) {
+		if( (z2[i][0] * T) < w and (z2[i+1][0] * T) > w ) { indexX2 = i; break; }
+	}
+	if( indexX2 == 1 ) { cout << "bad gaunt!!" << endl;}
+	else if( indexX2 == 499 ) { cout << "bad gaunt!!" << endl;}
+
+
+	double g2 = z2[ indexT2 ][ indexX2 ];
+	
+	// calculate detector Gamma
+	double G = Gamma(w, ne, T, nH, nHe4, nHe3, g1, g2);
+
+	// calculate conversion prob
+	double p1 = pow(m,4) / ( pow( pow(wpIAXO,2) - pow(m,2), 2 ) + pow(w*G,2) );
+	double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));
+	
+	double item = p1 * p2;
+	
+	return item;
+}
+
 
 // B field in solar radiative zone [T]
 double radiativeZone( double r ) {
@@ -716,6 +757,38 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 		// write out
 	write2D( path + name + ext, massIAXO, chiIAXO );
 	
+}
+
+// gas integration over omega for logL
+double integrateGasFlux( double m, double wpIAXO, vector<double> n, vector<double> T, vector<double> wp,
+	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
+	
+	double total = 0;	// initiate value of sum at 0
+
+	// integrate by trapezium rule over w array
+	//double dw = 1e2;
+	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
+	//double dw = 100;
+	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
+	double dw = 10.;
+	for ( double w = 30; w < 100 - dw; w+=dw ) {
+	
+		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
+		if ( w <= m ) { continue; }	// only allow when energy greater than mass
+		else if ( w > m + wRange ) { continue; }
+		
+		else {
+		
+			double height = 0.5 * ( ( PgasFlux( w+dw, m, wpIAXO, L, z2 ) * trapeze( w+dw, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) 
+				+ ( PgasFlux( w, m, wpIAXO, L, z2 ) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 ) ) );
+			double dA = abs(dw * height);
+			
+			// only add if real
+			if ( isnan(dA) ) { continue; }
+			else { total += dA; }
+		}
+	}
+	return total;
 }
 
 
