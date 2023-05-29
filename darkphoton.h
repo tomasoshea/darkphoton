@@ -1235,7 +1235,7 @@ double trapezeREST( double w, vector<double> T, vector<double> wp,
 	int len = r.size();	// get length of vector
 
 	double total = 0;	// initiate value of sum at 0
-	double high = low + 0.01*rSolar;
+	double high = low + 0.001*rSolar;
 	
 	// perform integration by looping over r values
 	for ( int c = 0; c < len - 1; c++ ) {
@@ -1257,74 +1257,6 @@ double trapezeREST( double w, vector<double> T, vector<double> wp,
 		
 }
 
-// integral over r
-double trapezeREST2( double w, vector<double> n, vector<double> T, vector<double> wp,
-	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
-	  vector<vector<double>> z1, vector<vector<double>> z2, double low, int select ) {
-
-	int len = r.size();	// get length of vector
-
-	double total = 0;	// initiate value of sum at 0
-	double high = low + 0.01*rSolar;
-	
-	// perform integration by looping over r values
-	for ( int c = 0; c < len - 1; c++ ) {
-
-		if ( r[c] < low ) { continue; }
-		else if ( r[c] > high ) { continue; }
-
-		// select g(w, T) value from matrix
-		int indexT1;
-		int indexT2;
-		int indexX1;
-		int indexX2;
-		
-		for( int i = 1; i < 200; i++ ) {
-			if( z1[0][i] < T[c] and z1[0][i+1] > T[c] ) { indexT1 = i; }
-			if( z2[0][i] < T[c] and z2[0][i+1] > T[c] ) { indexT2 = i; }
-		}
-		
-		for( int i = 1; i < 500; i++ ) {
-			if( (z1[i][0] * T[c]) < w and (z1[i+1][0] * T[c]) > w ) { indexX1 = i; }
-			if( (z2[i][0] * T[c]) < w and (z2[i+1][0] * T[c]) > w ) { indexX2 = i; }
-		}
-		
-		double g1 = z1[ indexT1 ][ indexX1 ];
-		double g2 = z2[ indexT2 ][ indexX2 ];
-
-		double dr = r[c+1] - r[c];	// define trapezium spacing
-
-		// choose version
-		if( select == 0 ) {
-		double height = 0.5 * ( supREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
-			+ supREST(w, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
-		double dA = abs(dr * height);		
-		// only add if real
-		if ( isnan(dA) ) { continue; }
-		else { total += dA; }
-		}
-
-		else if( select == 1 ) {
-		total = 0.01 * rSolar * resREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2);
-		break;
-		}
-
-		else if( select == 2 ) {
-		double height = 0.5 * ( unsupREST(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
-			+ unsupREST(w, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
-		double dA = abs(dr * height);		
-		// only add if real
-		if ( isnan(dA) ) { continue; }
-		else { total += dA; }
-		}
-
-		else { cout << "error: select 0, 1 or 2..." << endl; }
-
-	}
-		
-	return total;
-		
-}
 
 // full integration over omega
 double integrateREST( vector<double> T, vector<double> wp,
@@ -1355,30 +1287,6 @@ double integrateREST( vector<double> T, vector<double> wp,
 	return total;
 }
 
-// full integration over omega
-double integrateREST2( vector<double> n, vector<double> T, vector<double> wp,
-	  vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
-	  vector<vector<double>> z1, vector<vector<double>> z2, double wlow, double rlow, int select ) {
-	
-	double total = 0;	// initiate value of sum at 0
-
-	// integrate by trapezium rule over w array
-	//double dw = 1e2;
-	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
-	double whigh = wlow + 100;	// eV
-	double dw = 1e0;
-	for ( double w = wlow; w < whigh - dw; w+=dw ) {
-			double height = 0.5 * ( trapezeREST2( w+dw, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow, select ) 
-				+  trapezeREST2( w, n, T, wp, r, nH, nHe4, nHe3, z1, z2, rlow, select ) );
-			double dA = abs(dw * height);
-
-			// only add if real
-			if ( isnan(dA) ) { continue; }
-			else { total += dA; }
-	}
-	return total;
-}
-
 
 // m in eV
 //void fluxREST( int select ) {
@@ -1400,7 +1308,7 @@ void fluxREST() {
 	string name = "data/flux_full.dat";
 	//string name = "data/flux_m" + to_string(intm) + "_X" + to_string(intchi) + "-again.dat";
 
-	for ( double rlow = 0; rlow < 0.99*rSolar; rlow += 0.01*rSolar ) {
+	for ( double rlow = 0; rlow < 0.999*rSolar; rlow += 0.001*rSolar ) {
 		for ( double wlow = 1; wlow < 20e3; wlow += 100 ) {
 	
 //			double avg = integrateREST2(n, T, wp, r, nH,
@@ -1417,7 +1325,144 @@ void fluxREST() {
 		// note here:	\33[A moves up a line
 		// 				\33[2K deletes line
 		// 				\r goes to start of line
-		cout << "\33[A\33[2K\r" << line << "\% complete..." << endl;
+		cout << "\33[A\33[2K\r" << line/10 << "\% complete..." << endl;
+		//cout << "\33[2K\r" << line << "\% complete...";
+
+	}
+	cout << "	creation of file " << name << " completed!" << endl;
+}
+
+
+// integral over r
+double trapezemx( double w, double m, vector<double> T, vector<double> wp,
+	  vector<double> r, vector<double> ne, vector<double> nH, vector<double> nHe4,
+	  vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, double low ) {
+
+	int len = r.size();	// get length of vector
+
+	double total = 0;	// initiate value of sum at 0
+	double high = low + 0.001*rSolar;
+	
+	// perform integration by looping over r values
+	for ( int c = 0; c < len - 1; c++ ) {
+
+		if ( r[c] < low ) { continue; }
+		else if ( r[c] > high ) { continue; }
+		
+		// select g(w,T) value from matrix
+		int indexT1;
+		int indexT2;
+		int indexX1;
+		int indexX2;
+		
+		for( int i = 1; i < 200; i++ ) {
+			if( z1[0][i] < T[c] and z1[0][i+1] > T[c] ) { indexT1 = i; }
+			if( z2[0][i] < T[c] and z2[0][i+1] > T[c] ) { indexT2 = i; }
+		}
+		
+		for( int i = 1; i < 500; i++ ) {
+			if( (z1[i][0] * T[c]) < w and (z1[i+1][0] * T[c]) > w ) { indexX1 = i; }
+			if( (z2[i][0] * T[c]) < w and (z2[i+1][0] * T[c]) > w ) { indexX2 = i; }
+		}
+		
+		double g1 = z1[ indexT1 ][ indexX1 ];
+		double g2 = z2[ indexT2 ][ indexX2 ];
+
+		double dr = r[c+1] - r[c];	// define trapezium spacing
+		double height = 0.5 * ( integrand(w, m, ne[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
+			+ integrand(w, m, ne[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
+		double dA = abs(dr * height);
+		
+		// only add if real
+		if ( isnan(dA) ) { continue; }
+		else { total += dA; }
+	}
+		
+	return total;
+		
+}
+
+
+// full integration over omega
+double integratemx( double m, vector<double> T, vector<double> wp,
+	  vector<double> r, vector<double> ne, vector<double> nH, vector<double> nHe4,
+	  vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2,
+	  double wlow, double rlow ) {
+	
+	double total = 0;	// initiate value of sum at 0
+
+	// integrate by trapezium rule over w array
+	//double dw = 1e2;
+	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
+	double whigh = wlow + 100;	// eV
+	double dw = 1e0;
+	for ( double w = wlow; w < whigh - dw; w+=dw ) {
+	
+		//if ( w <= m ) { continue; }	// only allow when energy greater than mass
+		
+		//else {
+		
+			double height = 0.5 * ( trapezemx( w+dw, m, T, wp, r, ne, nH, nHe4, nHe3, z1, z2, rlow ) 
+				+  trapezemx( w, m, T, wp, r, ne, nH, nHe4, nHe3, z1, z2, rlow ) );
+			double dA = abs(dw * height);
+			
+			// only add if real
+			if ( isnan(dA) ) { continue; }
+			else { total += dA; }
+		//}
+	}
+	return total;
+}
+
+
+void fluxmx( double m, double x ) {
+
+	int line = 0;	// for REST writeout
+
+	// read csv files to vectors
+	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
+	vector<double> T = read("data/T.dat");	// solar temperature [eV]
+	vector<double> ne = read("data/ne.dat");	// electron number density [eV3]
+	vector<double> wp = read("data/wp.dat");	// plasma frequency [eV]
+	vector<double> nH = read("data/nH.dat");	// H ion density [eV3]
+	vector<double> nHe4 = read("data/nHe4.dat");	// He4 ion density [eV3]
+	vector<double> nHe3 = read("data/nHe3.dat");	// He3 ion density [eV3]
+	
+	// get gaunt factors
+	vector<vector<double>> z1 = readGaunt("data/Z1.dat");	// gaunt factors for Z=1
+	vector<vector<double>> z2 = readGaunt("data/Z2.dat");	// gaunt factors for Z=2
+	
+	// convert Gaunt factor Theta to T in eV
+	for( int i = 1; i < 201; i++ ) { z1[0][i] = z1[0][i] * m_e; }
+	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
+
+	int len = r.size();	// get length of vector
+	double i = 1;	// to get solar radius fraction
+
+	// initialise vector etc
+	vector<double> flux;
+	int intm = (int)log10(m);
+	int intchi = (int)log10(x);
+	string name = "data/flux_m" + to_string(intm) + "_X" + to_string(intchi) + "-newbins.dat";
+
+	for ( double rlow = 0; rlow < 0.999*rSolar; rlow += 0.001*rSolar ) {
+		for ( double wlow = 1; wlow < 20e3; wlow += 100 ) {
+	
+//			double avg = integrateREST2(n, T, wp, r, nH,
+//						 nHe4, nHe3, z1, z2, wlow, rlow, select ) / 0.1;	// eV3 keV-1
+			double avg = pow(m,4) * integratemx( m, T, wp, r, ne, nH, nHe4, nHe3, z1, z2, wlow, rlow ) / 0.1;	// eV3 keV-1			
+			// convert eV2 to cm-2 s-1 keV-1
+			avg *= pow( m2eV, -2 ) * 1e-4 / s2eV;
+			//flux.push_back(avg);
+			flux.push_back( avg );
+		}
+		writeREST( name, flux, line );
+		line++;
+		flux.clear();
+		// note here:	\33[A moves up a line
+		// 				\33[2K deletes line
+		// 				\r goes to start of line
+		cout << "\33[A\33[2K\r" << (line)/10 << "\% complete..." << endl;
 		//cout << "\33[2K\r" << line << "\% complete...";
 
 	}
@@ -1433,7 +1478,7 @@ double trapezeG( double w, vector<double> n, vector<double> T,
 	int len = r.size();	// get length of vector
 
 	double total = 0;	// initiate value of sum at 0
-	double high = low + 0.01*rSolar;
+	double high = low + 0.001*rSolar;
 	
 	// perform integration by looping over r values
 	for ( int c = 0; c < len - 1; c++ ) {
@@ -1469,6 +1514,7 @@ double trapezeG( double w, vector<double> n, vector<double> T,
 		if ( isnan(dA) ) { cout << "nan" << endl; continue; }
 		else { total += dA; }
 	}
+	//cout << low << "	" << w << "	" << total << endl;
 	return total;	// return average over bin
 }
 
@@ -1481,7 +1527,7 @@ double integrateG( vector<double> n, vector<double> T,
 
 	// integrate by trapezium rule over w
 	double whigh = wlow + 100;	// eV
-	double dw = 1;
+	double dw = 10;
 	for ( double w = wlow; w < whigh - dw; w+=dw ) {
 
 		double height = 0.5 * ( w * trapezeG( w+dw, n, T, r, nH, nHe4, nHe3, z1, z2, rlow ) 
@@ -1518,13 +1564,13 @@ void wGout() {
 
 	// initialise vector etc
 	vector<double> wG;
-	string name = "data/wG-avg2.dat";
+	string name = "data/wG-avg3.dat";
 
-	for ( double rlow = 0; rlow < 0.99*rSolar; rlow += 0.01*rSolar ) {
+	for ( double rlow = 0; rlow < 0.999*rSolar; rlow += 0.001*rSolar ) {
 		for ( double wlow = 1; wlow < 20e3; wlow += 100 ) {
 
 			double avg = integrateG( n, T, r, nH,
-						 nHe4, nHe3, z1, z2, wlow, rlow ) / 100 / 0.01*rSolar;	// eV			
+						 nHe4, nHe3, z1, z2, wlow, rlow ) / 100 / 0.001*rSolar;	// eV			
 			wG.push_back( avg );
 			//cout << avg << endl;
 		}
@@ -1534,7 +1580,7 @@ void wGout() {
 		// note here:	\33[A moves up a line
 		// 				\33[2K deletes line
 		// 				\r goes to start of line
-		cout << "\33[A\33[2K\r" << line << "\% complete..." << endl;
+		cout << "\33[A\33[2K\r" << line/10 << "\% complete..." << endl;
 	}
 	cout << "	creation of file " << name << " completed!" << endl;
 }
@@ -1810,7 +1856,7 @@ void mfp(){
 		double g1 = z1[ indexT1 ][ indexX1 ];
 		double g2 = z2[ indexT2 ][ indexX2 ];
 
-		double G = Gamma( w, ne[j], T[j], nH[j], nHe4[j], nHe3[j], g1, g2 );	// eV
+		double G = Gamma( w, ne[j], T[j], nH[j], nHe4[j], nHe3[j], g1, g2 );	// [eV]
 		mfp.push_back( m2eV / G );	// [m]
 		GammaT.push_back(G);
 	}
@@ -1853,14 +1899,14 @@ void gammaOut(){
 	int rval = 0;
 	
 	// names for writeout
-	string name1 = "data/mfp2.dat";
-	string name2 = "data/GammaT2.dat";
-	string name3 = "data/wGammaT2.dat";
+	string name1 = "data/mfp3.dat";
+	string name2 = "data/GammaT3.dat";
+	string name3 = "data/wGammaT3.dat";
 
 	// get phi values for each w = wp for resonance
 	for ( int j = 0; j < len; j++ ) { 
 	
-	if ( 0.01 * rval > r[j] ) { continue; }
+	if ( 0.001 * rval > r[j] ) { continue; }
 	else{		
 	//mfp.push_back(r[j]);
 	//GammaT.push_back(r[j]);
@@ -1902,15 +1948,17 @@ void gammaOut(){
 	// note here:	\33[A moves up a line
 	// 				\33[2K deletes line
 	// 				\r goes to start of line
-	cout << "\33[A\33[2K\r" << ( rval +1 ) << "\% complete..." << endl;
+	cout << "\33[A\33[2K\r" << ( rval +1 ) / 10 << "\% complete..." << endl;
 //	cout << "\33[A\33[2K\r" << ( 100 * line / len ) << "\% complete..." << endl;
 	mfp.clear();
 	GammaT.clear();
 	wGammaT.clear();
 	}
 	}
+	
+	cout << "adding zeros..." << endl << endl;
 
-	while ( rval < 100 ) {
+	while ( rval < 1000 ) {
 		vector<double> temp;
 		for ( int c = 0; c < 200; c++ ) { temp.push_back(0); }
 		writeREST( name1, temp, line );
@@ -1918,6 +1966,7 @@ void gammaOut(){
 		writeREST( name3, temp, line );
 		line++;
 		rval++;
+		cout << "\33[A\33[2K\r" << ( rval +1 ) / 10 << "\% complete..." << endl;
 	}
 
 	cout << "creation of files:\n	" << name1 << "\n	" << name2 << "\n	" << name3 << "\ncompleted!" << endl;

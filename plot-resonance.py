@@ -11,20 +11,16 @@ fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
 ax2.set( xlim=(0, 1), ylim=(1e0,1e12) )
 #ax2.set( xlim = (0, 1), ylim=(-0.01, 1.01) )
-x = np.arange(0, 1, 0.01)
+x = np.arange(0, 1, 0.001)
+x2 = np.arange(0, 1, 0.01)
 col = 180
 name = 'plots/fluxcomp3.jpg'
 
 
 ### CALCULATED ###
-sup = loadtxt("data/flux_0-again.dat", usecols=col)	# suppressed flux * m-4 * chi-2
-res = loadtxt("data/flux_1-again.dat", usecols=col)    # resonant flux * m-4 * chi-2
-unsup = loadtxt("data/flux_2-again.dat", usecols=col)	# unsuppressed flux * chi-2
 dat = loadtxt("data/flux_full.dat", usecols=col)    # stripped flux
-wp = loadtxt("data/rVwp2")[:,1]    # curve of wp against r
-wG = loadtxt("data/wGammaT2.dat", usecols=col) # omega Gamma for resonance width
-wG2 = loadtxt("data/wG-avg.dat", usecols=col) # omega Gamma for resonance width
-G = loadtxt("data/GammaT2.dat", usecols=col) # omega Gamma for resonance width
+wp = loadtxt("data/rVwp3")[:,1]    # curve of wp against r
+wG = loadtxt("data/wGammaT3.dat", usecols=col) # omega Gamma for resonance width
 chi = 1e-11
 
 m = 1e2 # eV
@@ -141,7 +137,7 @@ ax2.plot(x, dat1, color='blue', ls='--')"""
 datT = loadtxt("data/flux_m2_X-11.dat", usecols=col)	# m = 10 eV
 datT = datT
 #datT = datT / np.nanmax(datT)
-ax2.plot(x, datT, color='red', label = 'm=100eV, E={}keV'.format(col*0.1))
+ax2.plot(x2, datT, color='red', label = 'm=100eV, E={}keV'.format(col*0.1))
 
 #datT = loadtxt("data/flux_m2_X-11-again.dat", usecols=col)	# m = 100 eV
 #datT = datT / np.nanmax(datT)

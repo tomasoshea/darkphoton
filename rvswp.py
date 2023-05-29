@@ -12,11 +12,11 @@ arr = np.array((r, wp)).swapaxes(0,1)
 # save full array
 np.savetxt("data/rVwp1", arr)
 
-# save array at 0.01 values
-red = np.zeros((100,2))
-for i in np.arange(0,100):
+# save array at 0.001 values
+red = np.zeros((1000,2))
+for i in np.arange(0,1000):
     for j in range(0,len(r)):
-        red[i][0] = round(i/100, ndigits=2)
-        if round(r[j]*100, ndigits=2) == i+1:
+        red[i][0] = round(i/1000, ndigits=3)
+        if round(r[j]*1000, ndigits=3) == i+1:
             red[i][1] = wp[j]
-np.savetxt("data/rVwp2", red)
+np.savetxt("data/rVwp3", red)
