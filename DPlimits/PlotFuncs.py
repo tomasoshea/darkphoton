@@ -800,7 +800,7 @@ class DarkPhoton():
         
         suffix = "-10keV"
         #suffixGas = "-tPlasmon-newerE-gas"
-        suffixGas = "stats-100eV"
+        suffixGas = "stats-300K-2"
 
         if pureL:
             #col = 'yellow'

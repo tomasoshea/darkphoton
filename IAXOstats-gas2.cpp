@@ -65,52 +65,12 @@ int factorial( int N ) {
 }
 
 
-// function to minimise
-long double f( long double x, long double b, long double s, int n ){
-
-	long double mu = b + ( pow(x,4) * s );
-	return ( 0 - mu + ( n * ( log(mu) + 1 - log(n) ) ) );
-}
-
-
-// minimisation fn
-double min( double b, double s, int n ){
-
-	long double x = 1.;	// starting chi
-	int lim = 1e3;		// no. iterations cutoff
-	bool done = false;	// completion marker
-	int c = 0;	// for cutoff
-
-	while( true ) {
-
-		long double plus = f( x, b, s, n );
-		long double minus = f( x/2, b, s, n );
-		//cout << plus << endl;
-		if( minus < plus ) { x /= 2; }
-		else{ break; }
-	}
-	
-	long double dx = x/100;
-	while( true ) {
-
-		long double minus = f( x-dx, b, s, n );
-		long double plus = f( x+dx, b, s, n );
-		if( minus < plus ) { x -= dx; }
-		else if( plus < minus ) { x += dx; }
-		else { break; }
-		c++;
-		if ( c > lim ) { break; }
-	}
-	//cout << x << endl;
-	return x;
-}
-
 double like( double x, double b, double n, double m, vector<double> ne, vector<double> T, vector<double> wp,
 	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
 
 	double item = 0;
 	
-	for ( double wpIAXO = 1e-2; wpIAXO <= 1e0; wpIAXO += 2e-2 ) {	// run over various densities
+	for ( double wpIAXO = 1e-2; wpIAXO <= 1e0; wpIAXO += 1e-1 ) {	// run over various densities
 	
 		double s = integrateGasFlux( m, wpIAXO, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		s *= ( pow(m2eV, -2) / s2eV * A * effO * effD * effT * t );
@@ -120,6 +80,7 @@ double like( double x, double b, double n, double m, vector<double> ne, vector<d
 		else { item += ( ( b + pow(x,4)*s ) - n * ( log( b + pow(x,4)*s ) + 1 - log(n) ) ); }
 
 	}
+	//cout << item << endl;
 	return exp(-item);
 }
 
@@ -127,7 +88,7 @@ double like( double x, double b, double n, double m, vector<double> ne, vector<d
 double integral( double b, double n, double m, vector<double> ne, vector<double> T, vector<double> wp,
 	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
 
-	double x = 1e-16;
+	double x = 1e-7;
 	double x2 = x;
 	//double dx = x;
 	//cout << x2 << endl;
@@ -161,7 +122,7 @@ double integral( double b, double n, double m, vector<double> ne, vector<double>
 		x *= mx;
 		//x2 += dx;
 	}
-
+	cout << x << endl;
 	return x;
 }
 
@@ -195,6 +156,7 @@ void chis( int detector ) {
 	if ( detector==0 ) {
 		// babyIAXO parameters
 		name="babyIAXO";
+		L = 10;	// detector length [m]
 		A = 0.77;	// detector area [m2]
 		phiBg = 1e-7 * 1e4 * dE;	// background flux [m-2 s-1]
 		area = 0.6 * 1e-4;	// XRay detection area [m2]
@@ -207,6 +169,7 @@ void chis( int detector ) {
 	else if ( detector==1 ) {
 		// baseline IAXO parameters
 		name="baselineIAXO";
+		L = 20;	// detector length [m]
 		A = 2.3;	// detector area [m2]
 		phiBg = 1e-8 * 1e4 * dE;	// background flux [m-2 s-1]
 		area = 1.2 * 1e-4;	// XRay detection area [m2]
@@ -219,6 +182,7 @@ void chis( int detector ) {
 	else if ( detector==2 ) {
 		// upgraded IAXO parameters
 		name="upgradedIAXO";
+		L = 22;	// detector length [m]
 		A = 3.9;	// detector area [m2]
 		phiBg = 1e-9 * 1e4 * dE;	// background flux [m-2 s-1]
 		area = 1.2 * 1e-4;	// XRay detection area [m2]
@@ -240,7 +204,7 @@ void chis( int detector ) {
 	vector<double> chi;	// initialise chi vector
 
 	// get 95% chi for each m value my minimisation
-	for ( double m = 1e-2; m <= 1e0; m += 2e-2  ) {
+	for ( double m = 1e-2; m <= 1e0; m += 1e-2 ) {
 		
 		double total = 0;	// keep total of all runs
 		
