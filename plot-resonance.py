@@ -25,7 +25,7 @@ chi = 1e-11
 
 m = 1e2 # eV
 dat1 = []
-dat1 = (m**4) * (chi**2) * wG * loadtxt("data/flux_full.dat", usecols=col) / ( (m**2 - wp**2)**2 + wG**2 )
+dat1 = (m**4) * (chi**2) * wG * loadtxt("data/flux_full.dat", usecols=col) / ( (m**2 - wp**2)**2 + wG**2 )	# [cm-2 s-1 keV-1]
 
 
 """for j in range(buff):
