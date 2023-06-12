@@ -23,6 +23,11 @@ dat = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-gas.dat")
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], color='magenta', label='T-plasmon (gas)')
 
+# tPlasmon gas T=3K
+dat = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-3K-gas.dat")
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1], color='magenta', ls=":", label='T-plasmon (cold gas)')
+
 # lMixing
 dat = loadtxt("data/limits/babyIAXO-1-lMixingRes-flux.dat")
 dat[:,1] = dat[:,1] / top
@@ -40,5 +45,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/flux-comparison1.jpg')
+plt.savefig('plots/flux-comparison-cold.jpg')
 plt.show()

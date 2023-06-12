@@ -366,7 +366,7 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	// define detector parameters for Gamma_t
 	double nH, nHe3 = 0;	// only 4He is used
 	double g1 = 0;
-	double T = 300 * K2eV;	// detector at room temp [eV]
+	double T = 3 * K2eV;	// detector at room temp [eV]
 	double ne = m_e * pow(m,2) / (4 * pi * a);
 	double nHe4 = ne / 2;	// 4He ion density [eV3]
 	
@@ -579,7 +579,7 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	//double dw = 100;
 	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
 	double dw = 10;
-	for ( double w = 100; w < 1e4 - dw; w+=dw ) {
+	for ( double w = 30; w < 100 - dw; w+=dw ) {
 	
 		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
