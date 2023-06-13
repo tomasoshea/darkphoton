@@ -198,7 +198,7 @@ void chis( int detector ) {
 
 	// initialise parameters
 	double A, phiBg, a, t, effD, effO, effT, len;
-	string name;
+	string name, load;
 	vector<double> flux, m;
 
 	// choose detector
@@ -213,8 +213,9 @@ void chis( int detector ) {
 		effD = 0.7;	// detectior efficiency
 		effO = 0.35;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		m = loadtxt("data/limits/babyIAXO-tPlasmon-flux.dat",0);
-		flux = loadtxt("data/limits/babyIAXO-tPlasmon-flux.dat",1);
+		load = "data/limits/babyIAXO-tPlasmon-70eV.dat";
+		m = loadtxt(load,0);
+		flux = loadtxt(load,1);
 		len = flux.size();
 		}
 
@@ -228,8 +229,9 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		m = loadtxt("data/limits/baselineIAXO-tPlasmon-flux.dat",0);
-		flux = loadtxt("data/limits/baselineIAXO-tPlasmon-flux.dat",1);
+		load = "data/limits/baselineIAXO-tPlasmon-70eV.dat";
+		m = loadtxt(load,0);
+		flux = loadtxt(load,1);
 		len = flux.size();
 		}
 
@@ -243,8 +245,9 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		m = loadtxt("data/limits/upgradedIAXO-tPlasmon-flux.dat",0);
-		flux = loadtxt("data/limits/upgradedIAXO-tPlasmon-flux.dat",1);
+		load = "data/limits/upgradedIAXO-tPlasmon-70eV.dat";
+		m = loadtxt(load,0);
+		flux = loadtxt(load,1);
 		len = flux.size();
 		}
 
@@ -280,7 +283,7 @@ void chis( int detector ) {
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-" + name + "-tPlasmon.dat";
+	string savename = "data/limits/stats-" + name + "-tPlasmon-70eV.dat";
 	write2D( savename, m, chi );
 }
 

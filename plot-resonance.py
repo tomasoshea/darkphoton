@@ -9,12 +9,10 @@ plt.style.use("style.txt")	# import plot style
 # setup plot
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
-ax2.set( xlim=(0, 1), ylim=(1e0,1e12) )
+ax2.set( xlim=(0.7,0.8), ylim=(1e-10,1e-2) )
 #ax2.set( xlim = (0, 1), ylim=(-0.01, 1.01) )
 x = np.arange(0, 1, 0.001)
-x2 = np.arange(0, 1, 0.01)
-col = 180
-name = 'plots/fluxcomp3.jpg'
+col = 80
 
 
 ### CALCULATED ###
@@ -23,9 +21,11 @@ wp = loadtxt("data/rVwp3")[:,1]    # curve of wp against r
 wG = loadtxt("data/wGammaT3.dat", usecols=col) # omega Gamma for resonance width
 chi = 1e-11
 
-m = 1e2 # eV
-dat1 = []
+m = 1e1 # eV
 dat1 = (m**4) * (chi**2) * wG * loadtxt("data/flux_full.dat", usecols=col) / ( (m**2 - wp**2)**2 + wG**2 )
+
+# save name
+name = 'plots/RESTm{}-res2.jpg'.format(int(np.log10(m)))
 
 
 """for j in range(buff):
@@ -71,7 +71,7 @@ dat1 = (m**4) * (chi**2) * wG * loadtxt("data/flux_full.dat", usecols=col) / ( (
         dat1.append(item)
 """
 #dat1 = dat1 / np.nanmax(dat1)
-ax2.plot(x, dat1, color='magenta', ls='--', zorder=5)
+ax2.plot(x, dat1, color='magenta', ls='--', alpha=0.7)
 #ax2.plot(x, res*chi**2*m**4, color='blue', ls=':', zorder=5)
 
 """
@@ -134,10 +134,9 @@ ax2.plot(x, dat1, color='blue', ls='--')"""
 #datT = datT / np.nanmax(datT)
 #ax2.plot(x, datT, color='magenta', ls=':', label = 'm = 1 keV')
 
-datT = loadtxt("data/flux_m2_X-11.dat", usecols=col)	# m = 10 eV
-datT = datT
-#datT = datT / np.nanmax(datT)
-ax2.plot(x2, datT, color='red', label = 'm=100eV, E={}keV'.format(col*0.1))
+datT = loadtxt("data/flux_m{}-newbins.dat".format(int(np.log10(m))), usecols=col)	# m = 100 eV
+datT = datT * chi**2
+ax2.plot(x, datT, color='cyan', alpha=0.7, label = 'm={}eV, E={}keV'.format(m, col*0.1))
 
 #datT = loadtxt("data/flux_m2_X-11-again.dat", usecols=col)	# m = 100 eV
 #datT = datT / np.nanmax(datT)

@@ -413,14 +413,13 @@ double PgasFlux( double w, double m, double wpIAXO, double L, vector<vector<doub
 	double nHe4 = ne / 2;	// 4He ion density [eV3]
 	
 	// select Gaunt factor from matrix
-	int indexT2;
+	int indexT2 = 36;
 	int indexX2;
-	for( int i = 1; i < 200; i++ ) {
-		if( (z2[0][i] < T) and (z2[0][i+1] > T) ) { indexT2 = i; break; }
-	}
-	if( indexT2 == 1 ) { cout << "bad gaunt!!" << endl;}
-	else if( indexT2 == 199 ) { cout << "bad gaunt!!" << endl;}
-
+	//for( int i = 1; i < 200; i++ ) {
+	//	if( (z2[0][i] < T) and (z2[0][i+1] > T) ) { indexT2 = i; break; }
+	//}
+	//if( indexT2 == 1 ) { cout << "bad gaunt!!" << endl;}
+	//else if( indexT2 == 199 ) { cout << "bad gaunt!!" << endl;}
 
 	for( int i = 1; i < 500; i++ ) {
 		if( (z2[i][0] * T) < w and (z2[i+1][0] * T) > w ) { indexX2 = i; break; }
@@ -428,6 +427,7 @@ double PgasFlux( double w, double m, double wpIAXO, double L, vector<vector<doub
 	if( indexX2 == 1 ) { cout << "bad gaunt!!" << endl;}
 	else if( indexX2 == 499 ) { cout << "bad gaunt!!" << endl;}
 
+	//cout << "T index: " << indexT2 << "	X index: " << indexX2 << endl;
 
 	double g2 = z2[ indexT2 ][ indexX2 ];
 	
@@ -437,9 +437,10 @@ double PgasFlux( double w, double m, double wpIAXO, double L, vector<vector<doub
 	// calculate conversion prob
 	double p1 = pow(m,4) / ( pow( pow(wpIAXO,2) - pow(m,2), 2 ) + pow(w*G,2) );
 	double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));
+
+	//cout << G*L << endl;
 	
-	double item = p1 * p2;
-	
+	double item = p1 * p2;	
 	return item;
 }
 
@@ -538,7 +539,8 @@ double trapeze( double w, double m, vector<double> n, vector<double> T, vector<d
 
 // full integration over omega
 double integrate( double m, vector<double> n, vector<double> T, vector<double> wp,
-	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
+	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3,
+	 double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
 	
 	double total = 0;	// initiate value of sum at 0
 
@@ -546,7 +548,8 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 	//double dw = 1e2;
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	double dw = 1e1;
-	for ( double w = 1e2; w < 1e4 - dw; w+=dw ) {
+	//for ( double w = 1e2; w < 1e4 - dw; w+=dw ) {
+	for ( double w = 30; w < 100 - dw; w+=dw ) {
 	
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
@@ -579,8 +582,8 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	//double dw = 100;
 	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
-	double dw = 1;
-	for ( double w = 30; w < 100 - dw; w+=dw ) {
+	double dw = 1e2;
+	for ( double w = 1e2; w < 1e4 - dw; w+=dw ) {
 	
 		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
@@ -712,7 +715,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	double min = *min_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-3; m < min; m*=1.1 ) {
+	for ( double m = 1e-3; m < min; m*=2 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -732,7 +735,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	
 	// resonant sector
 	int len = wp.size();
-	for ( int i = 0; i < len; i++ ) {
+	for ( int i = 0; i < len; i+=5 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -770,7 +773,7 @@ double integrateGasFlux( double m, double wpIAXO, vector<double> n, vector<doubl
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	//double dw = 100;
 	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
-	double dw = 10.;
+	double dw = 5.;
 	for ( double w = 30; w < 100 - dw; w+=dw ) {
 	
 		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
@@ -1240,12 +1243,18 @@ double trapezeREST( double w, vector<double> T, vector<double> wp,
 	// perform integration by looping over r values
 	for ( int c = 0; c < len - 1; c++ ) {
 
-		if ( r[c] < low ) { continue; }
-		else if ( r[c] > high ) { continue; }
+		if ( low == 0 ) {
+			r2 = r[c+1] - 0.001*rSolar;
+			r1 = r[c] - 0.001*rSolar;
+		}
+		else { r2 = r[c+1]; r1 = r[c]; }
 
-		double dr = r[c+1] - r[c];	// define trapezium spacing
-		double height = 0.5 * ( integrandREST(w, T[c], wp[c], r[c] ) 
-			+ integrandREST(w, T[c+1], wp[c+1], r[c+1] ) );
+		if ( r1 < low ) { continue; }
+		else if ( r1 > high ) { continue; }
+
+		double dr = r2 - r1;	// define trapezium spacing
+		double height = 0.5 * ( integrandREST(w, T[c], wp[c], r1 ) 
+			+ integrandREST(w, T[c+1], wp[c+1], r2 ) );
 		double dA = abs(dr * height);
 		
 		// only add if real
@@ -1269,7 +1278,7 @@ double integrateREST( vector<double> T, vector<double> wp,
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	double whigh = wlow + 100;	// eV
 	double dw = 1e0;
-	for ( double w = wlow; w < whigh - dw; w+=dw ) {
+	for ( double w = wlow; w <= whigh - dw; w+=dw ) {
 	
 		//if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		
@@ -1415,7 +1424,7 @@ double integratemx( double m, vector<double> T, vector<double> wp,
 }
 
 
-void fluxmx( double m, double x ) {
+void fluxmx( double m ) {
 
 	int line = 0;	// for REST writeout
 
@@ -1442,15 +1451,14 @@ void fluxmx( double m, double x ) {
 	// initialise vector etc
 	vector<double> flux;
 	int intm = (int)log10(m);
-	int intchi = (int)log10(x);
-	string name = "data/flux_m" + to_string(intm) + "_X" + to_string(intchi) + "-newbins.dat";
+	string name = "data/flux_m" + to_string(intm) + "-newbins.dat";
 
 	for ( double rlow = 0; rlow < 0.999*rSolar; rlow += 0.001*rSolar ) {
 		for ( double wlow = 1; wlow < 20e3; wlow += 100 ) {
 	
 //			double avg = integrateREST2(n, T, wp, r, nH,
 //						 nHe4, nHe3, z1, z2, wlow, rlow, select ) / 0.1;	// eV3 keV-1
-			double avg = pow(m,4) * integratemx( m, T, wp, r, ne, nH, nHe4, nHe3, z1, z2, wlow, rlow ) / 0.1;	// eV3 keV-1			
+			double avg = integratemx( m, T, wp, r, ne, nH, nHe4, nHe3, z1, z2, wlow, rlow ) / 0.1;	// eV3 keV-1		
 			// convert eV2 to cm-2 s-1 keV-1
 			avg *= pow( m2eV, -2 ) * 1e-4 / s2eV;
 			//flux.push_back(avg);

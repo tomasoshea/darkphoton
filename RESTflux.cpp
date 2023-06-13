@@ -19,8 +19,11 @@ int main(){
 //    thread t5( fluxREST, 1, 1e1, 1e-11 );
 //    thread t6( fluxREST, 2, 1e1, 1e-11 );
 
-    //fluxREST();
-    fluxmx(1e2, 1e-11);
+    fluxREST();
+    
+    //thread t0( fluxmx, 1e2 );
+    //thread t1( fluxmx, 1e1 );
+    //thread t2( fluxmx, 1e0 );
     //t0.join();
     //t1.join();
     //t2.join();

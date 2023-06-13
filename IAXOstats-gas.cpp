@@ -8,9 +8,9 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 5;	// detection time
+double days = 3e5;	// detection time
 double dE = 0.07;	// E range [keV]
-int samplesize = 1e3;		// size of random sample
+int samplesize = 4e5;		// size of random sample
 
 // conversion factors
 double s2eV = (6.582119569e-16);	// Hz to eV
@@ -214,7 +214,7 @@ void chis( int detector ) {
 		effD = 0.7;	// detectior efficiency
 		effO = 0.35;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/babyIAXO-tPlasmon-100eV-gas.dat";
+		load = "data/limits/babyIAXO-tPlasmon-70eVagain-gas.dat";
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -230,7 +230,7 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/baselineIAXO-tPlasmon-100eV-gas.dat";
+		load = "data/limits/baselineIAXO-tPlasmon-70eVagain-gas.dat";
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -246,7 +246,7 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/upgradedIAXO-tPlasmon-100eV-gas.dat";
+		load = "data/limits/upgradedIAXO-tPlasmon-70eVagain-gas.dat";
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -284,7 +284,7 @@ void chis( int detector ) {
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-100eV" + name + "-tPlasmonGas.dat";
+	string savename = "data/limits/stats-70eVagain4" + name + "-tPlasmonGas.dat";
 	write2D( savename, m, chi );
 }
 

@@ -18,6 +18,10 @@ top = np.nanmax(dat[:,1])
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], color='red', label='T-plasmon')
 
+dat = loadtxt("data/limits/babyIAXO-tPlasmon-70eV.dat")
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1], color='red', ls=':', label='T-plasmon (70 eV)')
+
 # tPlasmon gas
 dat = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-gas.dat")
 dat[:,1] = dat[:,1] / top
@@ -40,5 +44,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/flux-comparison1.jpg')
+plt.savefig('plots/flux-comparison2.jpg')
 plt.show()

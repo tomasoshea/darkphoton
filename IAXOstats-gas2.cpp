@@ -9,9 +9,9 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 5;	// detection time
+double days = 1;	// detection time
 double dE = 0.07;	// E range [keV]
-int samplesize = 1;		// size of random sample
+int samplesize = 10;		// size of random sample
 
 // initialise parameters
 double A, phiBg, area, t, effD, effO, effT, len, b, L;
@@ -65,52 +65,12 @@ int factorial( int N ) {
 }
 
 
-// function to minimise
-long double f( long double x, long double b, long double s, int n ){
-
-	long double mu = b + ( pow(x,4) * s );
-	return ( 0 - mu + ( n * ( log(mu) + 1 - log(n) ) ) );
-}
-
-
-// minimisation fn
-double min( double b, double s, int n ){
-
-	long double x = 1.;	// starting chi
-	int lim = 1e3;		// no. iterations cutoff
-	bool done = false;	// completion marker
-	int c = 0;	// for cutoff
-
-	while( true ) {
-
-		long double plus = f( x, b, s, n );
-		long double minus = f( x/2, b, s, n );
-		//cout << plus << endl;
-		if( minus < plus ) { x /= 2; }
-		else{ break; }
-	}
-	
-	long double dx = x/100;
-	while( true ) {
-
-		long double minus = f( x-dx, b, s, n );
-		long double plus = f( x+dx, b, s, n );
-		if( minus < plus ) { x -= dx; }
-		else if( plus < minus ) { x += dx; }
-		else { break; }
-		c++;
-		if ( c > lim ) { break; }
-	}
-	//cout << x << endl;
-	return x;
-}
-
 double like( double x, double b, double n, double m, vector<double> ne, vector<double> T, vector<double> wp,
 	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
 
 	double item = 0;
 	
-	for ( double wpIAXO = 1e-2; wpIAXO <= 1e0; wpIAXO += 2e-2 ) {	// run over various densities
+	for ( double wpIAXO = 1e-2; wpIAXO <= 1e-1; wpIAXO += 2e-2 ) {	// run over various densities
 	
 		double s = integrateGasFlux( m, wpIAXO, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		s *= ( pow(m2eV, -2) / s2eV * A * effO * effD * effT * t );
@@ -120,18 +80,20 @@ double like( double x, double b, double n, double m, vector<double> ne, vector<d
 		else { item += ( ( b + pow(x,4)*s ) - n * ( log( b + pow(x,4)*s ) + 1 - log(n) ) ); }
 
 	}
+	//cout << item << endl;
 	return exp(-item);
 }
+
 
 // integral for getting CL
 double integral( double b, double n, double m, vector<double> ne, vector<double> T, vector<double> wp,
 	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
 
-	double x = 1e-16;
+	double x = 1e-12;
 	double x2 = x;
 	//double dx = x;
 	//cout << x2 << endl;
-	double mx = 1.001;
+	double mx = 1.1;
 	//double total = 0.5 * x * ( exp( - f( x, b, s, n ) ) + exp( - f( 0, b, s, n ) ) );
 	double total= 0.5 * x * ( like( x, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 ) + like( 0, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 ) );
 	double norm = total;
@@ -145,6 +107,7 @@ double integral( double b, double n, double m, vector<double> ne, vector<double>
 		if ( isnan(L1 + L2) ) { continue; }
 		else { norm += 0.5 * dx * ( L1 + L2 ); }
 		if ( L2 + L1 == 0 ) { break; }
+		//cout << "x2 = " << x2 << "	L1 + L2 = " << L1 + L2 << endl;
 		//x2 += dx;
 		x2 *= mx;
 	}
@@ -160,8 +123,9 @@ double integral( double b, double n, double m, vector<double> ne, vector<double>
 		//cout << total * dx / norm << endl;
 		x *= mx;
 		//x2 += dx;
+		//cout << x << endl;
 	}
-
+	//cout << x << endl;
 	return x;
 }
 
@@ -202,6 +166,7 @@ void chis( int detector ) {
 		effD = 0.7;	// detectior efficiency
 		effO = 0.35;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
+		L = 10 / m2eV;		// bore length [eV-1]
 		}
 
 	else if ( detector==1 ) {
@@ -214,6 +179,7 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
+		L = 20 / m2eV;		// bore length [eV-1]
 		}
 
 	else if ( detector==2 ) {
@@ -226,6 +192,7 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
+		L = 22 / m2eV;		// bore length [eV-1]
 		}
 
 	// calculate background count
@@ -240,7 +207,7 @@ void chis( int detector ) {
 	vector<double> chi;	// initialise chi vector
 
 	// get 95% chi for each m value my minimisation
-	for ( double m = 1e-2; m <= 1e0; m += 2e-2  ) {
+	for ( double m = 1e-2; m <= 1e-1; m += 2e-2 ) {
 		
 		double total = 0;	// keep total of all runs
 		
@@ -254,12 +221,12 @@ void chis( int detector ) {
 			
 		chi.push_back( total / samplesize );
 		mvec.push_back(m);
-		cout << m << " out of " << m << ":	" << total / samplesize << endl;
+		cout << (int)(m*1e2) << " out of " << 10 << ":	" << total / samplesize << endl;
 	}
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-100eV" + name + "-tPlasmonGas2.dat";
+	string savename = "data/limits/newstats-70eV" + name + "-tPlasmonGas.dat";
 	write2D( savename, mvec, chi );
 }
 
@@ -269,12 +236,12 @@ int main(){
 	
 	// thread all 3 at same time
 	thread t1(chis, 0); usleep(100);	// baby
-	thread t2(chis, 1); usleep(100);	// baseline
-	thread t3(chis, 2); usleep(100);	// upgraded
+	//thread t2(chis, 1); usleep(100);	// baseline
+	//thread t3(chis, 2); usleep(100);	// upgraded
 	
 	t1.join();
-	t2.join();
-	t3.join();
+	//t2.join();
+	//t3.join();
 	
 	cout << "\n¡¡complete!!" << endl;
 	return 0;
