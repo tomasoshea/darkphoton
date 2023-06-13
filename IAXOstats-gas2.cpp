@@ -81,6 +81,7 @@ double like( double x, double b, double n, double m, vector<double> ne, vector<d
 
 	}
 	//cout << item << endl;
+	//cout << item << endl;
 	return exp(-item);
 }
 

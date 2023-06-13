@@ -8,9 +8,9 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 3e5;	// detection time
-double dE = 0.07;	// E range [keV]
-int samplesize = 4e5;		// size of random sample
+double days = 5;	// detection time
+double dE = 10.;	// E range [keV]
+int samplesize = 1e3;		// size of random sample
 
 // conversion factors
 double s2eV = (6.582119569e-16);	// Hz to eV
@@ -284,7 +284,7 @@ void chis( int detector ) {
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-70eVagain4" + name + "-tPlasmonGas.dat";
+	string savename = "data/limits/stats-300K-2" + name + "-tPlasmonGas.dat";
 	write2D( savename, m, chi );
 }
 

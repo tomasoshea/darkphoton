@@ -17,7 +17,7 @@ col = 80
 
 ### CALCULATED ###
 dat = loadtxt("data/flux_full.dat", usecols=col)    # stripped flux
-wp = loadtxt("data/rVwp3")[:,1]    # curve of wp against r
+wp = loadtxt("data/rVwp3.dat")[:,1]    # curve of wp against r
 wG = loadtxt("data/wGammaT3.dat", usecols=col) # omega Gamma for resonance width
 chi = 1e-11
 
