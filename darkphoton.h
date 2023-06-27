@@ -139,6 +139,45 @@ vector<vector<double>> readGaunt( string name ) {
 }
 
 
+// read 2nd column from 2 column datafile
+vector<double> loadtxt( string name, int col ) {
+
+	//cout << "Reading file " << name << "..." << endl;
+
+	// open file defined in argument
+	fstream file;
+	file.open(name,ios::in);
+	
+	char delim('	');	// define delimiter for file parsing (tab)
+	
+	if ( file.is_open() ){   // checking whether the file is open
+		string temp;	// define temporary storage string
+		vector<double> row1;	// define vectors to store input values and return
+		vector<double> row2;
+		vector<string> v;
+		
+		while( getline(file, temp) ){ v.push_back( temp ); }
+
+		for ( string i : v ) {
+
+			stringstream X(i);
+			string temp;
+			vector<string> vec;
+			while ( getline( X, temp, delim ) ) { vec.push_back(temp); }
+			row1.push_back( stod(vec[0]) );
+			row2.push_back( stod(vec[1]) );
+		}
+		
+	file.close();   // close the file object.
+	
+	// choose column
+	if ( col == 0 ) { return row1; }
+	else if ( col == 1 ) { return row2; }
+	else { cout << "put 0 or 1 for columns" << endl; return {69.}; }
+	}
+	else{ cout << "file " << name << " doesn't exist" << endl; return {69.}; }
+}
+
 // write out simple datafile
 void write( string name, vector<double> data ) {
 
@@ -366,19 +405,13 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	// define detector parameters for Gamma_t
 	double nH, nHe3 = 0;	// only 4He is used
 	double g1 = 0;
-	double T = 3 * K2eV;	// detector at room temp [eV]
+	double T = 300 * K2eV;	// detector at room temp [eV]
 	double ne = m_e * pow(m,2) / (4 * pi * a);
 	double nHe4 = ne / 2;	// 4He ion density [eV3]
 	
 	// select Gaunt factor from matrix
-	int indexT2;
+	int indexT2 = 60;	// T = 300K
 	int indexX2;
-	for( int i = 1; i < 200; i++ ) {
-		if( (z2[0][i] < T) and (z2[0][i+1] > T) ) { indexT2 = i; break; }
-	}
-	if( indexT2 == 1 ) { cout << "bad gaunt!!" << endl;}
-	else if( indexT2 == 199 ) { cout << "bad gaunt!!" << endl;}
-
 
 	for( int i = 1; i < 500; i++ ) {
 		if( (z2[i][0] * T) < w and (z2[i+1][0] * T) > w ) { indexX2 = i; break; }
@@ -386,6 +419,7 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	if( indexX2 == 1 ) { cout << "bad gaunt!!" << endl;}
 	else if( indexX2 == 499 ) { cout << "bad gaunt!!" << endl;}
 
+	//cout << indexT2 << "	" << indexX2 << endl;
 
 	double g2 = z2[ indexT2 ][ indexX2 ];
 	
@@ -490,6 +524,21 @@ double integrand( double w, double m, double number, double T, double wp, double
 }
 
 
+double integrandSup( double w, double ne, double T, double wp, double r, double nH, double nHe4, double nHe3, double g1, double g2 ) {
+
+	double G = Gamma(w, ne, T, nH, nHe4, nHe3, g1, g2);
+	
+	double p1 = pow(r,2) * pow(pi * R, -2);
+	double p2 = w * w;
+	double p3 = exp(w/T) - 1;
+	double p4 = G;
+	double p5 = pow(wp,4);
+
+	double item = p1 * p2 * p4 / (p3 * p5);
+	
+	return item;
+}
+
 // integral over r
 double trapeze( double w, double m, vector<double> n, vector<double> T, vector<double> wp,
 	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2 ) {
@@ -524,6 +573,51 @@ double trapeze( double w, double m, vector<double> n, vector<double> T, vector<d
 		double dr = r[c+1] - r[c];	// define trapezium spacing
 		double height = 0.5 * ( integrand(w, m, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
 			+ integrand(w, m, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
+		double dA = abs(dr * height);
+		
+		// only add if real
+		if ( isnan(dA) ) { continue; }
+		else { total += dA; }
+	}
+		
+	return total;
+		
+}
+
+// integral over r
+double trapezeSup( double w, vector<double> n, vector<double> T, vector<double> wp,
+	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2 ) {
+
+	int len = r.size();	// get length of vector
+
+	double total = 0;	// initiate value of sum at 0
+	
+	// perform integration by looping over r values
+	for ( int c = 0; c < len - 1; c++ ) {
+
+		//if ( r[c] > 0.1 * rSolar ) { continue; }
+		// select g(w, T) value from matrix
+		int indexT1;
+		int indexT2;
+		int indexX1;
+		int indexX2;
+		
+		for( int i = 1; i < 200; i++ ) {
+			if( z1[0][i] < T[c] and z1[0][i+1] > T[c] ) { indexT1 = i; }
+			if( z2[0][i] < T[c] and z2[0][i+1] > T[c] ) { indexT2 = i; }
+		}
+		
+		for( int i = 1; i < 500; i++ ) {
+			if( (z1[i][0] * T[c]) < w and (z1[i+1][0] * T[c]) > w ) { indexX1 = i; }
+			if( (z2[i][0] * T[c]) < w and (z2[i+1][0] * T[c]) > w ) { indexX2 = i; }
+		}
+		
+		double g1 = z1[ indexT1 ][ indexX1 ];
+		double g2 = z2[ indexT2 ][ indexX2 ];
+
+		double dr = r[c+1] - r[c];	// define trapezium spacing
+		double height = 0.5 * ( integrandSup(w, n[c], T[c], wp[c], r[c], nH[c], nHe4[c], nHe3[c], g1, g2) 
+			+ integrandSup(w, n[c+1], T[c+1], wp[c+1], r[c+1], nH[c+1], nHe4[c+1], nHe3[c+1], g1, g2) );
 		double dA = abs(dr * height);
 		
 		// only add if real
@@ -630,6 +724,50 @@ double integrateGasFlux( double m, double wpIAXO, vector<double> n, vector<doubl
 	return total;
 }
 
+
+// write solar flux file
+void solarFluxT() {
+
+	// read csv files to vectors
+	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
+	vector<double> rFrac = read("data/rFrac.dat");	// sun radial distance as fraction
+	vector<double> T = read("data/T.dat");	// solar temperature [eV]
+	vector<double> n = read("data/ne.dat");	// electron number density [eV3]
+	vector<double> wp = read("data/wp.dat");	// plasma frequency [eV]
+	vector<double> nH = read("data/nH.dat");	// H ion density [eV3]
+	vector<double> nHe4 = read("data/nHe4.dat");	// He4 ion density [eV3]
+	vector<double> nHe3 = read("data/nHe3.dat");	// He3 ion density [eV3]
+	
+	// get gaunt factors
+	vector<vector<double>> z1 = readGaunt("data/Z1.dat");	// gaunt factors for Z=1
+	vector<vector<double>> z2 = readGaunt("data/Z2.dat");	// gaunt factors for Z=2
+	
+	// convert Gaunt factor Theta to T in eV
+	for( int i = 1; i < 201; i++ ) { z1[0][i] = z1[0][i] * m_e; }
+	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
+
+	// define vectors
+	vector<double> solarflux;
+	vector<double> solarW;
+
+
+	// set path for writeout
+	string path = "data/";
+	string ext = "solarflux-10keV.dat";
+
+	double dw = 1e0;
+	double total = 0;
+	for ( double w = 1e2; w <= 1e4 - dw; w+=dw ) {
+			
+		double flux = trapezeSup( w, n, T, wp, r, nH, nHe4, nHe3, z1, z2 );
+		solarflux.push_back( flux );
+		solarW.push_back( w );
+		cout << "omega = " << w << "	flux X-2 m-4 = " << flux << endl;
+	}
+
+	// write out
+	write2D( path + ext, solarW, solarflux );
+}
 
 // void functions for splitting jobs
 void integrateT( vector<double> n, vector<double> T, vector<double> wp,

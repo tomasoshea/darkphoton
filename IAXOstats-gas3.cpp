@@ -9,51 +9,12 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 100;	// detection time
+double days = 10;	// detection time
 double dE = 0.07;	// E range [keV]
-int samplesize = 10;		// size of random sample
+int samplesize = 100;		// size of random sample
 
 // initialise parameters
 double A, phiBg, area, t, effD, effO, effT, len, b, L;
-
-
-// read 2nd column from 2 column datafile
-vector<double> loadtxt( string name, int col ) {
-
-	//cout << "Reading file " << name << "..." << endl;
-
-	// open file defined in argument
-	fstream file;
-	file.open(name,ios::in);
-	
-	char delim('	');	// define delimiter for file parsing (tab)
-	
-	if ( file.is_open() ){   // checking whether the file is open
-		string temp;	// define temporary storage string
-		vector<double> row1, row2;	// define vector to store input values and return
-		vector<string> v;
-		
-		while( getline(file, temp) ){ v.push_back( temp ); }
-
-		for ( string i : v ) {
-
-			stringstream X(i);
-			string temp;
-			vector<string> vec;
-			while ( getline(X, temp, delim ) ) { vec.push_back(temp); }
-			row1.push_back( stod(vec[0]) );
-			row2.push_back( stod(vec[1]) );
-		}
-		
-	file.close();   // close the file object.
-	
-	// choose column
-	if ( col == 0 ) { return row1; }
-	else if ( col == 1 ) { return row2; }
-	else { cout << "put 0 or 1 for columns" << endl; return {69.}; }	
-	}
-	else{ cout << "file " << name << " doesn't exist" << endl; return {69.}; }
-}
 
 
 // factorial
@@ -65,17 +26,39 @@ int factorial( int N ) {
 }
 
 
-double like( double x, double b, double n, double m, vector<double> ne, vector<double> T, vector<double> wp,
-	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
+double backConversion( double m, double wpIAXO, double L, vector<vector<double>> z2, vector<double> omegas, vector<double> fluxes ) {
+
+	double total = 0;	// initiate value of sum at 0
+	for ( int c = 0; c < omegas.size(); c++ ) {
+
+		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
+		if ( omegas[c] <= m ) { continue; }	// only allow when energy greater than mass		
+		else {
+			double dA = 0.5 * pow(m,4) * ( ( PgasFull( omegas[c+1], m, L, z2 ) * fluxes[c+1] ) 
+				+ ( PgasFull( omegas[c], m, L, z2 ) * fluxes[c] ) );
+			dA *= (omegas[c+1] - omegas[c]);
+			
+			// only add if real
+			if ( isnan(dA) ) { continue; }
+			else { total += abs(dA); }
+		}
+	}
+	return total;
+}
+
+
+double like( double x, double b, double n, double m, double L, vector<vector<double>> z2,
+			vector<double> omegas, vector<double> fluxes ) {
 
 	double item = 0;
 	
 	for ( double wpIAXO = 1e-2; wpIAXO <= 1e-1; wpIAXO *= 1.29 ) {	// run over various densities
 
 		// only do for neighbouring density steps
-		if( abs(wpIAXO - m) > 2e-2 ) { continue; }
+		if( abs(wpIAXO - m) > wpIAXO * 1.3 ) { continue; }
 	
-		double s = integrateGasFlux( m, wpIAXO, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		double s = backConversion( m, wpIAXO, L, z2, omegas, fluxes );
+		
 		s *= ( pow(m2eV, -2) / s2eV * A * effO * effD * effT * t );
 
 		if ( n == 0 ) { item += ( b + pow(x,4)*s ); }
@@ -88,8 +71,11 @@ double like( double x, double b, double n, double m, vector<double> ne, vector<d
 
 
 // integral for getting CL
-double integral( double b, double n, double m, vector<double> ne, vector<double> T, vector<double> wp,
-	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
+double integral( double b, double n, double m, double L, vector<vector<double>> z2 ) {
+
+	string loadname = "data/solarflux-70eV.dat";
+	vector<double> omegas = loadtxt(loadname, 0);
+	vector<double> fluxes = loadtxt(loadname, 1);
 
 	double x = 1e-12;
 	double x2 = x;
@@ -97,15 +83,15 @@ double integral( double b, double n, double m, vector<double> ne, vector<double>
 	//cout << x2 << endl;
 	double mx = 1.1;
 	//double total = 0.5 * x * ( exp( - f( x, b, s, n ) ) + exp( - f( 0, b, s, n ) ) );
-	double total= 0.5 * x * ( like( x, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 ) + like( 0, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 ) );
+	double total= 0.5 * x * ( like( x, b, n, m, L, z2, omegas, fluxes ) + like( 0, b, n, m, L, z2, omegas, fluxes ) );
 	double norm = total;
 
 	// normalise with intg to inf
 	while(true) {
 		double dx = x2 * (mx - 1);
-		double L1 = like( x2, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		double L1 = like( x2, b, n, m, L, z2, omegas, fluxes );
 		//double L2 = L( x2*mx, b, s, n );
-		double L2 = like( x2+dx, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		double L2 = like( x2+dx, b, n, m, L, z2, omegas, fluxes );
 		if ( isnan(L1 + L2) ) { continue; }
 		else { norm += 0.5 * dx * ( L1 + L2 ); }
 		if ( L2 + L1 == 0 ) { break; }
@@ -117,8 +103,8 @@ double integral( double b, double n, double m, vector<double> ne, vector<double>
 	// integrate up to CL
 	while ( ( total / norm ) < CL ) {
 		double dx = x * (mx - 1);
-		double L1 = like( x, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
-		double L2 = like( x+dx, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		double L1 = like( x, b, n, m, L, z2, omegas, fluxes );
+		double L2 = like( x+dx, b, n, m, L, z2, omegas, fluxes );
 		//double L2 = L( x*mx, b, s, n );
 		if ( isnan(L1 + L2) ) { continue; }
 		else { total += 0.5 * dx * ( L1 + L2 ); }
@@ -218,7 +204,7 @@ void chis( int detector ) {
 			double n = distro(generator);	// get random n from poisson
 			//if ( n == 0 ) { continue; }
 			//else { total += min( Nbg, Nsig, n ); }
-			total += integral( b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+			total += integral( b, n, m, L, z2 );
 		}
 			
 		chi.push_back( total / samplesize );
