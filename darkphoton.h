@@ -539,6 +539,7 @@ double integrandSup( double w, double ne, double T, double wp, double r, double 
 	return item;
 }
 
+
 // integral over r
 double trapeze( double w, double m, vector<double> n, vector<double> T, vector<double> wp,
 	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2 ) {
@@ -581,7 +582,6 @@ double trapeze( double w, double m, vector<double> n, vector<double> T, vector<d
 	}
 		
 	return total;
-		
 }
 
 // integral over r
@@ -1242,8 +1242,9 @@ double pureLintegrand( double m, double T, double wp, double r ) {
 
 }
 
+
 double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
-						vector<double> wp, vector<double> r, double L, double B ) {
+						vector<double> wp, vector<double> r, double L ) {
 
 	double total = 0;	// initiate value of sum at 0
 	int len = r.size();
@@ -1263,8 +1264,8 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 			double dr = abs(r[j+1] - r[j]);
 			//double height = 0.5 * ( ( PpureL( m, wp[j+1], L) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
 			//	+ ( PpureL( m, wp[j], L) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
-			double height = 0.5 * ( ( PpureLConversion( wp[j+1], m, L, z2, B ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
-				+ ( PpureLConversion( wp[j], m, L, z2, B ) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
+			double height = 0.5 * ( wp[j+1] * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
+				+ ( ( wp[j] * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
 			double dA = dr * height;
 			
 			// only add if real
@@ -1273,13 +1274,12 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 			}
 	}
 	return total;
-
 }
 
 
 // now to run the integral
 void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
-	 vector<double> r, double L, double phi, string name, double B ) {
+	 vector<double> r, double L, string name ) {
 
 	// implement new interrupt with save
 	//signal( SIGINT, interrupt );
@@ -1290,8 +1290,11 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 
 	string path = "data/limits/";
 	string ext = "-pureL.dat";
-	
-	for ( double m = 1e-4; m < 1e1; m*=2 ) {
+
+	//double P0 = 1.e-12 * J2eV * pow(m2eV,2) * s2eV;	// 1 W m-2 in eV
+	double J0 = 1e-6;		// 1 uA threshold
+
+	for ( double m = 1e-6; m < 1e4; m*=2 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -1303,10 +1306,10 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 			exit(SIGINT);
 		}
 
-		double entryIAXO = pureLintegrate( m, z2, T, wp, r, L, B );
-		double chi4IAXO = phi / entryIAXO;
-		cout << name << ":	m = " << m << "	chi = " << pow( chi4IAXO, 0.25 ) << endl;
-		chiIAXO.push_back( pow( chi4IAXO, 0.25 ) );
+		double entryIAXO = sqrt(pureLintegrate( m, z2, T, wp, r, L )) * L / 1e-6;		// E0 * L / R
+		double chi4IAXO = J0 / entryIAXO;
+		cout << name << ":	m = " << m << "	chi = " << sqrt(chi4IAXO) << endl;
+		chiIAXO.push_back( sqrt(chi4IAXO) );
 		massIAXO.push_back( m );
 	}
 

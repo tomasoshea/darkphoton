@@ -11,10 +11,7 @@ using namespace std;
 double CL = 0.95;	// confidence level
 double days = 10;	// detection time
 double dE = 0.07;	// E range [keV]
-int samplesize = 100;		// size of random sample
-
-// initialise parameters
-double A, phiBg, area, t, effD, effO, effT, len, b, L;
+int samplesize = 2;	// size of random sample
 
 
 // factorial
@@ -26,38 +23,50 @@ int factorial( int N ) {
 }
 
 
-double backConversion( double m, double wpIAXO, double L, vector<vector<double>> z2, vector<double> omegas, vector<double> fluxes ) {
+double backConversion( double m, double wpIAXO, vector<vector<double>> z2, vector<double> omegas, vector<double> fluxes, double L ) {
 
 	double total = 0;	// initiate value of sum at 0
 	for ( int c = 0; c < omegas.size(); c++ ) {
 
-		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
+		if ( omegas[c] > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( omegas[c] <= m ) { continue; }	// only allow when energy greater than mass		
-		else {
-			double dA = 0.5 * pow(m,4) * ( ( PgasFull( omegas[c+1], m, L, z2 ) * fluxes[c+1] ) 
-				+ ( PgasFull( omegas[c], m, L, z2 ) * fluxes[c] ) );
+
+		double dA;
+		if( m == wpIAXO ) {
+			dA = 0.5 * pow(m,4) * ( ( PgasFull( omegas[c+1], m, L, z2 ) * fluxes[c+1] ) 
+						+ ( PgasFull( omegas[c], m, L, z2 ) * fluxes[c] ) );
 			dA *= (omegas[c+1] - omegas[c]);
-			
-			// only add if real
-			if ( isnan(dA) ) { continue; }
-			else { total += abs(dA); }
+		} else {
+			dA = 0.5 * pow(m,4) * ( ( PgasFlux( omegas[c+1], m, wpIAXO, L, z2 ) * fluxes[c+1] ) 
+						+ ( PgasFlux( omegas[c], m, wpIAXO, L, z2 ) * fluxes[c] ) );
+			dA *= (omegas[c+1] - omegas[c]);
 		}
+		
+		// only add if real
+		if ( isnan(dA) ) { continue; }
+		total += abs(dA);
 	}
+
 	return total;
 }
 
 
-double like( double x, double b, double n, double m, double L, vector<vector<double>> z2,
-			vector<double> omegas, vector<double> fluxes ) {
+double like( double x, double b, double n, double m, vector<vector<double>> z2,
+			vector<double> omegas, vector<double> fluxes, double A,
+				double phiBg, double area, double t, double effD, double effO,
+				double effT, double len, double L ) {
 
 	double item = 0;
+
+	//double wpMultiple = 1.098541;	// 50
+	double wpMultiple = 1.0476;		// 100
 	
-	for ( double wpIAXO = 1e-2; wpIAXO <= 1e-1; wpIAXO *= 1.29 ) {	// run over various densities
+	for ( double wpIAXO = 1e-2; wpIAXO <= 1e0; wpIAXO *= wpMultiple ) {	// run over various densities
 
 		// only do for neighbouring density steps
-		if( abs(wpIAXO - m) > wpIAXO * 1.3 ) { continue; }
+		if( abs(wpIAXO - m) > wpIAXO * wpMultiple ) { continue; }
 	
-		double s = backConversion( m, wpIAXO, L, z2, omegas, fluxes );
+		double s = backConversion( m, wpIAXO, z2, omegas, fluxes, L );
 		
 		s *= ( pow(m2eV, -2) / s2eV * A * effO * effD * effT * t );
 
@@ -71,11 +80,10 @@ double like( double x, double b, double n, double m, double L, vector<vector<dou
 
 
 // integral for getting CL
-double integral( double b, double n, double m, double L, vector<vector<double>> z2 ) {
-
-	string loadname = "data/solarflux-70eV.dat";
-	vector<double> omegas = loadtxt(loadname, 0);
-	vector<double> fluxes = loadtxt(loadname, 1);
+double integral( double b, double n, double m, vector<vector<double>> z2,
+				vector<double> omegas, vector<double> fluxes, double A,
+				double phiBg, double area, double t, double effD, double effO,
+				double effT, double len, double L ) {
 
 	double x = 1e-12;
 	double x2 = x;
@@ -83,15 +91,16 @@ double integral( double b, double n, double m, double L, vector<vector<double>> 
 	//cout << x2 << endl;
 	double mx = 1.1;
 	//double total = 0.5 * x * ( exp( - f( x, b, s, n ) ) + exp( - f( 0, b, s, n ) ) );
-	double total= 0.5 * x * ( like( x, b, n, m, L, z2, omegas, fluxes ) + like( 0, b, n, m, L, z2, omegas, fluxes ) );
+	double total= 0.5 * x * ( like( x, b, n, m, z2, omegas, fluxes, A, phiBg, area, t, effD, effO, effT, len, L )
+				+ like( 0, b, n, m, z2, omegas, fluxes, A, phiBg, area, t, effD, effO, effT, len, L ) );
 	double norm = total;
 
 	// normalise with intg to inf
 	while(true) {
 		double dx = x2 * (mx - 1);
-		double L1 = like( x2, b, n, m, L, z2, omegas, fluxes );
+		double L1 = like( x2, b, n, m, z2, omegas, fluxes, A, phiBg, area, t, effD, effO, effT, len, L );
 		//double L2 = L( x2*mx, b, s, n );
-		double L2 = like( x2+dx, b, n, m, L, z2, omegas, fluxes );
+		double L2 = like( x2+dx, b, n, m, z2, omegas, fluxes, A, phiBg, area, t, effD, effO, effT, len, L );
 		if ( isnan(L1 + L2) ) { continue; }
 		else { norm += 0.5 * dx * ( L1 + L2 ); }
 		if ( L2 + L1 == 0 ) { break; }
@@ -103,8 +112,8 @@ double integral( double b, double n, double m, double L, vector<vector<double>> 
 	// integrate up to CL
 	while ( ( total / norm ) < CL ) {
 		double dx = x * (mx - 1);
-		double L1 = like( x, b, n, m, L, z2, omegas, fluxes );
-		double L2 = like( x+dx, b, n, m, L, z2, omegas, fluxes );
+		double L1 = like( x, b, n, m, z2, omegas, fluxes, A, phiBg, area, t, effD, effO, effT, len, L );
+		double L2 = like( x+dx, b, n, m, z2, omegas, fluxes, A, phiBg, area, t, effD, effO, effT, len, L );
 		//double L2 = L( x*mx, b, s, n );
 		if ( isnan(L1 + L2) ) { continue; }
 		else { total += 0.5 * dx * ( L1 + L2 ); }
@@ -121,24 +130,16 @@ double integral( double b, double n, double m, double L, vector<vector<double>> 
 void chis( int detector ) {
 
 	// read csv files to vectors
-	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
-	vector<double> rFrac = read("data/rFrac.dat");	// sun radial distance as fraction
-	vector<double> T = read("data/T.dat");	// solar temperature [eV]
-	vector<double> ne = read("data/ne.dat");	// electron number density [eV3]
-	vector<double> wp = read("data/wp.dat");	// plasma frequency [eV]
-	vector<double> nH = read("data/nH.dat");	// H ion density [eV3]
-	vector<double> nHe4 = read("data/nHe4.dat");	// He4 ion density [eV3]
-	vector<double> nHe3 = read("data/nHe3.dat");	// He3 ion density [eV3]
-	
-	// get gaunt factors
-	vector<vector<double>> z1 = readGaunt("data/Z1.dat");	// gaunt factors for Z=1
 	vector<vector<double>> z2 = readGaunt("data/Z2.dat");	// gaunt factors for Z=2
+	string loadname = "data/solarflux-70eV.dat";
+	vector<double> omegas = loadtxt(loadname, 0);
+	vector<double> fluxes = loadtxt(loadname, 1);
 	
 	// convert Gaunt factor Theta to T in eV
-	for( int i = 1; i < 201; i++ ) { z1[0][i] = z1[0][i] * m_e; }
 	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
 
 	// initialise parameters
+	double A, phiBg, area, t, effD, effO, effT, len, b, L;
 	vector<double> flux, mvec;
 	string name;
 
@@ -183,6 +184,11 @@ void chis( int detector ) {
 		L = 22 / m2eV;		// bore length [eV-1]
 		}
 
+	//cout << "detector = " << detector << endl;
+	//cout << "L = " << L << endl;
+	//cout << "t = " << t << endl;
+	//cout << "area = " << A << endl;
+
 	// calculate background count
 	double Nbg = phiBg * area * t * effT;
 	cout << "Detector: "<< name << endl;
@@ -195,7 +201,7 @@ void chis( int detector ) {
 	vector<double> chi;	// initialise chi vector
 
 	// get 95% chi for each m value my minimisation
-	for ( double m = 1e-2; m <= 1e-1; m += 1e-2 ) {
+	for ( double m = 1e-2; m <= 1e0; m *= 1.01 ) {
 		
 		double total = 0;	// keep total of all runs
 		
@@ -204,7 +210,7 @@ void chis( int detector ) {
 			double n = distro(generator);	// get random n from poisson
 			//if ( n == 0 ) { continue; }
 			//else { total += min( Nbg, Nsig, n ); }
-			total += integral( b, n, m, L, z2 );
+			total += integral( b, n, m, z2, omegas, fluxes, A, phiBg, area, t, effD, effO, effT, len, L );
 		}
 			
 		chi.push_back( total / samplesize );
@@ -214,18 +220,17 @@ void chis( int detector ) {
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/newstats-70eV" + name + "-tPlasmonGas.dat";
+	string savename = "data/limits/newstats-70eV-100" + name + "-tPlasmonGas.dat";
 	write2D( savename, mvec, chi );
 }
-
 
 
 int main(){
 	
 	// thread all 3 at same time
-	thread t1(chis, 0); usleep(100);	// baby
-	thread t2(chis, 1); usleep(100);	// baseline
-	thread t3(chis, 2); usleep(100);	// upgraded
+	thread t1(chis, 0); usleep(10000);	// baby
+	thread t2(chis, 1); usleep(10000);	// baseline
+	thread t3(chis, 2); usleep(10000);	// upgraded
 	
 	t1.join();
 	t2.join();
