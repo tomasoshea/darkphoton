@@ -102,57 +102,13 @@ int factorial( int N ) {
 }
 
 
-double L( double x, double b, double s, double n ) {
+double miguel_likelihood( double Nbg ){
 
-	double item;
-
-	if ( n == 0 ) { item = ( b + pow(x,4)*s ); }
-	else if ( n == 1 ) { item = ( ( b + pow(x,4)*s ) - log( b + pow(x,4)*s ) - 1 ); }
-	else { item = ( ( b + pow(x,4)*s ) - n * ( log( b + pow(x,4)*s ) + 1 - log(n) ) ); }
-
-	return exp(-item);
-}
-
-
-// integral for getting CL
-double integral( double b, double s, double n ) {
-
-	double x = 1e-15;
-	double x2 = x;
-	//double dx = x;
-	//cout << x2 << endl;
-	double mx = 1.01;
-	//double total = 0.5 * x * ( exp( - f( x, b, s, n ) ) + exp( - f( 0, b, s, n ) ) );
-	double total= 0.5 * x * ( L( x, b, s, n ) + L( 0, b, s, n ) );
-	double norm = total;
-
-	// normalise with intg to inf
-	while(true) {
-		double dx = x2 * (mx - 1);
-		double L1 = L( x2, b, s, n );
-		//double L2 = L( x2*mx, b, s, n );
-		double L2 = L( x2+dx, b, s, n );
-		if ( isnan(L1 + L2) ) { continue; }
-		else { norm += 0.5 * dx * ( L1 + L2 ); }
-		if ( L2 + L1 == 0 ) { break; }
-		//x2 += dx;
-		x2 *= mx;
-	}
-
-	// integrate up to CL
-	while ( ( total / norm ) < CL ) {
-		double dx = x * (mx - 1);
-		double L1 = L( x, b, s, n );
-		double L2 = L( x+dx, b, s, n );
-		//double L2 = L( x*mx, b, s, n );
-		if ( isnan(L1 + L2) ) { continue; }
-		else { total += 0.5 * dx * ( L1 + L2 ); }
-		//cout << total * dx / norm << endl;
-		x *= mx;
-		//x2 += dx;
-	}
-
-	return x;
+	double Poisson = 0;
+    double P[11] = {3.0, 4.74, 6.30, 7.75, 9.15, 10.51, 11.84, 13.15, 14.43, 15.71, 16.98};
+    if ( (int)Nbg < 11 ) { Poisson = P[ (int)Nbg ] - Nbg; }
+    else { Poisson = Nbg; }
+    return Poisson;
 }
 
 
@@ -175,7 +131,7 @@ void chis( int detector ) {
 		effD = 0.7;	// detectior efficiency
 		effO = 0.35;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/babyIAXO-tPlasmon-miguel1.dat";
+		load = "data/limits/babyIAXO-tPlasmon-miguel2.dat";
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -191,7 +147,7 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/baselineIAXO-tPlasmon-miguel1.dat";
+		load = "data/limits/baselineIAXO-tPlasmon-miguel2.dat";
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -207,7 +163,7 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/upgradedIAXO-tPlasmon-miguel1.dat";
+		load = "data/limits/upgradedIAXO-tPlasmon-miguel2.dat";
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -224,33 +180,24 @@ void chis( int detector ) {
 
 	vector<double> chi;	// initialise chi vector
 
-	// get 95% chi for each m value my minimisation
+	// get 95% chi from miguel's poisson
 	for ( int c = 0; c < len; c++ ) {
-		
-		double total = 0;	// keep total of all runs
-
-		if ( flux[c] == 0 ) { total = 1e99; }
-		else {
 		
 		// signal flux for chi = 1 for small dt
 		double Nsig = ( flux[c] * pow(m2eV, -2) / s2eV ) * A * effO * effD * effT * t;
-		
-		// get sample of random N from poisson
-		for ( int i = 0; i < samplesize; i++ ) {
-			double n = distro(generator);	// get random n from poisson
-			//if ( n == 0 ) { continue; }
-			//else { total += min( Nbg, Nsig, n ); }
-			total += integral( Nbg, Nsig, n );
-		}
-		}
+		double total = 0;	// keep total of all runs	
 
-		chi.push_back( total / samplesize );
-		cout << c+1 << " out of " << len << ":	" << total / samplesize << endl;
+		double n = miguel_likelihood(Nbg);
+		//cout << n << "		" << Nbg << "		" << Nsig << endl;
+		double calcdChi = pow( n / Nsig , 0.25);
+
+		chi.push_back( calcdChi );
+		cout << c+1 << " out of " << len << ":	" << calcdChi << endl;
 	}
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-" + name + "-tPlasmon-miguel1.dat";
+	string savename = "data/limits/stats-" + name + "-tPlasmon-miguel4.dat";
 	write2D( savename, m, chi );
 }
 

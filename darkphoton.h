@@ -584,6 +584,7 @@ double trapeze( double w, double m, vector<double> n, vector<double> T, vector<d
 	return total;
 }
 
+
 // integral over r
 double trapezeSup( double w, vector<double> n, vector<double> T, vector<double> wp,
 	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2 ) {
@@ -642,7 +643,7 @@ double integrate( double m, vector<double> n, vector<double> T, vector<double> w
 	//for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
 	double dw = 1e1;
 	//for ( double w = 1e2; w < 1e4 - dw; w+=dw ) {
-	for ( double w = 30; w < 100 - dw; w+=dw ) {
+	for ( double w = 0.8e3; w < 15e3 - dw; w+=dw ) {
 	
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
@@ -753,7 +754,7 @@ void solarFluxT() {
 
 	// set path for writeout
 	string path = "data/";
-	string ext = "solarflux-10keV.dat";
+	string ext = "solarflux.dat";
 
 	double dw = 1e0;
 	double total = 0;
@@ -813,7 +814,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 
 	// resonant sector
 	int len = wp.size();
-	for ( int i = 0; i < len; i = i+2 ) {
+	for ( int i = 0; i < len; i = i+3 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -837,7 +838,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 	}
 
 		// unsuppressed section
-	for ( double m = max; m < 1e4; m*=1.1 ) {
+	for ( double m = max; m < 1e5; m*=1.1 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -1203,13 +1204,13 @@ double PpureLConversion( double w, double m, double L, vector<vector<double>> z2
 	double wB = eB / m_e;
 
 	// full version
-	double P = pow(m,8) * pow(wB,2) * ( 1 + exp(-Gt*L) - 2*exp(-0.5*Gt*L) ) / ( 2 * pow(w,4) * pow(Gt,2) * ( pow( pow(w,2) - pow(m,2) , 2 ) + pow(w*Gl,2) ) );
+	double conv = pow(m,8) * pow(wB,2) * ( 1 + exp(-Gt*L) - 2*exp(-0.5*Gt*L) ) / ( 2 * pow(w,4) * pow(Gt,2) * ( pow( pow(w,2) - pow(m,2) , 2 ) + pow(w*Gl,2) ) );
 
 	// low m limit
-	double Plow = pow(m,8) * pow(wB,2) * pow(L,2) / ( 4 * pow(w,4) * ( pow(w,2) + pow(Gl,2) ) );
+	double convLow = pow(m,8) * pow(wB,2) * pow(L,2) / ( 4 * pow(w,4) * ( pow(w,2) + pow(Gl,2) ) );
 
-	if ( Gt*L < 1e-6 ) { return Plow; }
-	else { return P; }
+	if ( Gt*L < 1e-6 ) { return convLow; }
+	else { return conv; }
 }
 
 // resonant potential crystal conversion approx
@@ -1242,6 +1243,12 @@ double pureLintegrand( double m, double T, double wp, double r ) {
 
 }
 
+// calculation for induced current (returns squared value)
+double current( double m, double w, double L ) {
+	
+	double k =  sqrt(pow(w,2) - pow(m,2));
+	return pow( 2 * sin(k*L/2) / k , 2);
+}
 
 double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 						vector<double> wp, vector<double> r, double L ) {
@@ -1264,8 +1271,8 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 			double dr = abs(r[j+1] - r[j]);
 			//double height = 0.5 * ( ( PpureL( m, wp[j+1], L) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
 			//	+ ( PpureL( m, wp[j], L) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
-			double height = 0.5 * ( wp[j+1] * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
-				+ ( ( wp[j] * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
+			double height = 0.5 * ( wp[j+1] * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ) * current( m, wp[j+1], L ) )
+				+ ( ( wp[j] * pureLintegrand( m, T[j], wp[j], r[j] ) * current( m, wp[j], L ) ) );
 			double dA = dr * height;
 			
 			// only add if real
@@ -1292,7 +1299,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 	string ext = "-pureL.dat";
 
 	//double P0 = 1.e-12 * J2eV * pow(m2eV,2) * s2eV;	// 1 W m-2 in eV
-	double J0 = 1e-6;		// 1 uA threshold
+	double J0 = 1e-9;		// 1 uA threshold
 
 	for ( double m = 1e-6; m < 1e4; m*=2 ) {
 
@@ -1306,7 +1313,7 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 			exit(SIGINT);
 		}
 
-		double entryIAXO = sqrt(pureLintegrate( m, z2, T, wp, r, L )) * L / 1e-6;		// E0 * L / R
+		double entryIAXO = sqrt(pureLintegrate( m, z2, T, wp, r, L )) / 1e-9;		// E0 / R
 		double chi4IAXO = J0 / entryIAXO;
 		cout << name << ":	m = " << m << "	chi = " << sqrt(chi4IAXO) << endl;
 		chiIAXO.push_back( sqrt(chi4IAXO) );
