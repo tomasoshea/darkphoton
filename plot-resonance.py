@@ -9,10 +9,10 @@ plt.style.use("style.txt")	# import plot style
 # setup plot
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
-ax2.set( xlim=(0.7,0.8), ylim=(1e-10,1e-2) )
-#ax2.set( xlim = (0, 1), ylim=(-0.01, 1.01) )
+#ax2.set( xlim=(0.7,0.8), ylim=(1e-10,1e-2) )
+ax2.set( xlim = (0, 1), ylim=(1e-5, 1.e3) )
 x = np.arange(0, 1, 0.001)
-col = 80
+col = 100
 
 
 ### CALCULATED ###
@@ -21,11 +21,11 @@ wp = loadtxt("data/rVwp3.dat")[:,1]    # curve of wp against r
 wG = loadtxt("data/wGammaT3.dat", usecols=col) # omega Gamma for resonance width
 chi = 1e-11
 
-m = 1e1 # eV
+m = 1e0 # eV
 dat1 = (m**4) * (chi**2) * wG * loadtxt("data/flux_full.dat", usecols=col) / ( (m**2 - wp**2)**2 + wG**2 )
 
 # save name
-name = 'plots/RESTm{}-res2.jpg'.format(int(np.log10(m)))
+name = 'plots/REST_m{}_E{}.jpg'.format(int(np.log10(m)), col*0.1)
 
 
 """for j in range(buff):

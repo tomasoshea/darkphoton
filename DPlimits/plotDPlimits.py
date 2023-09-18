@@ -74,9 +74,9 @@ plt.text(4e-9,0.8e-14,r'{\bf Dark}',fontsize=27,ha='center')
 plt.text(4e-9,0.15e-14,r'{\bf photon}',fontsize=27,ha='center')
 plt.text(4e-9,0.02e-14,r'{\bf DM}',fontsize=27,ha='center')
 
-plt.text(1e-1,5e-10,r'{\bf IAXO}',fontsize=30,color='white',rotation=-32,rotation_mode='anchor',ha='center',va='center', zorder=105.5)
+#plt.text(1e-1,5e-10,r'{\bf IAXO}',fontsize=30,color='white',rotation=-32,rotation_mode='anchor',ha='center',va='center', zorder=105.5)
 
 
-MySaveFig(fig,'DarkPhoton-tPlasmonGas-100eV')
+MySaveFig(fig,'DarkPhoton-pp-2')
 plt.show()
 

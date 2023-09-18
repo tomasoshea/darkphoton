@@ -9,7 +9,7 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 1;	// detection time
+double days = 3*365.25;	// detection time
 double dE = 0.07;	// E range [keV]
 int samplesize = 10;		// size of random sample
 
@@ -70,8 +70,8 @@ double like( double x, double b, double n, double m, vector<double> ne, vector<d
 
 	double item = 0;
 	
-	for ( double wpIAXO = 1e-2; wpIAXO <= 1e-1; wpIAXO += 2e-2 ) {	// run over various densities
-	
+	//for ( double wpIAXO = 5e-2; wpIAXO <= 5e-1; wpIAXO += 1e-2 ) {	// run over various densities
+		double wpIAXO = 1e-1;
 		double s = integrateGasFlux( m, wpIAXO, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		s *= ( pow(m2eV, -2) / s2eV * A * effO * effD * effT * t );
 
@@ -79,7 +79,7 @@ double like( double x, double b, double n, double m, vector<double> ne, vector<d
 		else if ( n == 1 ) { item += ( ( b + pow(x,4)*s ) - log( b + pow(x,4)*s ) - 1 ); }
 		else { item += ( ( b + pow(x,4)*s ) - n * ( log( b + pow(x,4)*s ) + 1 - log(n) ) ); }
 
-	}
+	//}
 	//cout << item << endl;
 	//cout << item << endl;
 	return exp(-item);
@@ -208,7 +208,8 @@ void chis( int detector ) {
 	vector<double> chi;	// initialise chi vector
 
 	// get 95% chi for each m value my minimisation
-	for ( double m = 1e-2; m <= 1e-1; m += 2e-2 ) {
+	double mMax = 3e-1;
+	for ( double m = 6e-2; m <= mMax; m *= 1.1 ) {
 		
 		double total = 0;	// keep total of all runs
 		
@@ -222,12 +223,12 @@ void chis( int detector ) {
 			
 		chi.push_back( total / samplesize );
 		mvec.push_back(m);
-		cout << (int)(m*1e2) << " out of " << 10 << ":	" << total / samplesize << endl;
+		cout << " m = " << m << "(out of " << mMax << ") :	" << total / samplesize << endl;
 	}
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/newstats-70eV" + name + "-tPlasmonGas.dat";
+	string savename = "data/limits/newstats-3yr-" + name + "-tPlasmonGas.dat";
 	write2D( savename, mvec, chi );
 }
 
@@ -237,12 +238,12 @@ int main(){
 	
 	// thread all 3 at same time
 	thread t1(chis, 0); usleep(100);	// baby
-	//thread t2(chis, 1); usleep(100);	// baseline
-	//thread t3(chis, 2); usleep(100);	// upgraded
+	thread t2(chis, 1); usleep(100);	// baseline
+	thread t3(chis, 2); usleep(100);	// upgraded
 	
 	t1.join();
-	//t2.join();
-	//t3.join();
+	t2.join();
+	t3.join();
 	
 	cout << "\n¡¡complete!!" << endl;
 	return 0;
