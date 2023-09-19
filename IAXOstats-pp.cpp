@@ -210,8 +210,8 @@ void chis( int detector ) {
 		phiBg = 1e-7 * 1e4 * dE;	// background flux [m-2 s-1]
 		a = 0.6 * 1e-4;	// XRay detection area [m2]
 		t = 1.5 * 365.25 * 24 * 3600;	// 1.5 years
-		effD = 0.7;	// detectior efficiency
-		effO = 0.35;	// optical efficiency
+		effD = 1;//0.7;	// detectior efficiency
+		effO = 1;//0.35;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
 		load = "data/limits/babyIAXO-pp-2.dat";
 		m = loadtxt(load,0);
@@ -226,8 +226,8 @@ void chis( int detector ) {
 		phiBg = 1e-8 * 1e4 * dE;	// background flux [m-2 s-1]
 		a = 1.2 * 1e-4;	// XRay detection area [m2]
 		t = 3 * 365.25 * 24 * 3600;	// 3 years
-		effD = 0.8;	// detectior efficiency
-		effO = 0.7;	// optical efficiency
+		effD = 1;//0.8;	// detectior efficiency
+		effO = 1;//0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
 		load = "data/limits/baselineIAXO-pp-2.dat";
 		m = loadtxt(load,0);
@@ -242,8 +242,8 @@ void chis( int detector ) {
 		phiBg = 1e-9 * 1e4 * dE;	// background flux [m-2 s-1]
 		a = 1.2 * 1e-4;	// XRay detection area [m2]
 		t = 5 * 365.25 * 24 * 3600;	// 5 years
-		effD = 0.8;	// detectior efficiency
-		effO = 0.7;	// optical efficiency
+		effD = 1;//0.8;	// detectior efficiency
+		effO = 1;//0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
 		load = "data/limits/upgradedIAXO-pp-2.dat";
 		m = loadtxt(load,0);
