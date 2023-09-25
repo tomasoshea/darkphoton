@@ -213,7 +213,7 @@ void chis( int detector ) {
 		effD = 1;//0.7;	// detectior efficiency
 		effO = 1;//0.35;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/babyIAXO-pp-2.dat";
+		load = "data/limits/babyIAXO-pp-ee1.dat";
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -229,7 +229,7 @@ void chis( int detector ) {
 		effD = 1;//0.8;	// detectior efficiency
 		effO = 1;//0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/baselineIAXO-pp-2.dat";
+		load = "data/limits/baselineIAXO-pp-ee1.dat";
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -245,7 +245,7 @@ void chis( int detector ) {
 		effD = 1;//0.8;	// detectior efficiency
 		effO = 1;//0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/upgradedIAXO-pp-2.dat";
+		load = "data/limits/upgradedIAXO-pp-ee1.dat";
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -283,7 +283,7 @@ void chis( int detector ) {
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-" + name + "-pp-2.dat";
+	string savename = "data/limits/stats-" + name + "-ee1.dat";
 	write2D( savename, m, chi );
 }
 

@@ -798,13 +798,15 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 
 
 // 5.49 MeV DPs from nuclear fusion
+// also used for e+ e- annihilation 511 keV DPs
 // use flux from https://arxiv.org/pdf/2305.14420.pdf 
 // for now, using values from centre of solar core
 void ppchain( vector<double> plasmaFreq, vector<double> temperature, double L, string name ) {
 	
 	// define constants
 	double rate = 1.7e38 * s2eV;			// rate of deuterium fusion [eV]
-	double w = 5.49e6;						// fusion energy [eV]
+//	double w = 5.49e6;						// fusion energy [eV]
+	double w = 5.11e5;						// electron rest mass [eV]
 	double T = temperature[0];
 	double wp = plasmaFreq[0];
 	double G = compton(w, T, wp);			// compton absorbtion rate [eV]
@@ -817,11 +819,11 @@ void ppchain( vector<double> plasmaFreq, vector<double> temperature, double L, s
 	string path = "data/limits/";
 	string ext = ".dat";
 
-	for ( double m = 1e1; m < 5.49e6; m*=1.1 ) {
+	for ( double m = 1e1; m < w; m*=1.01 ) {
 		//double prob = P( w, m, L );		// back-conversion prob
 		double prob = 0.5;	// averages out to 1/2 after m ~ 1eV
 		double phi = prob * rate * pow(w*w - m*m, 1.5) * pow(w,-3) * pow(m,4) / ( (4*pi*R*R) * ( pow( m*m - wp*wp, 2 ) + pow(w*G,2) ) );
-		chiIAXO.push_back( phi );
+		chiIAXO.push_back( 2* phi );	// times 2 for diphoton emmision in e+ e- mode
 		massIAXO.push_back( m );
 		//sine.push_back(prob);
 	}
@@ -1660,7 +1662,7 @@ void spectrum( double m ) {
 	vector<double> phi;
 	vector<double> E;
 	
-	for ( double w = 0; w < 2e4; w += 100 ) {
+	for ( double w = 1e-5; w < 2e4; w *=1.01 ) {
 
 		if ( w <= m ) { continue; }	// only for m < wp
 		
@@ -1668,7 +1670,6 @@ void spectrum( double m ) {
 		double entry = pow(chi,2) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 );
 		E.push_back(w);
 		phi.push_back(entry);
-		
 	}
 	
 
