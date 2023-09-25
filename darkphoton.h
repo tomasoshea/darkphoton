@@ -970,6 +970,52 @@ void ppchain( vector<double> plasmaFreq, vector<double> temperature, double L, s
 	//write2D( "data/" + name + "-highEprob.dat", massIAXO, sine );
 }
 
+
+// integrand for nuclear deexcitation DPs
+double nuclearIntegrand( double m, double w, double T, double wp, double nI, double r, double J1, double J0 ) {
+	G = compton(w, T, wp)
+	return nI*r*r*( (2*J1 + 1)/(2*J0 + 1) )*exp(-w/T)/( pow(wp*wp - m*m, 2) + pow(w*G,2));
+}
+
+
+// integrate over r for deexcitation DPs
+double nuclearIntegral( double m, double w, double T, double wp, double nI, double J1, double J0, double tau ) {
+
+	double intg = 0.;
+	for(int c = 0; c < r.size(); c++ ) {
+		intg += 0.5 * (r[c+1] - r[c]) * (nuclearIntegrand(m,w,T[c+1],wp[c+1],nI[c+1],r[c+1],J1,J0) + nuclearIntegrand(m,w,T[c],wp[c],nI[c],r[c],J1,J0));
+	}
+	return pow(m,4) * pow(sqrt(w*w - m*m)/w, 3) * intg / tau;
+}
+
+
+// get flux for deexcitation DPs
+void nuclearFlux( double T, double wp, double nI, string name ) {
+
+	// 57Fe https://www.nndc.bnl.gov/ensdf/
+	double w = 14.4129e3;			// [eV]
+	double J1 = 1.5;
+	double J2 = 0.5;
+	double tau = 98.3e-9 / s2eV;	// [eV-1]
+
+	// define vectors
+	vector<double> massIAXO;
+	vector<double> chiIAXO;
+
+	// set path for writeout
+	string path = "data/limits/";
+	string ext = ".dat";
+
+	for( double m = 1e0; m < w; m *= 1.1 ) {
+		//double prob = P( w, m, L );		// back-conversion prob
+		double prob = 0.5;	// averages out to 1/2 after m ~ 1eV
+		double phi = prob * nuclearIntegral( m, w, T, wp, nI, J1, J0, tau );
+		massIAXO.push_back(m);
+		chiIAXO.push_back(phi);
+	}
+	write2D( path + name + ext, massIAXO, chiIAXO );
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////// L-PLASMON MIXING /////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
