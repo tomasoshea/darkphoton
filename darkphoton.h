@@ -501,6 +501,12 @@ double tachocline( double r, double rmax, double d, double B ) {
 	return a;
 }
 
+// Compton scattering rate for high energies [eV]
+// useful for nuclear DPs
+double compton( double w, double T, double wp ) {
+	return ( ( 1 - exp(-w/T) ) * ( 2 * a * pow(wp,2) ) / ( 3 * m_e ) );
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// T-PLASMON /////////////////////////////////////////////
@@ -863,6 +869,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 }
 
 
+
 void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 		vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L,
 		vector<vector<double>> z1, vector<vector<double>> z2, string name ) {
@@ -928,6 +935,40 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	
 }
 
+
+// 5.49 MeV DPs from nuclear fusion
+// also used for e+ e- annihilation 511 keV DPs
+// use flux from https://arxiv.org/pdf/2305.14420.pdf 
+// for now, using values from centre of solar core
+void ppchain( vector<double> plasmaFreq, vector<double> temperature, double L, string name ) {
+	
+	// define constants
+	double rate = 1.7e38 * s2eV;			// rate of deuterium fusion [eV]
+//	double w = 5.49e6;						// fusion energy [eV]
+	double w = 5.11e5;						// electron rest mass [eV]
+	double T = temperature[0];
+	double wp = plasmaFreq[0];
+	double G = compton(w, T, wp);			// compton absorbtion rate [eV]
+	// define vectors
+	vector<double> massIAXO;
+	vector<double> chiIAXO;
+	//vector<double> sine;
+
+	// set path for writeout
+	string path = "data/limits/";
+	string ext = ".dat";
+
+	for ( double m = 1e1; m < w; m*=1.01 ) {
+		//double prob = P( w, m, L );		// back-conversion prob
+		double prob = 0.5;	// averages out to 1/2 after m ~ 1eV
+		double phi = prob * rate * pow(w*w - m*m, 1.5) * pow(w,-3) * pow(m,4) / ( (4*pi*R*R) * ( pow( m*m - wp*wp, 2 ) + pow(w*G,2) ) );
+		chiIAXO.push_back( 2* phi );	// times 2 for diphoton emmision in e+ e- mode
+		massIAXO.push_back( m );
+		//sine.push_back(prob);
+	}
+	write2D( path + name + ext, massIAXO, chiIAXO );
+	//write2D( "data/" + name + "-highEprob.dat", massIAXO, sine );
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////// L-PLASMON MIXING /////////////////////////////////////////
@@ -1457,7 +1498,7 @@ void fluxREST() {
 
 	// initialise vector etc
 	vector<double> flux;
-	string name = "data/flux_full.dat";
+	string name = "RESTstuff/HiddenPhotonFlux_OShea_202309.dat";
 	//string name = "data/flux_m" + to_string(intm) + "_X" + to_string(intchi) + "-again.dat";
 
 	for ( double rlow = 0; rlow < 0.999*rSolar; rlow += 0.001*rSolar ) {
@@ -1468,8 +1509,9 @@ void fluxREST() {
 			double avg = integrateREST( T, wp, r, wlow, rlow ) / 0.1;	// eV3 keV-1			
 			// convert eV2 to cm-2 s-1 keV-1
 			avg *= pow( m2eV, -2 ) * 1e-4 / s2eV;
-			//flux.push_back(avg);
-			flux.push_back( avg );
+			flux.push_back(avg);
+			//if ( avg < 1e-35 ) { flux.push_back(0); }
+			//else { flux.push_back( avg ); }
 		}
 		writeREST( name, flux, line );
 		line++;
@@ -1477,8 +1519,8 @@ void fluxREST() {
 		// note here:	\33[A moves up a line
 		// 				\33[2K deletes line
 		// 				\r goes to start of line
-		cout << "\33[A\33[2K\r" << line/10 << "\% complete..." << endl;
-		//cout << "\33[2K\r" << line << "\% complete...";
+		//cout << "\33[A\33[2K\r" << line/1000 << "\% complete..." << endl;
+		cout << "Line " << line << " out of 1000" << endl;
 
 	}
 	cout << "	creation of file " << name << " completed!" << endl;
@@ -1768,7 +1810,7 @@ void spectrum( double m ) {
 	vector<double> phi;
 	vector<double> E;
 	
-	for ( double w = 0; w < 2e4; w += 100 ) {
+	for ( double w = 1e-5; w < 2e4; w *=1.01 ) {
 
 		if ( w <= m ) { continue; }	// only for m < wp
 		
@@ -1776,7 +1818,6 @@ void spectrum( double m ) {
 		double entry = pow(chi,2) * trapeze( w, m, n, T, wp, r, nH, nHe4, nHe3, z1, z2 );
 		E.push_back(w);
 		phi.push_back(entry);
-		
 	}
 	
 

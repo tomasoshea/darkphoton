@@ -9,12 +9,9 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 100;	// detection time
+double days = 5*365.25;	// detection time
 double dE = 0.07;	// E range [keV]
 int samplesize = 10;		// size of random sample
-
-// initialise parameters
-double A, phiBg, area, t, effD, effO, effT, len, b, L;
 
 
 // read 2nd column from 2 column datafile
@@ -65,15 +62,13 @@ int factorial( int N ) {
 }
 
 
-double like( double x, double b, double n, double m, vector<double> ne, vector<double> T, vector<double> wp,
-	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
+double like( double x, double n, double m, vector<double> ne, vector<double> T, vector<double> wp,
+	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2,
+	 double A, double phiBg, double area, double t, double effD, double effO, double effT, double len, double b, double L ) {
 
 	double item = 0;
 	
-	for ( double wpIAXO = 1e-2; wpIAXO <= 1e-1; wpIAXO *= 1.29 ) {	// run over various densities
-
-		// only do for neighbouring density steps
-		if( abs(wpIAXO - m) > 2e-2 ) { continue; }
+	for ( double wpIAXO = 1e-2; wpIAXO <= 1e-1; wpIAXO += 2e-2 ) {	// run over various densities
 	
 		double s = integrateGasFlux( m, wpIAXO, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		s *= ( pow(m2eV, -2) / s2eV * A * effO * effD * effT * t );
@@ -83,13 +78,16 @@ double like( double x, double b, double n, double m, vector<double> ne, vector<d
 		else { item += ( ( b + pow(x,4)*s ) - n * ( log( b + pow(x,4)*s ) + 1 - log(n) ) ); }
 
 	}
+	//cout << item << endl;
+	//cout << item << endl;
 	return exp(-item);
 }
 
 
 // integral for getting CL
-double integral( double b, double n, double m, vector<double> ne, vector<double> T, vector<double> wp,
-	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
+double integral( double n, double m, vector<double> ne, vector<double> T, vector<double> wp,
+	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2,
+	 double A, double phiBg, double area, double t, double effD, double effO, double effT, double len, double b, double L ) {
 
 	double x = 1e-12;
 	double x2 = x;
@@ -97,15 +95,16 @@ double integral( double b, double n, double m, vector<double> ne, vector<double>
 	//cout << x2 << endl;
 	double mx = 1.1;
 	//double total = 0.5 * x * ( exp( - f( x, b, s, n ) ) + exp( - f( 0, b, s, n ) ) );
-	double total= 0.5 * x * ( like( x, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 ) + like( 0, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 ) );
+	double total= 0.5 * x * ( like( x, n, m, ne, T, wp, r, nH, nHe4, nHe3, z1, z2, A, phiBg, area, t, effD, effO, effT, len, b, L ) 
+					+ like( 0, n, m, ne, T, wp, r, nH, nHe4, nHe3, z1, z2, A, phiBg, area, t, effD, effO, effT, len, b, L ) );
 	double norm = total;
 
 	// normalise with intg to inf
 	while(true) {
 		double dx = x2 * (mx - 1);
-		double L1 = like( x2, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		double L1 = like( x2, n, m, ne, T, wp, r, nH, nHe4, nHe3, z1, z2, A, phiBg, area, t, effD, effO, effT, len, b, L );
 		//double L2 = L( x2*mx, b, s, n );
-		double L2 = like( x2+dx, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		double L2 = like( x2+dx, n, m, ne, T, wp, r, nH, nHe4, nHe3, z1, z2, A, phiBg, area, t, effD, effO, effT, len, b, L );
 		if ( isnan(L1 + L2) ) { continue; }
 		else { norm += 0.5 * dx * ( L1 + L2 ); }
 		if ( L2 + L1 == 0 ) { break; }
@@ -117,8 +116,8 @@ double integral( double b, double n, double m, vector<double> ne, vector<double>
 	// integrate up to CL
 	while ( ( total / norm ) < CL ) {
 		double dx = x * (mx - 1);
-		double L1 = like( x, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
-		double L2 = like( x+dx, b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+		double L1 = like( x, n, m, ne, T, wp, r, nH, nHe4, nHe3, z1, z2, A, phiBg, area, t, effD, effO, effT, len, b, L );
+		double L2 = like( x+dx, n, m, ne, T, wp, r, nH, nHe4, nHe3, z1, z2, A, phiBg, area, t, effD, effO, effT, len, b, L );
 		//double L2 = L( x*mx, b, s, n );
 		if ( isnan(L1 + L2) ) { continue; }
 		else { total += 0.5 * dx * ( L1 + L2 ); }
@@ -153,6 +152,7 @@ void chis( int detector ) {
 	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
 
 	// initialise parameters
+	double A, phiBg, area, t, effD, effO, effT, len, b, L;
 	vector<double> flux, mvec;
 	string name;
 
@@ -209,7 +209,7 @@ void chis( int detector ) {
 	vector<double> chi;	// initialise chi vector
 
 	// get 95% chi for each m value my minimisation
-	for ( double m = 1e-2; m <= 1e-1; m += 1e-2 ) {
+	for ( double m = 1e-2; m <= 1e-1; m += 2e-2 ) {
 		
 		double total = 0;	// keep total of all runs
 		
@@ -218,17 +218,17 @@ void chis( int detector ) {
 			double n = distro(generator);	// get random n from poisson
 			//if ( n == 0 ) { continue; }
 			//else { total += min( Nbg, Nsig, n ); }
-			total += integral( b, n, m, ne, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
+			total += integral(n, m, ne, T, wp, r, nH, nHe4, nHe3, z1, z2, A, phiBg, area, t, effD, effO, effT, len, b, L );
 		}
 			
 		chi.push_back( total / samplesize );
 		mvec.push_back(m);
-		cout << "m = " << m << ":	" << total / samplesize << endl;
+		cout << (int)(m*1e2) << " out of " << 10 << ":	" << total / samplesize << endl;
 	}
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/newstats-70eV" + name + "-tPlasmonGas.dat";
+	string savename = "data/limits/newstats-5yr-2-" + name + "-tPlasmonGas.dat";
 	write2D( savename, mvec, chi );
 }
 

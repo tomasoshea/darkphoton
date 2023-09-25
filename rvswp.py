@@ -21,4 +21,4 @@ for i in np.arange(1,1000):
         if round(r[j]*1000, ndigits=3) == i+1:
             red[i][1] = wp[j]
 print(red)
-np.savetxt("RESTstuff/wp4.dat", red[:,1])
+np.savetxt("RESTstuff/HiddenPhotonPlasmaFreq_OShea_202309.dat", red[:,1])

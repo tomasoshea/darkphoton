@@ -8,7 +8,7 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 5;	// detection time
+double days = 5*365.25;	// detection time
 double dE = 10.;	// E range [keV]
 int samplesize = 1e3;		// size of random sample
 
@@ -284,7 +284,7 @@ void chis( int detector ) {
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-300K-2" + name + "-tPlasmonGas.dat";
+	string savename = "data/limits/stats-5yr-" + name + "-tPlasmonGas.dat";
 	write2D( savename, m, chi );
 }
 
