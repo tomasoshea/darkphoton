@@ -263,7 +263,7 @@ void writeREST( string name, vector<double> data, int line ){	// data vector nee
 	}
 
 	// newline at end of w range
-	fout << endl;
+	fout << "\b" << endl;	// first remove last tab
 
 	if( line == 0 ){ cout << "file " << name << " created...\n" << endl; }
 	
@@ -1498,7 +1498,7 @@ void fluxREST() {
 
 	// initialise vector etc
 	vector<double> flux;
-	string name = "RESTstuff/HiddenPhotonFlux_OShea_202309.dat";
+	string name = "RESTstuff/HiddenPhotonFlux_OShea_202309(2).dat";
 	//string name = "data/flux_m" + to_string(intm) + "_X" + to_string(intchi) + "-again.dat";
 
 	for ( double rlow = 0; rlow < 0.999*rSolar; rlow += 0.001*rSolar ) {
@@ -1788,7 +1788,7 @@ void wGout() {
 void spectrum( double m ) {
 	
 	//set chi
-	double chi = 1e-11;
+	double chi = 1;
 
 	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
 	vector<double> T = read("data/T.dat");	// solar temperature [eV]
