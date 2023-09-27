@@ -970,7 +970,7 @@ void ppchain( vector<double> plasmaFreq, vector<double> temperature, double L, s
 	//write2D( "data/" + name + "-highEprob.dat", massIAXO, sine );
 }
 
-
+/*
 // integrand for nuclear deexcitation DPs
 double nuclearIntegrand( double m, double w, double T, double wp, double nI, double r, double J1, double J0 ) {
 	double G = compton(w, T, wp);
@@ -1032,6 +1032,7 @@ void nuclearFlux( vector<double> r, vector<double> wp, vector<double> T, vector<
 	
 	write2D( path + name + ext, massIAXO, chiIAXO );
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////// L-PLASMON MIXING /////////////////////////////////////////

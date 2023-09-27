@@ -5,8 +5,8 @@
 #include "darkphoton.h"
 
 int main() {
-    for( double m = 1e-3; m < 2e4; m*=10 ) { fluxmx(m); }
-    
+    for( double m = 1e-2; m < 2e4; m*=10 ) { fluxmx(m); }
+
     //thread t1(fluxmx,1e-3);
     //thread t2(fluxmx,1e-2);
     //thread t3(fluxmx,1e-1);
@@ -16,7 +16,8 @@ int main() {
     //thread t7(fluxmx,1e3);
     //thread t8(fluxmx,1e4);
 //
-    //t1.join();
+//
+    ////t1.join();
     //t2.join();
     //t3.join();
     //t4.join();
