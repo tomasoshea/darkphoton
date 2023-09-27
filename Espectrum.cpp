@@ -7,9 +7,13 @@
 
 using namespace std;
 
-int main(){
+int main(){	
 
-	for( double m = 1e-5 ; m < 2e5 ; m = m*10 ) { spectrum( m ); }
+	//for( double m = 1e-5 ; m < 2e5 ; m = m*10 ) { spectrum( m ); }
+
+	vector<double> wp = read("data/wp.dat");	// plasma frequency [eV]
+	double max = *max_element( wp.begin(), wp.end() );
+	spectrum(max);
 	
 	return(0);
 

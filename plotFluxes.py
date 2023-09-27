@@ -52,6 +52,17 @@ dat = loadtxt("data/limits/babyIAXO-pp-ee1.dat")
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='e+ e- annihilation')
 
+# 57Fe
+dat = loadtxt("data/limits/babyIAXO-57Fe-3.dat")
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1], label='57Fe')
+
+# 55Mn
+#dat = loadtxt("data/limits/babyIAXO-55Mn-1.dat")
+#dat[:,1] = dat[:,1] / top
+#ax2.plot(dat[:,0],dat[:,1], label='55Mn')
+
+
 # prob
 #fig = plt.figure(2)	# display is 1920 x 1080 (16:9)
 #ax = fig.add_axes((.1,.1,.8,.8))
@@ -67,5 +78,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/flux-comparison-pp-ee1.jpg')
+plt.savefig('plots/flux-comparison-57Fe-3.jpg')
 plt.show()

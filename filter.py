@@ -38,6 +38,7 @@ rReal = rFrac * Rsun / m2eV	# radial distance from m to eV-1
 ############# compute values ###############
 
 # array of mass fractions
+#		[0	  1		2	3	4	  5		6	7	8	  9	  10  11  12  13  14  15 16 17	18	  19	20  21	  22	23  24	 25	 26  27	 28
 fracs = [H1, He4, He3, C12, C13, N14, N15, O16, O17, O18, Ne, Na, Mg, Al, Si, P, S, Cl,  Ar,  K,   Ca,  Sc,   Ti,  V,   Cr,  Mn, Fe, Co, Ni]
 A = [1.00782503223, 4.00260325413, 3.01602932007, 12.0, 13.00335483507, 14.00307400443, 15.00010889888, 15.99491461957, 16.99913175650, 17.99915961286, 20.18, 22.99, 24.305, 26.982, 28.086, 30.974, 32.066, 35.453, 39.948, 39.098, 40.078, 44.956, 47.876, 50.942, 51.996, 54,938, 55.845, 58.933, 58.693]	# masses of ions https://wwwndc.jaea.go.jp/NuC/ 
 Z = [1, 2, 2, 6, 6, 7, 7, 8, 8, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]
@@ -66,6 +67,9 @@ nH, nHe4, nHe3 = ionDensities[0:3, :]
 wp2 = np.multiply(( 4 * pi * a / (me) ) , ne)
 wp = np.sqrt(wp2)
 
+# get specific isotopes
+n57Fe = 0.0212 * ionDensities[26]
+n55Mn = ionDensities[25]
 
 # save computed data
 np.savetxt('data/rFrac.dat', rFrac, delimiter=',')
@@ -77,5 +81,7 @@ np.savetxt('data/nH.dat', nH, delimiter=',')
 np.savetxt('data/nHe4.dat', nHe4, delimiter=',')
 np.savetxt('data/nHe3.dat', nHe3, delimiter=',')
 np.savetxt('data/rho.dat', rho, delimiter=',')
+np.savetxt('data/n57Fe.dat', n57Fe, delimiter=',')
+np.savetxt('data/n55Mn.dat', n55Mn, delimiter=',')
 
 

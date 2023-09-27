@@ -973,30 +973,25 @@ void ppchain( vector<double> plasmaFreq, vector<double> temperature, double L, s
 
 // integrand for nuclear deexcitation DPs
 double nuclearIntegrand( double m, double w, double T, double wp, double nI, double r, double J1, double J0 ) {
-	G = compton(w, T, wp)
+	double G = compton(w, T, wp);
 	return nI*r*r*( (2*J1 + 1)/(2*J0 + 1) )*exp(-w/T)/( pow(wp*wp - m*m, 2) + pow(w*G,2));
 }
 
 
 // integrate over r for deexcitation DPs
-double nuclearIntegral( double m, double w, double T, double wp, double nI, double J1, double J0, double tau ) {
+double nuclearIntegral( double m, double w, vector<double> r, vector<double> wp, vector<double> T, vector<double> nI, double J1, double J0, double tau ) {
 
 	double intg = 0.;
 	for(int c = 0; c < r.size(); c++ ) {
 		intg += 0.5 * (r[c+1] - r[c]) * (nuclearIntegrand(m,w,T[c+1],wp[c+1],nI[c+1],r[c+1],J1,J0) + nuclearIntegrand(m,w,T[c],wp[c],nI[c],r[c],J1,J0));
 	}
-	return pow(m,4) * pow(sqrt(w*w - m*m)/w, 3) * intg / tau;
+	return pow(m,4) * pow(sqrt(w*w - m*m)/w, 3) * intg / ( tau * R*R );
 }
 
 
 // get flux for deexcitation DPs
-void nuclearFlux( double T, double wp, double nI, string name ) {
-
-	// 57Fe https://www.nndc.bnl.gov/ensdf/
-	double w = 14.4129e3;			// [eV]
-	double J1 = 1.5;
-	double J2 = 0.5;
-	double tau = 98.3e-9 / s2eV;	// [eV-1]
+void nuclearFlux( vector<double> r, vector<double> wp, vector<double> T, vector<double> nI, double L, 
+					double w, double J1, double J0, double tau, string name ) {
 
 	// define vectors
 	vector<double> massIAXO;
@@ -1005,14 +1000,36 @@ void nuclearFlux( double T, double wp, double nI, string name ) {
 	// set path for writeout
 	string path = "data/limits/";
 	string ext = ".dat";
+	
+	double min = *min_element( wp.begin(), wp.end() );
+	double max = *max_element( wp.begin(), wp.end() );
+	int len = wp.size();
 
-	for( double m = 1e0; m < w; m *= 1.1 ) {
-		//double prob = P( w, m, L );		// back-conversion prob
+	for( double m = 1e-3; m < min; m *= 1.01 ) {
+	//	double prob = P( w, m, L );		// back-conversion prob
 		double prob = 0.5;	// averages out to 1/2 after m ~ 1eV
-		double phi = prob * nuclearIntegral( m, w, T, wp, nI, J1, J0, tau );
+		double phi = prob * nuclearIntegral( m, w, r, wp, T, nI, J1, J0, tau );
 		massIAXO.push_back(m);
 		chiIAXO.push_back(phi);
 	}
+	
+	for( int c = 0; c < len; c++ ) {
+	//	double prob = P( w, m, L );		// back-conversion prob
+		double m = wp[len - c - 1];
+		double prob = 0.5;	// averages out to 1/2 after m ~ 1eV
+		double phi = prob * nuclearIntegral( m, w, r, wp, T, nI, J1, J0, tau );
+		massIAXO.push_back(m);
+		chiIAXO.push_back(phi);
+	}
+	
+	for( double m = max; m < w; m *= 1.001 ) {
+	//	double prob = P( w, m, L );		// back-conversion prob
+		double prob = 0.5;	// averages out to 1/2 after m ~ 1eV
+		double phi = prob * nuclearIntegral( m, w, r, wp, T, nI, J1, J0, tau );
+		massIAXO.push_back(m);
+		chiIAXO.push_back(phi);
+	}
+	
 	write2D( path + name + ext, massIAXO, chiIAXO );
 }
 
@@ -1856,7 +1873,7 @@ void spectrum( double m ) {
 	vector<double> phi;
 	vector<double> E;
 	
-	for ( double w = 1e-5; w < 2e4; w *=1.01 ) {
+	for ( double w = 2e2; w < 2e6; w *=1.001 ) {
 
 		if ( w <= m ) { continue; }	// only for m < wp
 		
@@ -1868,7 +1885,8 @@ void spectrum( double m ) {
 	
 
 	int mint = (int)log10(m);
-	string name = "data/Espectrum" + to_string( mint ) + ".dat";
+	//string name = "data/Espectrum" + to_string( mint ) + ".dat";
+	string name = "data/Espectrum-max.dat";
 	
 	write2D( name , E, phi );
 	cout << "length of E vector: " << E.size() << endl;
