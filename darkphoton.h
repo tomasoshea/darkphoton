@@ -354,6 +354,7 @@ double Gamma( double w, double number, double T, double nH, double nHe4, double 
 }
 
 
+
 // L plasmon production rate - valid around resonance (w = wp)
 double GammaLfull( double w, double T, double ne, double nH, double nHe4, double nHe3, double wp, double m ) {
 	//if( w > 300 ) { cout << w << endl; }
@@ -504,7 +505,7 @@ double tachocline( double r, double rmax, double d, double B ) {
 // Compton scattering rate for high energies [eV]
 // useful for nuclear DPs
 double compton( double w, double T, double wp ) {
-	return ( ( 1 - exp(-w/T) ) * ( 2 * a * pow(wp,2) ) / ( 3 * m_e ) );
+	return ( ( 2 * a * pow(wp,2) ) / ( 3 * m_e ) );	// * ( 1 - exp(-w/T) )
 }
 
 
@@ -547,6 +548,8 @@ double integrandSup( double w, double ne, double T, double wp, double r, double 
 
 
 // integral over r
+// inputs in eV
+// outputs dPhi/dw [eV2]
 double trapeze( double w, double m, vector<double> n, vector<double> T, vector<double> wp,
 	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2 ) {
 

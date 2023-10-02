@@ -22,7 +22,7 @@ ax2.set( xlim=(start, stop))#, ylim=(-0.01, 1.01) )
 
 def gaussian(x, w, phi, T, m):
 	s2 = w*w*T/m	# sigma squared
-	g = phi * np.exp(-(x-w) / s2) / np.sqrt(2*np.pi*s2)
+	g = phi * np.exp(-(x-w)*(x-w) / s2*s2) / np.sqrt(2*np.pi*s2)
 	print(g)
 	print("s2 = " + str(s2))
 	return g
@@ -56,9 +56,16 @@ ax2.vlines(5.11e5, 0, 1, label = 'e+ e- annihilation', color='red')	# e+ e- anni
 w = 14.4e3				# 14.4 keV
 m = 56.9353928 * amu	# mass of nucleus [eV]
 phi = 85.4099			# taken from babyIAXO-57Fe-3.dat
-x = np.logspace(w-1,w+1,1000)
-
+x = np.linspace(w - 5, w+5 ,1000)
 ax2.plot(x, gaussian(x, w, phi, T, m), label = '57Fe')
+
+# p+D -> 3He + g
+w = 5.49e6				# 14.4 keV
+m = 1.5 * amu	# mass of nucleus [eV]
+phi = 9.28108e-13			# taken from babyIAXO-57Fe-3.dat
+wid = 28793710.044686843
+x = np.linspace(w - 5, w+5 ,1000)
+ax2.plot(x, gaussian(x, w, phi, T, m), label = 'pp')
 
 
 

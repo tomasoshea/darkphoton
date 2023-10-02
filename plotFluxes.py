@@ -43,12 +43,13 @@ dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='L-plasmon mixing (gas)')
 
 # pp chain
-dat = loadtxt("data/limits/babyIAXO-pp-2.dat")
+
+dat = loadtxt("data/limits/babyIAXO-pp-new.dat")
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='pp-chain')
 
 # ee annihilation
-dat = loadtxt("data/limits/babyIAXO-pp-ee1.dat")
+dat = loadtxt("data/limits/babyIAXO-pp-ee-new.dat")
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='e+ e- annihilation')
 
@@ -78,5 +79,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/flux-comparison-57Fe-3.jpg')
+plt.savefig('plots/flux-comparison-1.jpg')
 plt.show()
