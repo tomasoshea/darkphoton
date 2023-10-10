@@ -48,31 +48,24 @@ int main( int argc, char** argv ) {
 	
 
 	// babyIAXO
-	
-	double Lraw = 10;	// m
 	string nameBaby = "babyIAXO-tPlasmon" + suffix;
-	// convert raw values to eV
-	double L = Lraw / m2eV;	// in eV^-1
+	double L1 = 10 / m2eV;	// in eV^-1
 	// multithread to run simultaneously
-	thread t2( integrateT, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, nameBaby );	
+	thread t2( integrateT, n, T, wp, r, nH, nHe4, nHe3, L1, z1, z2, nameBaby );	
 
 	
 	//IAXO baseline
-	Lraw = 20;	// m
 	string nameBaseline = "baselineIAXO-tPlasmon" + suffix;
-	// convert raw values to eV
-	L = Lraw / m2eV;	// in eV^-1
+	double L2 = 20 / m2eV;	// in eV^-1
 	// multithread to run simultaneously
-	thread t4( integrateT, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, nameBaseline );
+	thread t4( integrateT, n, T, wp, r, nH, nHe4, nHe3, L2, z1, z2, nameBaseline );
 
 
 	/// IAXO upgraded
-	Lraw = 22;	// m
 	string nameUpgraded = "upgradedIAXO-tPlasmon" + suffix;
-	// convert raw values to eV
-	L = Lraw / m2eV;	// in eV^-1
+	double L3 = 22 / m2eV;	// in eV^-1
 	// multithread to run simultaneously
-	thread t6( integrateT, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, nameUpgraded );
+	thread t6( integrateT, n, T, wp, r, nH, nHe4, nHe3, L3, z1, z2, nameUpgraded );
 
 
 	// wait until all threads are finished

@@ -386,8 +386,10 @@ double P( double w, double m, double L ) {
 	double arg = dP * L / 2;
 	
 	double item = 4 * pow( sin(arg) , 2 );
-	
-	return item;
+
+	if( arg > 20 * pi ) { return 2; }
+	else{ return item; }
+	//return item;
 }
 
 
@@ -426,16 +428,19 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	
 	// calculate detector Gamma
 	double G = Gamma(w, ne, T, nH, nHe4, nHe3, g1, g2);
-	cout << G*L << endl;
+	//cout << G*L << endl;
 	
+	if( G*L < 1e-3 ) { return pow( m * m * L / (2 * w), 2 ); }
 
-	// calculate conversion prob
-	double p1 = pow( m * m / (G * w), 2 );
-	double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));
-	
-	double item = p1 * p2;
-	
-	return item;
+	else{
+		// calculate conversion prob
+		double p1 = pow( m * m / (G * w), 2 );
+		double p2 = 1 + exp(- G*L) - (2 * exp(- G*L / 2));
+		
+		double item = p1 * p2;
+		
+		return item;
+	}
 }
 
 // full conversion prob for logL of gas run
@@ -715,9 +720,9 @@ double integrateGasFlux( double m, double wpIAXO, vector<double> n, vector<doubl
 	
 	double total = 0;	// initiate value of sum at 0
 	double dw = 10.;
-	for ( double w = 30; w < 100 - dw; w+=dw ) {
+	for ( double w = 1e2; w < 2e4 - dw; w+=dw ) {
 	
-		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
+		if ( w > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
@@ -801,7 +806,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 	double max = *max_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-4; m < min; m*=1.1 ) {
+	for ( double m = 1e-6; m < min; m*=1.01 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -825,7 +830,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 
 	// resonant sector
 	int len = wp.size();
-	for ( int i = 0; i < len; i = i+3 ) {
+	for ( int i = 0; i < len; i++ ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -849,7 +854,7 @@ void integrateT( vector<double> n, vector<double> T, vector<double> wp,
 	}
 
 		// unsuppressed section
-	for ( double m = max; m < 1e5; m*=1.1 ) {
+	for ( double m = max; m < 3e4; m*=1.01 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -893,7 +898,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	double min = *min_element( wp.begin(), wp.end() );
 	
 	// suppressed section
-	for ( double m = 1e-3; m < min; m*=2 ) {
+	for ( double m = 1e-6; m < min; m*=1.01 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -913,7 +918,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	
 	// resonant sector
 	int len = wp.size();
-	for ( int i = 0; i < len; i+=5 ) {
+	for ( int i = 0; i < len; i++ ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -927,7 +932,7 @@ void integrateTgas( vector<double> n, vector<double> T, vector<double> wp,
 	
 		int j = len - i - 1;
 		double m = wp[j];
-		if( m > 5 ){ break; }
+		if( m > 1 ){ break; }
 
 		double phi = integrateGas( m, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2 );
 		chiIAXO.push_back( phi );
@@ -1371,11 +1376,16 @@ double PpureL_B( double m, double w, double B, double L, vector<vector<double>> 
 	double eB = B * pow(m2eV,2) / s2eV;
 	double wB = eB / m_e;
 	
-	if( exp(-Gt*L) < 0.1 ) { cout << "m = " << m << ":		" << exp(-Gt*L) << endl; }
+	//if( exp(-Gt*L) < 0.1 ) { cout << "m = " << m << ":		" << exp(-Gt*L) << endl; }
 	
-	// return prob conversion prob (book 5, Mon 09/10/2023)
-	return pow( m * wp_gas / w , 4 ) * pow(wB/Gt, 2) * exp(-Gt*L) / ( pow( w*w - wp_gas*wp_gas , 2 ) + w*w*Gl*Gl );
-	
+
+
+	if( Gt*L < 1e-3 ) { return pow( m * wp_gas / w , 4 ) * pow(wB*L/2, 2)  / ( pow( w*w - wp_gas*wp_gas , 2 ) + w*w*Gl*Gl ); }
+
+	else{
+	// return prob conversion prob (book 7, Tue 10/10/2023)
+	return pow( m * wp_gas / w , 4 ) * pow(wB/Gt, 2) * ( 1 + exp(-Gt*L) - 2*exp(-Gt*L/2) ) / ( pow( w*w - wp_gas*wp_gas , 2 ) + w*w*Gl*Gl );
+	}
 }
 
 
@@ -1447,7 +1457,7 @@ void pureL( vector<vector<double>> z2, vector<double> T,
 	//double P0 = 1.e-12 * J2eV * pow(m2eV,2) * s2eV;	// 1 W m-2 in eV
 	//double J0 = 1e-9;		// 1 uA threshold
 
-	for ( double m = 1e-6; m < 1e3; m*=2 ) {
+	for ( double m = 1e-6; m < 1e3; m*=1.1 ) {
 
 		// check if interrupt
 		if( savenquit ){
