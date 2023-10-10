@@ -49,51 +49,33 @@ int main( int argc, char** argv ) {
 	
 
 	// babyIAXO
-	
-	double Lraw = 10;	// m
 	string nameBaby = "babyIAXO" + suffix;
-//	double phiRaw = 1.04e-4;	// m-2 s-1 (1 day)
-	double phiRaw = 6.226692336170931e-05;	// m-2 s-1 (4 days)
-
-	// convert raw values to eV
-	double phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
-	double L = Lraw / m2eV;	// in eV^-1
-	double B = 2;	// B-field in T
+	double L1 = 10 / m2eV;	// in eV^-1
+	double B1 = 2;	// B-field in T
 
 	// multithread to run simultaneously
 	//thread t1( gasL2, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameBaby );
-	thread t1( pureL, z2, T, wp, r, L, nameBaby );
+	thread t1( pureL, z2, T, wp, r, L1, B1, nameBaby );
 		
 	
 	//IAXO baseline
-	Lraw = 20;	// m
 	string nameBaseline = "baselineIAXO" + suffix;
-//	phiRaw = 2.84e-6;	// m-2 s-1 (1 day)
-	phiRaw = 3.823353390285471e-06;	// m-2 s-1 (4 days)
-
-	// convert raw values to eV
-	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
-	L = Lraw / m2eV;	// in eV^-1
-	B = 2.5;	// B-field in T
+	double L2 = 20 / m2eV;	// in eV^-1
+	double B2 = 2.5;	// B-field in T
 
 	// multithread to run simultaneously
 	//thread t2( gasL2, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameBaseline );
-	thread t2( pureL, z2, T, wp, r, L, nameBaseline );
+	thread t2( pureL, z2, T, wp, r, L2, B2, nameBaseline );
 
 
 	// IAXO upgraded
-	Lraw = 22;	// m
 	string nameUpgraded = "upgradedIAXO" + suffix;
-	phiRaw = 7.896761803014228e-08;	// m-2 s-1 (4 days)
-
-	// convert raw values to eV
-	phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
-	L = Lraw / m2eV;	// in eV^-1
-	B = 3.5;	// B-field in T
+	double L3 = 22 / m2eV;	// in eV^-1
+	double B3 = 3.5;	// B-field in T
 
 	// multithread to run simultaneously
 	//thread t3( gasL, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameUpgraded );
-	thread t3( pureL, z2, T, wp, r, L, nameUpgraded );
+	thread t3( pureL, z2, T, wp, r, L3, B3, nameUpgraded );
 
 	// wait until all threads are finished
 	t1.join();

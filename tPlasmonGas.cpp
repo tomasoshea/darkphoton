@@ -30,7 +30,6 @@ int main( int argc, char** argv ) {
 
 	// read csv files to vectors
 	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
-	vector<double> rFrac = read("data/rFrac.dat");	// sun radial distance as fraction
 	vector<double> T = read("data/T.dat");	// solar temperature [eV]
 	vector<double> n = read("data/ne.dat");	// electron number density [eV3]
 	vector<double> wp = read("data/wp.dat");	// plasma frequency [eV]
@@ -48,50 +47,26 @@ int main( int argc, char** argv ) {
 	
 	// babyIAXO
 	
-	double Lraw = 10;	// m
 	string nameBaby = "babyIAXO-tPlasmon" + suffix;
-	//double phiRaw = 7.845299447339854e-05;	// 5 days, 10keV [m-2 s-1]
-	//double phiRaw = 1.229e-05;	// 30 days, 70eV [m-2 s-1]
-	//double phiRaw = 3.7097625893155415e-06;	// 100 days, 70eV [m-2 s-1]
-
-
-	// convert raw values to eV
-	//double phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
-	double L = Lraw / m2eV;	// in eV^-1
+	double L1 = 10 / m2eV;	// in eV^-1
 	
 	// multithread to run simultaneously
-	thread t2( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, nameBaby );	
+	thread t2( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L1, z1, z2, nameBaby );	
 
 	
 	//IAXO baseline
-	Lraw = 20;	// m
 	string nameBaseline = "baselineIAXO-tPlasmon" + suffix;
-	//phiRaw = 1.0851492408557009e-05;	// 5 days, 10 keV [m-2 s-1]
-	//phiRaw = 1.796e-06;	// 30 days, 70 eV [m-2 s-1]
-	//phiRaw = 5.3940914909158e-07;	// 100 days, 70 eV [m-2 s-1]
-
-	// convert raw values to eV
-	//phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
-	L = Lraw / m2eV;	// in eV^-1
+	double L2 = 20 / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t4( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, nameBaseline );
+	thread t4( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L2, z1, z2, nameBaseline );
 
 	/// IAXO upgraded
-	Lraw = 22;	// m
 	string nameUpgraded = "upgradedIAXO-tPlasmon" + suffix;
-	//phiRaw = 6.313803673178312e-06;	// 5 days, 10 keV [m-2 s-1]
-	//phiRaw = 1.058e-06;	// 30 days, 70 eV [m-2 s-1]
-	//phiRaw = 3.1757993784652494e-07;	// 100 days, 70 eV [m-2 s-1]
-
-
-
-	// convert raw values to eV
-	//phi = phiRaw * m2eV * m2eV * s2eV;	// in eV^3 per keV
-	L = Lraw / m2eV;	// in eV^-1
+	double L3 = 22 / m2eV;	// in eV^-1
 
 	// multithread to run simultaneously
-	thread t6( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L, z1, z2, nameUpgraded );
+	thread t6( integrateTgas, n, T, wp, r, nH, nHe4, nHe3, L3, z1, z2, nameUpgraded );
 
 
 	// wait until all threads are finished

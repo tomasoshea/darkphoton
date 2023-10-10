@@ -341,7 +341,7 @@ double Gamma( double w, double number, double T, double nH, double nHe4, double 
 	double p2 = 3 * pow(m_e,2) * pow(w,3);
 	double p3 = 2 * pi * m_e * pow(number,2) / (3 * T);
 	double p4 = 1 - exp(- w / T);
-	double p5 = 8 * pi * pow(a,2) * number / (3 * pow(m_e,2) );
+	double p5 = 8 * pi * pow(a,2) * number / (3 * pow(m_e,2) );		// Compton
 	
 	// sum of ion densities
 	double ions = (nH * g1) + g2 * ( (4 * nHe4) + (4 * nHe3) );
@@ -349,7 +349,7 @@ double Gamma( double w, double number, double T, double nH, double nHe4, double 
 	double item = p1 * pow(p2, -1) * pow(p3, 0.5) * p4 * ions;
 	
 	item += p5;
-
+	
 	return item;
 }
 
@@ -426,6 +426,8 @@ double PgasFull( double w, double m, double L, vector<vector<double>> z2 ) {
 	
 	// calculate detector Gamma
 	double G = Gamma(w, ne, T, nH, nHe4, nHe3, g1, g2);
+	cout << G*L << endl;
+	
 
 	// calculate conversion prob
 	double p1 = pow( m * m / (G * w), 2 );
@@ -686,9 +688,9 @@ double integrateGas( double m, vector<double> n, vector<double> T, vector<double
 	//double dw = 100;
 	//for ( double w = 100; w < 1e5 - dw; w+=dw ) {
 	double dw = 10;
-	for ( double w = 30; w < 100 - dw; w+=dw ) {
+	for ( double w = 1e2; w < 2e4 - dw; w+=dw ) {
 	
-		//if ( w > m + 1e3 ) { continue; }	// set integral cutoff
+		if ( w > m + 1e3 ) { continue; }	// set integral cutoff
 		if ( w <= m ) { continue; }	// only allow when energy greater than mass
 		else if ( w > m + wRange ) { continue; }
 		
@@ -1129,7 +1131,9 @@ double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vecto
 
 }
 
-double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, vector<double> wp, vector<double> nH, vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r, double L ) {
+double lMixingResGasIntegrate( double m, vector<double> ne, vector<double> T, vector<double> wp, vector<double> nH,
+								vector<double> nHe4, vector<double> nHe3, vector<vector<double>> z1,
+								vector<vector<double>> z2, vector<double> r, double L ) {
 
 	double total = 0;	// initiate value of sum at 0
 	int len = r.size();
@@ -1339,6 +1343,42 @@ double PpureL_crystal( double w, double m, double L ) {
 	return item;
 }
 
+// contribution from l-DPs converted in IAXO B-field
+/// in limit wp_gas -> m
+double PpureL_B( double m, double w, double B, double L, vector<vector<double>> z2 ) {
+
+	// define detector parameters for Gamma_t
+	double wp_gas = m;
+	double nH, nHe3 = 0;	// only 4He is used
+	double g1 = 1;
+	double T = 300 * K2eV;	// detector at room temp [eV]
+	double ne = m_e * pow(m,2) / (4 * pi * a);
+	double nHe4 = ne / 2;	// 4He ion density [eV3]
+	
+	// select Gaunt factor from matrix
+	int indexT2 = 60;
+	int indexX2;
+	for( int i = 1; i < 500; i++ ) {
+		if( (z2[i][0] * T) < w and (z2[i+1][0] * T) > w ) { indexX2 = i; break; }
+	}
+	double g2 = z2[ indexT2 ][ indexX2 ];
+	
+	// get gammas
+	double Gt = Gamma(w, ne, T, nH, nHe4, nHe3, g1, g2);
+	double Gl = GammaLfull( w, T, ne, nH, nHe4, nHe3, m, m );
+
+	// set B-field value
+	double eB = B * pow(m2eV,2) / s2eV;
+	double wB = eB / m_e;
+	
+	if( exp(-Gt*L) < 0.1 ) { cout << "m = " << m << ":		" << exp(-Gt*L) << endl; }
+	
+	// return prob conversion prob (book 5, Mon 09/10/2023)
+	return pow( m * wp_gas / w , 4 ) * pow(wB/Gt, 2) * exp(-Gt*L) / ( pow( w*w - wp_gas*wp_gas , 2 ) + w*w*Gl*Gl );
+	
+}
+
+
 // integrand for pure L gas conversion
 double pureLintegrand( double m, double T, double wp, double r ) {
 
@@ -1359,15 +1399,13 @@ double current( double m, double w, double L ) {
 }
 
 double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
-						vector<double> wp, vector<double> r, double L ) {
+						vector<double> wp, vector<double> r, double L, double B ) {
 
 	double total = 0;	// initiate value of sum at 0
 	int len = r.size();
 	
 	// integrate by trapezium rule over r array
-	for ( int c = 0; c < len - 1; c++ ) {
-	
-		int j = len - c - 2;
+	for ( int j = 0; j < len - 1; j++ ) {
 	
 		if ( wp[j] <= m ) { continue; }	// only allow when energy greater than mass
 		//if ( wp[j+1] > 10 ) { continue; }	// only res conversion up to 5eV allowed
@@ -1377,10 +1415,10 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 			if ( wp[j+1] > 300 ) { cout << wp[j+1] << endl; }
 
 			double dr = abs(r[j+1] - r[j]);
-			//double height = 0.5 * ( ( PpureL( m, wp[j+1], L) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
-			//	+ ( PpureL( m, wp[j], L) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
-			double height = 0.5 * ( wp[j+1] * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ) * current( m, wp[j+1], L ) )
-				+ ( ( wp[j] * pureLintegrand( m, T[j], wp[j], r[j] ) * current( m, wp[j], L ) ) );
+			double height = 0.5 * ( ( PpureL_B( m, wp[j], B, L, z2 ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
+				+ ( PpureL_B( m, wp[j], B, L, z2) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
+			//double height = 0.5 * ( wp[j+1] * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ) * current( m, wp[j+1], L ) )
+			//	+ ( ( wp[j] * pureLintegrand( m, T[j], wp[j], r[j] ) * current( m, wp[j], L ) ) );
 			double dA = dr * height;
 			
 			// only add if real
@@ -1393,8 +1431,8 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 
 
 // now to run the integral
-void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
-	 vector<double> r, double L, string name ) {
+void pureL( vector<vector<double>> z2, vector<double> T,
+			vector<double> wp, vector<double> r, double L, double B, string name ) {
 
 	// implement new interrupt with save
 	//signal( SIGINT, interrupt );
@@ -1407,9 +1445,9 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 	string ext = "-pureL.dat";
 
 	//double P0 = 1.e-12 * J2eV * pow(m2eV,2) * s2eV;	// 1 W m-2 in eV
-	double J0 = 1e-9;		// 1 uA threshold
+	//double J0 = 1e-9;		// 1 uA threshold
 
-	for ( double m = 1e-6; m < 1e4; m*=2 ) {
+	for ( double m = 1e-6; m < 1e3; m*=2 ) {
 
 		// check if interrupt
 		if( savenquit ){
@@ -1421,11 +1459,11 @@ void pureL( vector<vector<double>> z2, vector<double> T, vector<double> wp,
 			exit(SIGINT);
 		}
 
-		double entryIAXO = sqrt(pureLintegrate( m, z2, T, wp, r, L )) / 1e-9;		// E0 / R
-		double chi4IAXO = J0 / entryIAXO;
-		cout << name << ":	m = " << m << "	chi = " << sqrt(chi4IAXO) << endl;
-		chiIAXO.push_back( sqrt(chi4IAXO) );
-		massIAXO.push_back( m );
+		double fluxIAXO = pureLintegrate( m, z2, T, wp, r, L, B );		// E0 / R
+		cout << name << ":	m = " << m << "	flux = " << fluxIAXO << endl;
+		chiIAXO.push_back(fluxIAXO);
+		massIAXO.push_back(m);
+		if( fluxIAXO == 0. ) { break; }
 	}
 
 	// write out

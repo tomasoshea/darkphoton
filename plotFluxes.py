@@ -9,7 +9,7 @@ plt.style.use("style.txt")	# import plot style
 # setup plot
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
-ax2.set(xlim=(1e-3,1e7), ylim=(1e-35,2e0))
+ax2.set(xlim=(1e-5,1e7), ylim=(1e-35,2e0))
 
 
 # tPlasmon
@@ -42,8 +42,12 @@ dat = loadtxt("data/limits/babyIAXO-1-lMixingResGas-flux.dat")
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='L-plasmon mixing (gas)')
 
-# pp chain
+# pureL B-field
+dat = loadtxt("data/limits/babyIAXO-new-pureL.dat")
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1], label='L-DP conversion')
 
+# pp chain
 dat = loadtxt("data/limits/babyIAXO-pp-new.dat")
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='pp-chain')
@@ -79,5 +83,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/flux-comparison-1.jpg')
+plt.savefig('plots/flux-comparison-3.jpg')
 plt.show()
