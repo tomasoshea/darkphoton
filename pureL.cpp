@@ -56,6 +56,7 @@ int main( int argc, char** argv ) {
 	// multithread to run simultaneously
 	//thread t1( gasL2, mass1, mass2, wIAXO, eDensity, temperature, omegaP, rad, nH, nHe4, nHe3, L, z1, z2, phi, nameBaby );
 	thread t1( pureL, z2, T, wp, r, L1, B1, nameBaby );
+
 		
 	
 	//IAXO baseline

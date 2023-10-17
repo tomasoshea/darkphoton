@@ -8,8 +8,8 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 5*365.25;	// detection time
-double dE = 10.;	// E range [keV]
+double days = 5;	// detection time
+double dE = 0.3;	// E range [keV]
 int samplesize = 1e3;		// size of random sample
 
 // conversion factors
@@ -201,7 +201,7 @@ void chis( int detector ) {
 	double A, phiBg, a, t, effD, effO, effT, len;
 	string name, load;
 	vector<double> flux, m;
-
+	string loadversion = "-perfect-pureL.dat";
 	// choose detector
 
 	if ( detector==0 ) {
@@ -214,7 +214,7 @@ void chis( int detector ) {
 		effD = 0.7;	// detectior efficiency
 		effO = 0.35;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/babyIAXO-tPlasmon-70eVagain-gas.dat";
+		load = "data/limits/babyIAXO" + loadversion;
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -230,7 +230,7 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/baselineIAXO-tPlasmon-70eVagain-gas.dat";
+		load = "data/limits/baselineIAXO" + loadversion;
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -246,7 +246,7 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/upgradedIAXO-tPlasmon-70eVagain-gas.dat";
+		load = "data/limits/upgradedIAXO" + loadversion;
 		m = loadtxt(load,0);
 		flux = loadtxt(load,1);
 		len = flux.size();
@@ -269,22 +269,26 @@ void chis( int detector ) {
 		// signal flux for chi = 1 for small dt
 		double Nsig = ( flux[c] * pow(m2eV, -2) / s2eV ) * A * effO * effD * effT * t;
 		double total = 0;	// keep total of all runs
-		
-		// get sample of random N from poisson
-		for ( int i = 0; i < samplesize; i++ ) {
-			double n = distro(generator);	// get random n from poisson
-			//if ( n == 0 ) { continue; }
-			//else { total += min( Nbg, Nsig, n ); }
-			total += integral( Nbg, Nsig, n );
+
+		if ( flux[c] == 0 ) { total = 1e99; }
+		else {
+			// get sample of random N from poisson
+			for ( int i = 0; i < samplesize; i++ ) {
+				double n = distro(generator);	// get random n from poisson
+				//if ( n == 0 ) { continue; }
+				//else { total += min( Nbg, Nsig, n ); }
+				total += integral( Nbg, Nsig, n );
+			}
 		}
-			
+		
 		chi.push_back( total / samplesize );
 		cout << c+1 << " out of " << len << ":	" << total / samplesize << endl;
 	}
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-5yr-" + name + "-tPlasmonGas.dat";
+	//string savename = "data/limits/stats-5yr-" + name + "-tPlasmonGas.dat";
+	string savename = "data/limits/stats-perfect-" + name + "-pureL.dat";
 	write2D( savename, m, chi );
 }
 

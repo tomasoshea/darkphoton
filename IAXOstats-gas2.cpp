@@ -9,8 +9,8 @@
 using namespace std;
 
 double CL = 0.95;	// confidence level
-double days = 5*365.25;	// detection time
-double dE = 0.07;	// E range [keV]
+double days = 5;	// detection time
+double dE = 0.3;	// E range [keV]
 int samplesize = 10;		// size of random sample
 
 

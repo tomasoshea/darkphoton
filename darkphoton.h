@@ -334,19 +334,20 @@ void interrupt( int sig ) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// T plasmon production rate
+// T plasmon absorbtion length
+// from Redondo's HP Atlas https://arxiv.org/abs/1501.07292
 double Gamma( double w, double number, double T, double nH, double nHe4, double nHe3, double g1, double g2 ) {
 
-	double p1 = 16 * pow(pi,2) * pow(a,3);
+	double p1 = 64 * pow(pi,2) * pow(a,3);
 	double p2 = 3 * pow(m_e,2) * pow(w,3);
-	double p3 = 2 * pi * m_e * pow(number,2) / (3 * T);
+	double p3 = m_e * pow(number,2) / (2*pi*T);
 	double p4 = 1 - exp(- w / T);
-	double p5 = 8 * pi * pow(a,2) * number / (3 * pow(m_e,2) );		// Compton
+	double p5 = 8 * pi * pow(a,2) * number / (3 * pow(m_e,2) );		// Thompson
 	
 	// sum of ion densities
 	double ions = (nH * g1) + g2 * ( (4 * nHe4) + (4 * nHe3) );
 
-	double item = p1 * pow(p2, -1) * pow(p3, 0.5) * p4 * ions;
+	double item = p1 * pow(p2, -1) * pow(p3, 0.5) * p4 * ions;		// bremsstrahlung
 	
 	item += p5;
 	
@@ -1302,11 +1303,8 @@ double PpureLConversion( double w, double m, double L, vector<vector<double>> z2
 	double nHe4 = ne / 2;	// 4He ion density [eV3]
 	
 	// select Gaunt factor from matrix
-	int indexT2;
+	int indexT2 = 60;
 	int indexX2;
-	for( int i = 1; i < 200; i++ ) {
-		if( (z2[0][i] < T) and (z2[0][i+1] > T) ) { indexT2 = i; break; }
-	}
 	for( int i = 1; i < 500; i++ ) {
 		if( (z2[i][0] * T) < w and (z2[i+1][0] * T) > w ) { indexX2 = i; break; }
 	}
@@ -1425,8 +1423,10 @@ double pureLintegrate( double m, vector<vector<double>> z2, vector<double> T,
 			if ( wp[j+1] > 300 ) { cout << wp[j+1] << endl; }
 
 			double dr = abs(r[j+1] - r[j]);
-			double height = 0.5 * ( ( PpureL_B( m, wp[j], B, L, z2 ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
-				+ ( PpureL_B( m, wp[j], B, L, z2) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
+			double height = 0.5 * ( (  PpureL( m, wp[j+1], L ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
+				+ ( PpureL( m, wp[j], L) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
+			//double height = 0.5 * ( ( PpureL_B( m, wp[j+1], B, L, z2 ) * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ))
+			//	+ ( PpureL_B( m, wp[j], B, L, z2) * pureLintegrand( m, T[j], wp[j], r[j] ) ) );
 			//double height = 0.5 * ( wp[j+1] * pureLintegrand( m, T[j+1], wp[j+1], r[j+1] ) * current( m, wp[j+1], L ) )
 			//	+ ( ( wp[j] * pureLintegrand( m, T[j], wp[j], r[j] ) * current( m, wp[j], L ) ) );
 			double dA = dr * height;
@@ -1470,7 +1470,7 @@ void pureL( vector<vector<double>> z2, vector<double> T,
 		}
 
 		double fluxIAXO = pureLintegrate( m, z2, T, wp, r, L, B );		// E0 / R
-		cout << name << ":	m = " << m << "	flux = " << fluxIAXO << endl;
+		//cout << name << ":	m = " << m << "	flux = " << fluxIAXO << endl;
 		chiIAXO.push_back(fluxIAXO);
 		massIAXO.push_back(m);
 		if( fluxIAXO == 0. ) { break; }
