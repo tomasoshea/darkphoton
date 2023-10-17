@@ -981,6 +981,34 @@ void ppchain( vector<double> plasmaFreq, vector<double> temperature, double L, s
 	//write2D( "data/" + name + "-highEprob.dat", massIAXO, sine );
 }
 
+
+// get energy loss bounds for pp-chain
+void ppchainLuminosity( vector<double> plasmaFreq, vector<double> temperature, string name ) {
+
+	// define constants
+	double rate = 1.7e38 * s2eV;			// rate of deuterium fusion [eV]
+	double w = 5.49e6;						// fusion energy [eV]
+//	double w = 5.11e5;						// electron rest mass [eV]
+	double T = temperature[0];
+	double wp = plasmaFreq[0];
+	double G = compton(w, T, wp);			// compton absorbtion rate [eV]
+	double L0 = 3.828e26 * J2eV * s2eV;			// solar luminosity [eV2]
+	// define vectors
+	vector<double> massIAXO;
+	vector<double> chiIAXO;
+
+	// set path for writeout
+	string path = "data/limits/";
+	string ext = "-Eloss.dat";
+
+	for ( double m = 1e1; m < w; m*=1.01 ) {
+		double Lt = rate * pow(w*w - m*m, 1.5) * pow(w,-2) * pow(m,4) / ( ( pow( m*m - wp*wp, 2 ) + pow(w*G,2) ) )/L0;
+		chiIAXO.push_back( pow(Lt,-0.5) );	// times 2 for diphoton emmision in e+ e- mode
+		massIAXO.push_back( m );
+	}
+	write2D( path + name + ext, massIAXO, chiIAXO );
+}
+
 /*
 // integrand for nuclear deexcitation DPs
 double nuclearIntegrand( double m, double w, double T, double wp, double nI, double r, double J1, double J0 ) {

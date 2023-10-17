@@ -35,23 +35,26 @@ int main( int argc, char** argv ) {
 	// babyIAXO
 	string nameBaby = "babyIAXO-pp" + suffix;
 	double L1 = 10 / m2eV;	// in eV^-1
+	ppchainLuminosity(wp, T, nameBaby);
+
+	/*
 	thread t2( ppchain, wp, T, L1, nameBaby );	
 
 	//IAXO baseline
 	double L2 = 20 / m2eV;
 	string nameBaseline = "baselineIAXO-pp" + suffix;
-	thread t4( ppchain, wp, T, L2, nameBaseline );	
+	//thread t4( ppchain, wp, T, L2, nameBaseline );	
 
 	// IAXO upgraded
 	string nameUpgraded = "upgradedIAXO-pp" + suffix;
 	double L3 = 22 / m2eV;	// in eV^-1
-	thread t6( ppchain, wp, T, L3, nameUpgraded );	
+	//thread t6( ppchain, wp, T, L3, nameUpgraded );	
 
 	// wait until all threads are finished
 	t2.join();
 	t4.join();
 	t6.join();
-	
+	*/
 	cout << "\nProcess completed!\n" << endl;
 	
 	return(0);
