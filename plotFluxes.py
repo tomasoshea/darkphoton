@@ -9,14 +9,14 @@ plt.style.use("style.txt")	# import plot style
 # setup plot
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
-ax2.set(xlim=(1e-4,1e7), ylim=(1e-35,2e8))
+ax2.set(xlim=(1e-4,1e7), ylim=(1e-35,2e1))
 
 
 # tPlasmon
 dat = loadtxt("data/limits/babyIAXO-tPlasmon-flux.dat")
 top = np.nanmax(dat[:,1])
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon')
+ax2.plot(dat[:,0],dat[:,1],lw=5,color='black',label='T-plasmon')
 
 #dat = loadtxt("data/limits/babyIAXO-tPlasmon-70eV.dat")
 #dat[:,1] = dat[:,1] / top
@@ -25,7 +25,7 @@ ax2.plot(dat[:,0],dat[:,1], label='T-plasmon')
 # tPlasmon gas
 dat = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-gas.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon (gas)')
+ax2.plot(dat[:,0],dat[:,1],lw=2,color='black',label='T-plasmon (gas)')
 
 # tPlasmon gas T=3K
 #dat = loadtxt("data/limits/babyIAXO-tPlasmon-100eV-3K-gas.dat")
@@ -35,37 +35,37 @@ ax2.plot(dat[:,0],dat[:,1], label='T-plasmon (gas)')
 # lMixing
 dat = loadtxt("data/limits/babyIAXO-1-lMixingRes-flux.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='L-plasmon mixing')
+ax2.plot(dat[:,0],dat[:,1],lw=5,ls=':',color='black',label='L-plasmon mixing')
 
 # lMixing gas
 dat = loadtxt("data/limits/babyIAXO-1-lMixingResGas-flux.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='L-plasmon mixing (gas)')
+ax2.plot(dat[:,0],dat[:,1],lw=2,ls=':',color='black',label='L-plasmon mixing (gas)')
 
 # pureL idealised
 dat = loadtxt("data/limits/babyIAXO-perfect-pureL.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='L-DP conversion (idealised)')
+#ax2.plot(dat[:,0],dat[:,1], label='L-DP conversion (idealised)')
 
 # pureL B-field
 dat = loadtxt("data/limits/babyIAXO-new2-pureL.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='L-DP conversion')
+ax2.plot(dat[:,0],dat[:,1],ls='-.',color='black',label='L-DP conversion')
 
 # pp chain
 dat = loadtxt("data/limits/babyIAXO-pp-new.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='pp-chain')
+ax2.plot(dat[:,0],dat[:,1],lw=5,ls='--',color='black',label='pp-chain')
 
 # ee annihilation
 dat = loadtxt("data/limits/babyIAXO-pp-ee-new.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='e+ e- annihilation')
+ax2.plot(dat[:,0],dat[:,1],lw=3,ls='--',color='black',label='e+ e- annihilation')
 
 # 57Fe
 dat = loadtxt("data/limits/babyIAXO-57Fe-3.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='57Fe')
+ax2.plot(dat[:,0],dat[:,1],lw=2,ls='--',color='black',label='57Fe')
 
 # 55Mn
 #dat = loadtxt("data/limits/babyIAXO-55Mn-1.dat")
@@ -88,5 +88,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/flux-comparison-5.jpg')
+plt.savefig('plots/flux-comparison-black.jpg')
 plt.show()

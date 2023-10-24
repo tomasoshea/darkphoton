@@ -18,6 +18,7 @@ using namespace std;
 double pi = 3.14159265358979323846;	// pi
 double m_e = 510998.950;		// m_e [eV]
 double a = (1. / 137.);		// alpha
+double Ry = 13.605693;			// [eV]
 
 // solar params
 double R_raw = 149.5978707e9;	// mean earth-sun distance [m]
@@ -330,43 +331,133 @@ void interrupt( int sig ) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////// GENERAL FUNCS ///////////////////////////////////////////
+////////////////////////////////////// RE[PI] , IM[PI] ////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+// free electron Gamma
+double GammaFree( double wp ) {
+	return 2*wp*wp*a/(3*me);
+}
 
-// T plasmon absorbtion length
-// from Redondo's HP Atlas https://arxiv.org/abs/1501.07292
-double Gamma( double w, double number, double T, double nH, double nHe4, double nHe3, double g1, double g2 ) {
+// free-free Gamma
+double GammaFF( double w, double wp, double T, double ne, double np ) {
+	double Fff = GauntFF(w,T,ne,np);
+	return (16*pi*a*a*wp*wp/(3*me*w*w*w))*sqrt(me/(2*pi*T))*(1-exp(-w/T))*np*Fff;
+}
 
-	double p1 = 64 * pow(pi,2) * pow(a,3);
-	double p2 = 3 * pow(m_e,2) * pow(w,3);
-	double p3 = m_e * pow(number,2) / (2*pi*T);
-	double p4 = 1 - exp(- w / T);
-	double p5 = 8 * pi * pow(a,2) * number / (3 * pow(m_e,2) );		// Thompson
-	
-	// sum of ion densities
-	double ions = (nH * g1) + g2 * ( (4 * nHe4) + (4 * nHe3) );
+// bound-free Gamma
+double GammaBF( double w, double T, double nH0, double nHminus ) {
+	double sum = 0;
+	for( int n = 0; n < 10; n++ ) {
+		double En = Ry/(n*n);	// [eV]
+		if( w < En ) { continue; }
+		double Zn;
+		sum += Zn / pow(n,5);
+	}
+	return (8*pi*me*pow(a,5)/(3*sqrt(3)*w*w*w))*(1-exp(-w/T))*nH0*sum + (1-exp(-w/T))*nHminus*sigmaHminus;
+}
 
-	double item = p1 * pow(p2, -1) * pow(p3, 0.5) * p4 * ions;		// bremsstrahlung
-	
-	item += p5;
-	
-	return item;
+// bound-bound Gamma
+double GammaBB( double w, double nH0 ) {
+	double sum = 0;
+	for( int n = 0; n < 10; n++ ) {
+		double Zn;
+		for( int n1 = 0; n < 10; n++ ) {
+			if(n <= n1) { continue; }
+			double wr = Ry*(pow(n,-2) - pow(n1,-2));
+			double gr = 2*a*wr*w/(3*me);
+			double fnn;
+			sum += fnn*w*w*gr/( pow(w*w - wr*wr, 2) + (w*w*gr*gr) );
+		}
+	}
+	return (4*pi*a/me)*nH0*sum;
+}
+
+// bound-bound m^2_gamma
+double m2BB( double w, double nH0 ) {
+	double sum = 0;
+	for( int n = 0; n < 10; n++ ) {
+		double Zn;
+		for( int n1 = 0; n < 10; n++ ) {
+			if(n <= n1) { continue; }
+			double wr = Ry*(pow(n,-2) - pow(n1,-2));
+			double gr = 2*a*wr*w/(3*me);
+			double fnn;
+			sum += fnn*w*w*(w*w - wr*wr)/( pow(w*w - wr*wr, 2) + (w*w*gr*gr) );
+		}
+	}
+	return (4*pi*a/me)*nH0*sum;
 }
 
 
-
-// L plasmon production rate - valid around resonance (w = wp)
-double GammaLfull( double w, double T, double ne, double nH, double nHe4, double nHe3, double wp, double m ) {
-	//if( w > 300 ) { cout << w << endl; }
-	double p1 = 64 * pow(pi,2) * pow(a,3) * ne;
-	double p2 = 3 * pow( 2 * pi * T , 0.5 ) * pow(m_e,1.5) * pow(w,3);
-	double F = cyl_bessel_k(0, w/2) * sinh(w/2);
-	double sum = nH + ( 4 * (nHe4 + nHe3) );
-	
-	double item = ( p1 * sum * F / p2 );	// + ( p3 / p4 );
-	return item;
+// bound-free m^2_gamma
+// !!! NOTE - in the paper Ee and E are used without definition, I have used En for both - ASK JAVIER !!! 
+double m2BF( double w, double nH0 ) {
+	double sum = 0;
+	for( int n = 0; n < 10; n++ ) {
+	double En = Ry/(n*n);	// [eV]
+		double Zn;
+		sum += Zn*pow(n,-5)*( pow(w/En,2) - log(En*En/abs(En*En - w*w)) );
+	}
+	return (8*pi*mw*pow(a,5)/(3*sqrt(3)*w*w))*nH0*sum;
 }
+
+// free-free Gaunt factor
+double GauntFF( double w, double T, double ne, double np ) {
+	double kD = debye(T,ne,np);
+	double y = kD*sqrt(2*me*T);
+	double total = 0;
+	double dx = 1;
+	for( double x1 = 0; x1!=-1; x1+=dx )
+		double x2 = x1+dx;
+		double tot1 = 0;
+		double tot2 = 0;
+		for( double t = sqrt(x1*x1 + (w/T)) + x1; t <= sqrt(x1*x1 + (w/T)) - x1; t += x1/50 ) {
+			tot1 += t*t*t/pow(t*t + y*y, 2);
+		}
+		for( double t = sqrt(x2*x2 + (w/T)) + x2; t <= sqrt(x2*x2 + (w/T)) - x2; t += x2/50 ) {
+			tot2 += t*t*t/pow(t*t + y*y, 2);
+		}
+		
+		total += (dx/2)*( 0.5*x1*exp(-x1^2)*(sqrt(x1*x1+(w/T))/x1)*((1-exp(-2*pi*a*sqrt(me/(2T*(x1*x1+(w/T))))))/(1-exp(-2*pi*a*sqrt(me/(2T*x1*x1)))))*tot1
+						+ 0.5*x2*exp(-x2^2)*(sqrt(x2*x2+(w/T))/x2)*((1-exp(-2*pi*a*sqrt(me/(2T*(x2*x2+(w/T))))))/(1-exp(-2*pi*a*sqrt(me/(2T*x2*x2)))))*tot2 )
+	}
+	return total;
+}
+
+// Debye screening scale k_D
+double debye( double T, double ne, double np ) {
+	double nHepp = 0;
+	return sqrt(4*pi*a*(ne+np+(4*nHepp))/T);
+}
+
+// prob of finding atom in state n, Zn
+double probZn() {
+	double partFunc = 0;
+	for( int n = 1; n < 10; n++ ) {
+		double wn;
+		double En = Ry/(n*n);	// [eV]
+		partFunc += 2*n*n*wn*exp(En/T);
+	}
+	return 2*n*n*wn*exp(En/T) / partFunc;
+}
+
+// total m^2_gamma
+double m2_gamma( double w, double wp, double H0 ) {
+	return wp*wp + m2BB(w,H0) + m2BF(w,H0);
+}
+
+// total Gamma
+double Gamma() {
+	double total = GammaFree(wp);
+	total += GammaFF(w, wp, T, ne, np);
+	total += GammaBF(w, T, nH0, nHminus);
+	total += GammaBB(w, nH0);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////// GENERAL FUNCS ///////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 // A_l => S_t mixing rate gamma_lt^4
