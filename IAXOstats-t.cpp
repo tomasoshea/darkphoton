@@ -19,6 +19,35 @@ double K2eV = (8.617333262e-5);	// Kelvin to eV
 double kg2eV = 5.609588604e35;	// from hbar/c2
 
 
+// read in datafiles in csv form
+vector<double> read( string name ) {
+
+	//cout << "Reading file " << name << "..." << endl;
+
+	// open file defined in argument
+	fstream file;
+	file.open(name,ios::in);
+	
+	char delim('\n');	// define delimiter for file parsing
+	
+	if (file.is_open()){   // checking whether the file is open
+		string temp;	// define temporary storage string
+		vector<double> row;	// define vector to store input values and return
+		
+		while(getline(file, temp, delim)){  // read data from file object and put it into string
+			double item = stod(temp);	// convert string to double
+			row.push_back(item);	// append double to vector
+		}
+		
+	file.close();   // close the file object.
+	
+	return row;	// returns vector of values
+	
+	}
+	else{ cout << "some error i guess..." << endl ; vector<double> err = {69.} ; return err ; }
+}
+
+
 // read 2nd column from 2 column datafile
 vector<double> loadtxt( string name, int col ) {
 
@@ -175,9 +204,11 @@ void chis( int detector ) {
 		effD = 0.7;	// detectior efficiency
 		effO = 0.35;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/babyIAXO-tPlasmon-miguel1.dat";
-		m = loadtxt(load,0);
-		flux = loadtxt(load,1);
+		//load = "data/limits/babyIAXO-tPlasmon-.dat";
+		//m = loadtxt(load,0);
+		//flux = loadtxt(load,1);
+		m = read("data/atlas_mtab.dat");
+		flux = read("data/atlas_1e0.dat");
 		len = flux.size();
 		}
 
@@ -191,9 +222,11 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/baselineIAXO-tPlasmon-miguel1.dat";
-		m = loadtxt(load,0);
-		flux = loadtxt(load,1);
+		//load = "data/limits/baselineIAXO-tPlasmon-miguel1.dat";
+		//m = loadtxt(load,0);
+		//flux = loadtxt(load,1);
+		m = read("data/atlas_mtab.dat");
+		flux = read("data/atlas_1e0.dat");
 		len = flux.size();
 		}
 
@@ -207,9 +240,11 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		load = "data/limits/upgradedIAXO-tPlasmon-miguel1.dat";
-		m = loadtxt(load,0);
-		flux = loadtxt(load,1);
+		//load = "data/limits/upgradedIAXO-tPlasmon-miguel1.dat";
+		//m = loadtxt(load,0);
+		//flux = loadtxt(load,1);
+		m = read("data/atlas_mtab.dat");
+		flux = read("data/atlas_1e0.dat");
 		len = flux.size();
 		}
 
@@ -250,7 +285,7 @@ void chis( int detector ) {
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-" + name + "-tPlasmon-miguel1.dat";
+	string savename = "data/limits/stats-" + name + "-tPlasmon-Atlas-1e0.dat";
 	write2D( savename, m, chi );
 }
 
@@ -266,7 +301,7 @@ int main(){
 	t1.join();
 	t2.join();
 	t3.join();
-	
+
 	cout << "\n¡¡complete!!" << endl;
 	return 0;
 }

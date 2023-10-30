@@ -67,8 +67,8 @@ vector<double> read( string name ) {
 	
 	char delim('\n');	// define delimiter for file parsing
 	
-	if (file.is_open()){   // checking whether the file is open
-		string temp;	// define temporary storage string
+	if (file.is_open()){	// checking whether the file is open
+		string temp;		// define temporary storage string
 		vector<double> row;	// define vector to store input values and return
 		
 		while(getline(file, temp, delim)){  // read data from file object and put it into string
