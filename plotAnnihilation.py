@@ -6,17 +6,16 @@ from matplotlib import pyplot as plt
 
 plt.style.use("style.txt")	# import plot style
 
-s2eV = (6.582119569e-16)
-m2eV = (1.973269804e-7)
-sigma = 1e3		# eV
-E0 = 559.1987036540328e3	# eV
-
 # setup plot
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
 #ax2.set(xlim=(1e-4,1e7), ylim=(1e-35,2e1))
 #ax2.set(xlim=(1e-3,1e4), ylim=(1e-5,2e0))
 
+s2eV = (6.582119569e-16)
+m2eV = (1.973269804e-7)
+sigma = 1e3		# eV
+E0 = 559.1987036540328e3	# eV
 
 def Lorentz(E1,theta):
 	gamma = 1.046099691693158

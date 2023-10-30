@@ -77,6 +77,17 @@ ax2.plot(dat[:,0],dat[:,1]**(1/4),lw=2,color='black',label='T-plasmon (gas)')
 #ax2.plot(dat[:,0],dat[:,1], label='55Mn')
 
 # Javier Atlas data
+dat = loadtxt("data/limits/babyIAXO-Atlas-1.dat")
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1]**(1/4),lw=5,color='red',label='Atlas 100eV')
+
+dat = loadtxt("data/limits/babyIAXO-Atlas-1eV.dat")
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1]**(1/4),lw=2,color='red',label='Atlas 1eV')
+
+
+
+"""
 atlas = loadtxt("data/limits/output_T.dat")
 wtab = 10**np.arange(0,4.0002,0.001)
 mtab = 10**np.arange(-3,4.1,0.1)
@@ -123,7 +134,7 @@ dat = boundIAXO(LowEthres=1e2)
 dat = dat / top
 ax2.plot(mtab,dat**(1/4),lw=2,ls='-',color='magenta',label='Atlas (100eV)')
 np.savetxt('data/atlas_1e2.dat', dat, delimiter=',')
-
+"""
 
 # prob
 #fig = plt.figure(2)	# display is 1920 x 1080 (16:9)
@@ -140,5 +151,5 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/flux-comparison-Atlas3.jpg')
+plt.savefig('plots/flux-comparison-Atlas4.jpg')
 plt.show()

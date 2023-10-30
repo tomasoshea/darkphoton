@@ -1,4 +1,4 @@
-// Tom O'Shea 2022
+// Tom O'Shea 2023
 
 // script to generate a function of dark photon mixing parameter against dark photon mass
 // to give a theoretical upper limit on these parameters that IAXO could achieve
@@ -365,13 +365,6 @@ double sigmaHminus( double w ) {	// w in eV
 	return (gamma*k*k*k/((1 - gamma*rho)*pow(gamma*gamma + k*k, 3))) * 6.8475e-18*pow(100/m2eV,2);	// [eV-2]
 }
 
-
-double partFunc( double T, double np ) {
-	double sum = 0;
-	for( int n = 1; n < 10; n++ ) { sum += probZn(n,T,np); }
-	return sum;
-}
-
 // prob of finding atom in state n, Zn
 double probZn( double n, double T, double np ) {
 	double Kn = 0;
@@ -380,6 +373,12 @@ double probZn( double n, double T, double np ) {
 	double En = Ry/(n*n);	// [eV]
 	double wn = QHoltsmark( (Kn*En*En/(4*a*a))*pow(4*pi*np/3,-2/3) );
 	return 2*n*n*wn*exp(En/T);
+}
+
+double partFunc( double T, double np ) {
+	double sum = 0;
+	for( int n = 1; n < 10; n++ ) { sum += probZn(n,T,np); }
+	return sum;
 }
 
 
@@ -500,23 +499,24 @@ double m2_gamma( double w, double T, double wp, double nH0, double np ) {
 double Gamma( double w, double wp, double T, double nH0, double ne, double np, double nHminus ) {
 	double total = 0;
 	total += GammaFree(wp);
-	total += GammaFF(w, wp, T, ne, np);
+	total += GammaFF(w, T, ne, np);
 	total += GammaBF(w, T, nH0, np, nHminus);
 	total += GammaBB(w,T,np,nH0);
 	return total;
 }
 
-// Gamma for 4He in IAXO buffer gas
+// Gamma[eV] for 4He in IAXO buffer gas
 // taken from Julia's thesis equation (8.5)
 // CERN-THESIS-2009-042
-double Gamma_IAXO( double w, double pressure ) {	// CHECK UNITS!! I think mbar and eV to return m-1
+double Gamma_IAXO( double w, double pressure ) {	// p[mbar] and w[keV]
 	double logw = log10(w);
 	double logG = 0.014*pow(logw,6) + 0.166*pow(logw,5)
 				+ 0.464*pow(logw,4) + 0.473*pow(logw,3)
 				- 0.266*pow(logw,2) - 3.241*logw
-				- 0.760 + log10(pressure);
-	return pow(10,logG);
+				- 0.760 - log10(300/1.8) + log10(pressure);
+	return pow(10,logG) * m2eV;		// Gamma[eV]
 }
+
 
 // bound-free m^2_gamma fpr He in IAXO buffer gas
 double m2IAXO( double w, double T, double nHe0 ) {
@@ -547,13 +547,11 @@ double Pvacuum( double w, double m, double L ) {
 
 
 // conversion probability for gas resonance
-double Pgas( double w, double m, double L ) {
+double Pgas( double w, double m, double L, double pressure ) {
 	
 	// define detector parameters for Gamma_t
-	double T = 300 * K2eV;	// detector at room temp [eV]
 	double nHe0 = m_e * pow(m,2) / (8 * pi * a);	// FOR NOW - remove later
-	double pressure = m;		// WRONG - change
-	double G = Gamma_IAXO(w, pressure);
+	double G = Gamma_IAXO(w, pressure);				// eV
 
 	if( G*L < 1e-3 ) { return pow( m * m * L / (2 * w), 2 ); }
 	else{ return pow( m * m / (G * w), 2 ) * (1 + exp(- G*L) - (2 * exp(- G*L / 2))); }
