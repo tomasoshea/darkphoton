@@ -300,7 +300,7 @@ void merge( string name ) {
 	// write out
 	string path = "data/limits/";
 	string ext = ".dat";
-	write2D( path + name + ext, m, chi );	
+	write2D( path + name + ext, m, chi );
 
 }
 
@@ -337,59 +337,21 @@ void interrupt( int sig ) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// free-free Gaunt factor
-double GauntFF( double w, double T, double ne, double np ) {
-	double kD = debye(T,ne,np);
-	double y = kD*sqrt(2*me*T);
-	double total = 0;
-	double dx = 1;
-	for( double x1 = 0; x1!=-1; x1+=dx ) {
-		double x2 = x1+dx;
-		double tot1 = 0;
-		double tot2 = 0;
-		for( double t = sqrt(x1*x1 + (w/T)) + x1; t <= sqrt(x1*x1 + (w/T)) - x1; t += x1/50 ) {
-			tot1 += t*t*t/pow(t*t + y*y, 2);
-		}
-		for( double t = sqrt(x2*x2 + (w/T)) + x2; t <= sqrt(x2*x2 + (w/T)) - x2; t += x2/50 ) {
-			tot2 += t*t*t/pow(t*t + y*y, 2);
-		}
-		
-		total += (dx/2)*( 0.5*x1*exp(-x1^2)*(sqrt(x1*x1+(w/T))/x1)*((1-exp(-2*pi*a*sqrt(me/(2T*(x1*x1+(w/T))))))/(1-exp(-2*pi*a*sqrt(me/(2T*x1*x1)))))*tot1
-						+ 0.5*x2*exp(-x2^2)*(sqrt(x2*x2+(w/T))/x2)*((1-exp(-2*pi*a*sqrt(me/(2T*(x2*x2+(w/T))))))/(1-exp(-2*pi*a*sqrt(me/(2T*x2*x2)))))*tot2 )
-	}
-	return total;
-}
-
 // Debye screening scale k_D
 double debye( double T, double ne, double np ) {
 	double nHepp = 0;
+	double nHep = 0;
 	return sqrt(4*pi*a*(ne+np+4*(nHep + nHepp))/T);
 }
 
-double partFunc( double T, double np ) {
-	double sum = 0;
-	for( int n = 1; n < 10; n++ ) {
-		double Kn = (16*n*n*(n+(7/6)))/(3*pow(n+1,2)*(n*n + n + 0.5));
-		double En = Ry/(n*n);	// [eV]
-		double wn = QHoltsmark( (Kn*En*En/(4*a*a))*pow(4*pi*np/3,-2/3) );
-		sum += 2*n*n*wn*exp(En/T);
-	}
-	return sum;
-}
-
-// prob of finding atom in state n, Zn
-double probZn( double n, double T, double np ) {
-	double wn = QHoltsmark( (Kn*En*En/(4*a*a))*pow(4*pi*np/3,-2/3) );
-	return 2*n*n*wn*exp(En/T);
-}
 
 // CDF of Holtsmark distro
 // taken from D. G. Hummer (1986)
 double QHoltsmark( double B ) {
 	double sum = 0;
 	for( int n = 0; n < 100; n++ ) {
-		double bn = (3/(2*n + 3))*tgamma(4*n/3 + 2)/tgamma(2*n + 2);
-		sum += bn*pow(B,2n);
+		double bn = (3/(2*n + 3))*tgamma(4*n/3 + 2)/tgamma(2*n + 2)*pow(-1,n);
+		sum += bn*pow(B,2*n);
 	}
 	return (4/(9*pi))*B*B*B*sum;
 }
@@ -403,19 +365,66 @@ double sigmaHminus( double w ) {	// w in eV
 	return (gamma*k*k*k/((1 - gamma*rho)*pow(gamma*gamma + k*k, 3))) * 6.8475e-18*pow(100/m2eV,2);	// [eV-2]
 }
 
+
+double partFunc( double T, double np ) {
+	double sum = 0;
+	for( int n = 1; n < 10; n++ ) { sum += probZn(n,T,np); }
+	return sum;
+}
+
+// prob of finding atom in state n, Zn
+double probZn( double n, double T, double np ) {
+	double Kn = 0;
+	if(n>3) { Kn = (16*n*n*(n+(7/6)))/(3*pow(n+1,2)*(n*n + n + 0.5)); }
+	else{ Kn = 1; }
+	double En = Ry/(n*n);	// [eV]
+	double wn = QHoltsmark( (Kn*En*En/(4*a*a))*pow(4*pi*np/3,-2/3) );
+	return 2*n*n*wn*exp(En/T);
+}
+
+
+// free-free Gaunt factor
+double GauntFF( double w, double T, double ne, double np ) {
+	double kD = debye(T,ne,np);
+	double y = kD*sqrt(2*m_e*T);
+	double total = 0;
+	double dx = 1;
+	for( double x1 = 0; x1!=-1; x1+=dx ) {
+		double x2 = x1+dx;
+		double tot1 = 0;
+		double tot2 = 0;
+		for( double t = sqrt(x1*x1 + (w/T)) - x1; t <= sqrt(x1*x1 + (w/T)) + x1; t += x1/50 ) {
+			if(x1==0) { tot1 = 0; break; }
+			tot1 += t*t*t/pow(t*t + y*y, 2);
+		}
+		for( double t = sqrt(x2*x2 + (w/T)) - x2; t <= sqrt(x2*x2 + (w/T)) + x2; t += x2/50 ) {
+			if(x2==0) { tot1 = 0; break; }
+			tot2 += t*t*t/pow(t*t + y*y, 2);
+		}
+		double I1 = 0.5*x1*exp(-x1*x1)*(sqrt(x1*x1+(w/T))/x1)*((1-exp(-2*pi*a*sqrt(m_e/(2*T*(x1*x1+(w/T))))))/(1-exp(-2*pi*a*sqrt(m_e/(2*T*x1*x1)))))*tot1;
+		double I2 = 0.5*x2*exp(-x2*x2)*(sqrt(x2*x2+(w/T))/x2)*((1-exp(-2*pi*a*sqrt(m_e/(2*T*(x2*x2+(w/T))))))/(1-exp(-2*pi*a*sqrt(m_e/(2*T*x2*x2)))))*tot2;
+		
+		if( abs(I1-I2) < 1e-100 ) { break; }
+		total += (dx/2)*(I1+I2);
+	}
+	if(isnan(total)) { return 0; }
+	else{ return total; }
+}
+
 // free electron Gamma
-double GammaFree( double wp ) {
-	return 2*wp*wp*a/(3*me);
+double GammaFree( double ne ) {
+	return 8*pi*a*a*ne/(3*m_e*m_e);
 }
 
 // free-free Gamma
-double GammaFF( double w, double wp, double T, double ne, double np ) {
+double GammaFF( double w, double T, double ne, double np ) {
 	double Fff = GauntFF(w,T,ne,np);
-	return (16*pi*a*a*wp*wp/(3*me*w*w*w))*sqrt(me/(2*pi*T))*(1-exp(-w/T))*np*Fff;
+	return (64*pi*pi*a*a*a/(3*m_e*m_e*w*w*w))*sqrt(m_e/(2*pi*T))*(1-exp(-w/T))*ne*np*Fff;
 }
 
+
 // bound-free Gamma for H
-double GammaBF( double w, double T, double nH0, double nHminus ) {
+double GammaBF( double w, double T, double nH0, double np, double nHminus ) {
 	double sum = 0;
 	double Ztilde = partFunc(T,np);
 	for( int n = 0; n < 10; n++ ) {
@@ -424,11 +433,12 @@ double GammaBF( double w, double T, double nH0, double nHminus ) {
 		double Zn = probZn(n,T,np)/Ztilde;
 		sum += Zn / pow(n,5);
 	}
-	return (8*pi*me*pow(a,5)/(3*sqrt(3)*w*w*w))*(1-exp(-w/T))*nH0*sum + (1-exp(-w/T))*nHminus*sigmaHminus(w);
+	return (8*pi*m_e*pow(a,5)/(3*sqrt(3)*w*w*w))*(1-exp(-w/T))*nH0*sum + (1-exp(-w/T))*nHminus*sigmaHminus(w);
 }
 
+
 // bound-bound Gamma
-double GammaBB( double w, double nH0 ) {
+double GammaBB( double w, double T, double np, double nH0 ) {
 	double sum = 0;
 	double Ztilde = partFunc(T,np);
 	for( int n = 0; n < 10; n++ ) {
@@ -436,13 +446,14 @@ double GammaBB( double w, double nH0 ) {
 		for( int n1 = 0; n < 10; n++ ) {
 			if(n <= n1) { continue; }
 			double wr = Ry*(pow(n,-2) - pow(n1,-2));
-			double gr = 2*a*wr*w/(3*me);
+			double gr = 2*a*wr*w/(3*m_e);
 			double fnn = 1;	// ASK!!
 			sum += fnn*w*w*gr/( pow(w*w - wr*wr, 2) + (w*w*gr*gr) );
 		}
 	}
-	return (4*pi*a/me)*nH0*sum;
+	return (4*pi*a/m_e)*nH0*sum;
 }
+
 
 // bound-bound m^2_gamma
 double m2BB( double w, double T, double nH0, double np ) {
@@ -453,12 +464,12 @@ double m2BB( double w, double T, double nH0, double np ) {
 		for( int n1 = 0; n < 10; n++ ) {
 			if(n <= n1) { continue; }
 			double wr = Ry*(pow(n,-2) - pow(n1,-2));
-			double gr = 2*a*wr*w/(3*me);
+			double gr = 2*a*wr*w/(3*m_e);
 			double fnn;
 			sum += fnn*w*w*(w*w - wr*wr)/( pow(w*w - wr*wr, 2) + (w*w*gr*gr) );
 		}
 	}
-	return (4*pi*a/me)*nH0*sum;
+	return (4*pi*a/m_e)*nH0*sum;
 }
 
 
@@ -472,12 +483,12 @@ double m2BF( double w, double T, double nH0, double np ) {
 		double Zn = probZn(n,T,np)/Ztilde;
 		sum += Zn*pow(n,-5)*( pow(w/En,2) - log(En*En/abs(En*En - w*w)) );
 	}
-	return (8*pi*mw*pow(a,5)/(3*sqrt(3)*w*w))*nH0*sum;
+	return (8*pi*m_e*pow(a,5)/(3*sqrt(3)*w*w))*nH0*sum;
 }
 
 
 // total m^2_gamma
-double m2_gamma( double w, double wp, double nH0, double np ) {
+double m2_gamma( double w, double T, double wp, double nH0, double np ) {
 	double total = 0;
 	total += (wp*wp);
 	total += m2BB(w,T,nH0,np);
@@ -490,32 +501,27 @@ double Gamma( double w, double wp, double T, double nH0, double ne, double np, d
 	double total = 0;
 	total += GammaFree(wp);
 	total += GammaFF(w, wp, T, ne, np);
-	total += GammaBF(w, T, nH0, nHminus);
-	total += GammaBB(w, nH0);
+	total += GammaBF(w, T, nH0, np, nHminus);
+	total += GammaBB(w,T,np,nH0);
 	return total;
 }
 
-// bound-free Gamma for He in IAXO buffer gas
-double Gamma_IAXO( double w, double T, double nHe0, double Ztilde ) {
-	double sum = 0;
-	for( int n = 0; n < 10; n++ ) {
-		double En = 4*Ry/(n*n);	// [eV]
-		if( w < En ) { continue; }
-		double Zn = 2*n*n*exp(En/T)/Ztilde;
-		sum += Zn / pow(n,5);
-	}
-	return (8*pi*me*pow(a,5)/(3*sqrt(3)*w*w*w))*(1-exp(-w/T))*nHe0*sum;
+// Gamma for 4He in IAXO buffer gas
+// taken from Julia's thesis equation (8.5)
+// CERN-THESIS-2009-042
+double Gamma_IAXO( double w, double pressure ) {	// CHECK UNITS!! I think mbar and eV to return m-1
+	double logw = log10(w);
+	double logG = 0.014*pow(logw,6) + 0.166*pow(logw,5)
+				+ 0.464*pow(logw,4) + 0.473*pow(logw,3)
+				- 0.266*pow(logw,2) - 3.241*logw
+				- 0.760 + log10(pressure);
+	return pow(10,logG);
 }
 
 // bound-free m^2_gamma fpr He in IAXO buffer gas
-double m2IAXO( double w, double T, double nHe0, double Ztilde ) {
-	double sum = 0;
-	for( int n = 0; n < 10; n++ ) {
-	double En = 4*Ry/(n*n);	// [eV]
-		double Zn = 2*n*n*exp(En/T)/Ztilde;
-		sum += Zn*pow(n,-5)*( pow(w/En,2) - log(En*En/abs(En*En - w*w)) );
-	}
-	return (8*pi*mw*pow(a,5)/(3*sqrt(3)*w*w))*nHe0*sum;
+double m2IAXO( double w, double T, double nHe0 ) {
+	double En = 4*Ry;	// [eV]
+	return (8*pi*m_e*pow(a,5)/(3*sqrt(3)*w*w))*nHe0*(pow(w/En,2) - log(En*En/abs(En*En - w*w)));
 }
 
 
@@ -546,7 +552,8 @@ double Pgas( double w, double m, double L ) {
 	// define detector parameters for Gamma_t
 	double T = 300 * K2eV;	// detector at room temp [eV]
 	double nHe0 = m_e * pow(m,2) / (8 * pi * a);	// FOR NOW - remove later
-	double G = Gamma_IAXO(w, T, nHe0, Ztilde);
+	double pressure = m;		// WRONG - change
+	double G = Gamma_IAXO(w, pressure);
 
 	if( G*L < 1e-3 ) { return pow( m * m * L / (2 * w), 2 ); }
 	else{ return pow( m * m / (G * w), 2 ) * (1 + exp(- G*L) - (2 * exp(- G*L / 2))); }
@@ -558,22 +565,23 @@ double PpureL_B( double m, double w, double B, double L ) {
 
 	// define detector parameters for Gamma_t
 	double T = 300 * K2eV;	// detector at room temp [eV]
+	double pressure = m;			// WRONG - change
 	double nHe0 = m_e * pow(m,2) / (8 * pi * a);	// FOR NOW - remove later
-	double G = Gamma_IAXO(w, T, nHe0, Ztilde);
+	double G = Gamma_IAXO(w, pressure);
 	
 	// set B-field value
 	double eB = B * pow(m2eV,2) / s2eV;
 	double wB = eB / m_e;
 
 	// conversion prob (book 6, Tue 10/10/2023)
-	if( Gt*L < 1e-3 ) { 
+	if( G*L < 1e-3 ) { 
 		return pow( m * m / w , 4 ) * pow(wB*L/2, 2) 
-				/ ( pow( w*w - m*m , 2 ) + w*w*Gl*Gl );
+				/ ( pow( w*w - m*m , 2 ) + w*w*G*G );
 	}
 	else{
-		return pow( m * m / w , 4 ) * pow(wB/Gt, 2)
-					* ( 1 + exp(-Gt*L) - 2*exp(-Gt*L/2) )
-				/ ( pow( w*w - m*m , 2 ) + w*w*Gl*Gl );
+		return pow( m * m / w , 4 ) * pow(wB/G, 2)
+					* ( 1 + exp(-G*L) - 2*exp(-G*L/2) )
+				/ ( pow( w*w - m*m , 2 ) + w*w*G*G );
 	}
 }
 
@@ -606,90 +614,6 @@ double tachocline( double r, double rmax, double d, double B ) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// T-plasmon flux integrand
-double Tintegrand( double w, double m, double ne, double T,
-				double wp, double r, double nH0, double np, double nHminus
-				double G, double m2g ) {
-	return pow(m*m*r/(pi*R),2)*G*w*sqrt(w*w - m*m)/((exp(w/T)-1)*(pow(m*m - m2g, 2) + pow(w*G,2)));
-}
-
-
-// integral over r
-// inputs in eV
-// outputs dPhi/dw [eV2]
-double Ttrapeze( double w, double m, vector<double> ne, vector<double> T, vector<double> wp,
-	 	vector<double> r, vector<double> nH, vector<double> np, vector<double> nHminus ) {
-		
-	int len = r.size();	// get length of vector
-	double total = 0;	// initiate value of sum at 0
-	// perform integration by looping over r values
-	for ( int c = 0; c < len - 1; c++ ) {
-		double dr = r[c+1] - r[c];	// define trapezium spacing
-		double G = Gamma( w, wp[c], T[c], nH0[c], ne[c], np[c], nHminus[c] );
-		double m2g = m2_gamma(w, wp[c], nH0[c], np[c]);
-		if( abs(m*m - m2g) < abs(w*G) ) {	// resonance check
-			total = dr * pow(m2g*r/(pi*R)) * sqrt(w*w - m2g) / (w*G*(exp(w/T)-1));
-			break;
-		}
-		else{
-		double G2 = Gamma( w, wp[c+1], T[c+1], nH0[c+1], ne[c+1], np[c+1], nHminus[c+1] );
-		double m2g2 = m2_gamma(w, wp[c+1], nH0[c+1], np[c+1]);
-		total += 0.5*dr*( Tintegrand(w, m, ne[c], T[c], wp[c], r[c], nH0[c], np[c], nHminus[c],G,m2g)
-			+ Tintegrand(w, m, ne[c+1], T[c+1], wp[c+1], r[c+1], nH0[c+1], np[c+1], nHminus[c+1],G2,m2g2) );
-		}
-	}
-	return total;
-}
-
-
-// full integration over omega
-double Tintegrate( double m, vector<double> ne, vector<double> T, vector<double> wp,
-	 	vector<double> r, vector<double> nH, vector<double> np, vector<double> nHminus,
-		bool gas ) {
-	
-	double total = 0;	// initiate value of sum at 0
-	double dw = 1e2;
-	for ( double w = 1e2; w < 1e5 - dw; w+=dw ) {
-		if ( w <= m ) { continue; }	// only allow when energy greater than mass
-		if ( w > m + 1e3 ) { continue; }	// set integral cutoff
-		if ( gas == false ) {
-			total += 0.5*dw*( ( Pvacuum(w+dw,m,L) * Ttrapeze(w+dw,m,ne,T,wp,r,nH,np,nHminus) ) 
-				+ ( Pvacuum(w,m,L) * Ttrapeze(w,m,ne,T,wp,r,nH,np,nHminus) ) );
-		}
-		else if ( gas == true ) {
-			total += 0.5*dw*( ( Pgas(w+dw,m,L) * Ttrapeze(w+dw,m,ne,T,wp,r,nH,np,nHminus) ) 
-				+ ( Pgas(w,m,L) * Ttrapeze(w,m,ne,T,wp,r,nH,np,nHminus) ) );
-		}
-	}
-	return total;
-}
-
-
-// void functions for splitting jobs
-void Tplasmon( vector<double> ne, vector<double> T, vector<double> wp,
-	 	vector<double> r, vector<double> nH, vector<double> np, vector<double> nHminus,
-		bool gas ) {
-	
-	// define vectors
-	vector<double> massIAXO;
-	vector<double> chiIAXO;
-
-	// set path for writeout
-	string path = "data/limits/";
-	string ext = ".dat";
-	if(gas) { ext = "-gas.dat"; }
-
-	// get for many DP mass values
-	for ( double m = 1e-6; m < 1e5; m*=1.1 ) {
-			double phi = Tintegrate(m,ne,T,wp,r,nH,np,nHminus,gas);
-			chiIAXO.push_back(phi);
-			massIAXO.push_back(m) ;
-			cout << name << ":	m = " << m << "	phi X-4 = " << phi << endl;
-	}
-
-	// write out
-	write2D( path + name + ext, massIAXO, chiIAXO );
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -704,15 +628,16 @@ double PgasFlux( double w, double m, double mg2IAXO, double L ) {
 	double nH, nHe3 = 0;	// only 4He is used
 	double g1 = 0;
 	double T = 300 * K2eV;	// detector at room temp [eV]
+	double pressure = m;		// WRONG - change
 	double ne = m_e * pow(m,2) / (4 * pi * a);
 	double nHe0 = ne / 2;	// 4He ion density [eV3]
-	double G = Gamma_IAXO(w, T, nHe0, Ztilde);
+	double G = Gamma_IAXO(w, pressure );
 
 	return (pow(m,4) / ( pow( pow(mg2IAXO,2) - pow(m,2), 2 ) + pow(w*G,2) ))
 				*(1 + exp(- G*L) - (2 * exp(- G*L / 2)));
 }
 
-
+/*
 // gas integration over omega for logL
 double integrateGasFlux( double m, double wpIAXO, vector<double> n, vector<double> T, vector<double> wp,
 	 vector<double> r, vector<double> nH, vector<double> nHe4, vector<double> nHe3, double L, vector<vector<double>> z1, vector<vector<double>> z2 ) {
@@ -858,7 +783,7 @@ void nuclearFlux( vector<double> r, vector<double> wp, vector<double> T, vector<
 	
 	write2D( path + name + ext, massIAXO, chiIAXO );
 }
-*/
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////// L-PLASMON MIXING /////////////////////////////////////////
@@ -2056,5 +1981,5 @@ void gammaOut(){
 
 	cout << "creation of files:\n	" << name1 << "\n	" << name2 << "\n	" << name3 << "\ncompleted!" << endl;
 }
-
+*/
 // the end :)
