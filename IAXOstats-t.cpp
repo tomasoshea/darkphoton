@@ -191,6 +191,8 @@ void chis( int detector ) {
 	double A, phiBg, a, t, effD, effO, effT, len;
 	string name, load;
 	vector<double> flux, m;
+	
+	string loadfile = "-lMixing-1eV.dat";
 
 	// choose detector
 
@@ -204,11 +206,11 @@ void chis( int detector ) {
 		effD = 0.7;	// detectior efficiency
 		effO = 0.35;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		//load = "data/limits/babyIAXO-tPlasmon-.dat";
-		//m = loadtxt(load,0);
-		//flux = loadtxt(load,1);
-		m = read("data/atlas_mtab.dat");
-		flux = read("data/atlas_1e0.dat");
+		load = "data/limits/" + name + loadfile;
+		m = loadtxt(load,0);
+		flux = loadtxt(load,1);
+		//m = read("data/atlas_mtab.dat");
+		//flux = read("data/atlas_1e0.dat");
 		len = flux.size();
 		}
 
@@ -222,11 +224,9 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		//load = "data/limits/baselineIAXO-tPlasmon-miguel1.dat";
-		//m = loadtxt(load,0);
-		//flux = loadtxt(load,1);
-		m = read("data/atlas_mtab.dat");
-		flux = read("data/atlas_1e0.dat");
+		load = "data/limits/" + name + loadfile;
+		m = loadtxt(load,0);
+		flux = loadtxt(load,1);
 		len = flux.size();
 		}
 
@@ -240,11 +240,9 @@ void chis( int detector ) {
 		effD = 0.8;	// detectior efficiency
 		effO = 0.7;	// optical efficiency
 		effT = 0.5;	// time efficiency (proportion pointed at sun)
-		//load = "data/limits/upgradedIAXO-tPlasmon-miguel1.dat";
-		//m = loadtxt(load,0);
-		//flux = loadtxt(load,1);
-		m = read("data/atlas_mtab.dat");
-		flux = read("data/atlas_1e0.dat");
+		load = "data/limits/" + name + loadfile;
+		m = loadtxt(load,0);
+		flux = loadtxt(load,1);
 		len = flux.size();
 		}
 
@@ -285,7 +283,7 @@ void chis( int detector ) {
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-" + name + "-tPlasmon-Atlas-1e0.dat";
+	string savename = "data/limits/stats-" + name + "-lMixing-1eV.dat";
 	write2D( savename, m, chi );
 }
 

@@ -142,7 +142,7 @@ vector<vector<double>> readGaunt( string name ) {
 }
 
 
-// read 2nd column from 2 column datafile
+// read column from 2 column datafile
 vector<double> loadtxt( string name, int col ) {
 
 	//cout << "Reading file " << name << "..." << endl;
@@ -151,12 +151,11 @@ vector<double> loadtxt( string name, int col ) {
 	fstream file;
 	file.open(name,ios::in);
 	
-	char delim('	');	// define delimiter for file parsing (tab)
+	char delim(' ');	// define delimiter for file parsing (tab)
 	
 	if ( file.is_open() ){   // checking whether the file is open
 		string temp;	// define temporary storage string
-		vector<double> row1;	// define vectors to store input values and return
-		vector<double> row2;
+		vector<double> row1, row2;	// define vector to store input values and return
 		vector<string> v;
 		
 		while( getline(file, temp) ){ v.push_back( temp ); }
@@ -166,7 +165,7 @@ vector<double> loadtxt( string name, int col ) {
 			stringstream X(i);
 			string temp;
 			vector<string> vec;
-			while ( getline( X, temp, delim ) ) { vec.push_back(temp); }
+			while ( getline(X, temp, delim ) ) { vec.push_back(temp); }
 			row1.push_back( stod(vec[0]) );
 			row2.push_back( stod(vec[1]) );
 		}
@@ -176,10 +175,11 @@ vector<double> loadtxt( string name, int col ) {
 	// choose column
 	if ( col == 0 ) { return row1; }
 	else if ( col == 1 ) { return row2; }
-	else { cout << "put 0 or 1 for columns" << endl; return {69.}; }
+	else { cout << "put 0 or 1 for columns" << endl; return {69.}; }	
 	}
 	else{ cout << "file " << name << " doesn't exist" << endl; return {69.}; }
 }
+
 
 // write out simple datafile
 void write( string name, vector<double> data ) {
@@ -508,12 +508,15 @@ double Gamma( double w, double wp, double T, double nH0, double ne, double np, d
 // Gamma[eV] for 4He in IAXO buffer gas
 // taken from Julia's thesis equation (8.5)
 // CERN-THESIS-2009-042
-double Gamma_IAXO( double w, double pressure ) {	// p[mbar] and w[keV]
+double Gamma_IAXO( double w, double pressure ) {	// p[eV4] and w[eV]
+	w /= 1000;				// [keV]
+	pressure /= (100*m2eV*s2eV*s2eV*kg2eV);		// [mbar]	
+	//if( pressure > 1013.25e1 ) { return 1e200; }
 	double logw = log10(w);
 	double logG = 0.014*pow(logw,6) + 0.166*pow(logw,5)
 				+ 0.464*pow(logw,4) + 0.473*pow(logw,3)
 				- 0.266*pow(logw,2) - 3.241*logw
-				- 0.760 - log10(300/1.8) + log10(pressure);
+				- 0.760 + log10(pressure) - log10(300/1.8);
 	return pow(10,logG) * m2eV;		// Gamma[eV]
 }
 
@@ -540,6 +543,7 @@ double Pvacuum( double w, double m, double L ) {
 	double arg = dP * L / 2;
 	
 	double item = 4 * pow( sin(arg) , 2 );
+	if(isnan(item)){return 0;}
 
 	if( arg > 20 * pi ) { return 2; }	// average
 	else{ return item; }
@@ -550,21 +554,28 @@ double Pvacuum( double w, double m, double L ) {
 double Pgas( double w, double m, double L, double pressure ) {
 	
 	// define detector parameters for Gamma_t
+	double T = 300*K2eV;
 	double nHe0 = m_e * pow(m,2) / (8 * pi * a);	// FOR NOW - remove later
 	double G = Gamma_IAXO(w, pressure);				// eV
+	double mp2 = 8*pi*a*pressure/(m_e*T);			// eV2
+	double dP = sqrt(w*w - mp2) - sqrt(w*w - m*m);
 
-	if( G*L < 1e-3 ) { return pow( m * m * L / (2 * w), 2 ); }
-	else{ return pow( m * m / (G * w), 2 ) * (1 + exp(- G*L) - (2 * exp(- G*L / 2))); }
+	if( abs(mp2 - m*m)/mp2 > 1e-10 ) {	// non-resonant conversion
+		//cout <<( mp2-(m*m))/mp2 << endl;
+		return (m*m*m*m/(pow(mp2 - m*m, 2) + pow(w*G,2))) * (1 + exp(- G*L) - (2 * exp(- G*L / 2) * cos(dP*L)));
+		//return  pow(m*m/mp2,2)*(1 + exp(- G*L) - (2 * exp(- G*L / 2) * cos(dP*L)));
+	}
+	else{
+		if( G*L < 1e-3 ) { return pow( m * m * L / (2 * w), 2 ); }
+		else{ return pow( m * m / (G * w), 2 ) * (1 + exp(- G*L) - (2 * exp(- G*L / 2))); }
+	}
 }
 
 // contribution from l-DPs converted in IAXO B-field
 /// in limit wp_gas -> m
-double PpureL_B( double m, double w, double B, double L ) {
+double PpureL_B( double m, double w, double B, double L, double pressure ) {
 
-	// define detector parameters for Gamma_t
-	double T = 300 * K2eV;	// detector at room temp [eV]
-	double pressure = m;			// WRONG - change
-	double nHe0 = m_e * pow(m,2) / (8 * pi * a);	// FOR NOW - remove later
+	// photon absorption
 	double G = Gamma_IAXO(w, pressure);
 	
 	// set B-field value
@@ -583,6 +594,12 @@ double PpureL_B( double m, double w, double B, double L ) {
 	}
 }
 
+double PpureL_ideal( double m, double w, double L, double pressure ) {
+	double G = Gamma_IAXO(w, pressure);
+	if( G * L < 1e-6 ) { return pow( m * L / 2 , 2 ); }
+	else { return pow( m / G , 2 ) * ( 1 + exp(-G*L) - (2 * exp( -0.5*G*L)) ); }
+
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////// SOLAR B FIELDS //////////////////////////////////////////

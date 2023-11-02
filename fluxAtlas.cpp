@@ -33,7 +33,7 @@ vector<vector<double>> readAtlas( string name ) {
 			vector<double> row;
 			while(getline(file, temp, delim)){	// get one row
 				if( temp == "\n" ) { continue; }
-				row.push_back(stod(temp)*pow(m2eV*100,2)*s2eV);	// append double to vector
+				row.push_back(stod(temp));	// append double to vector
 				temp.clear();
 				c++;
 				if(c==4000) {
@@ -52,12 +52,12 @@ vector<vector<double>> readAtlas( string name ) {
 
 
 // integration over omega for gas run
-double integrateAtlas( vector<double> flux, double m, vector<double> wtab, double L, double pressure ) {
+double integrateAtlas( vector<double> flux, double m, vector<double> wtab, double L, double pressure, double wmin ) {
 	
 	double total = 0;	// initiate value of sum at 0
 	for ( int c = 0; c < wtab.size()-1; c++ ) {
 		if ( wtab[c] <= m ) { continue; }	// only allow when energy greater than mass
-		if ( wtab[c] < 1e0 ) { continue; }
+		if ( wtab[c] < wmin ) { continue; }
 		double dw = wtab[c+1] - wtab[c];
 		if( pressure == 0 ) {
 			total += 0.5*dw*( ( Pvacuum(wtab[c+1],m,L) * flux[c+1] )
@@ -68,29 +68,34 @@ double integrateAtlas( vector<double> flux, double m, vector<double> wtab, doubl
 				+ ( Pgas(wtab[c],m,L,pressure) * flux[c] ) );
 		}
 	}
-	return total*m*m*m*m;
+	return total*m*m*m*m*pow(m2eV*100,2)*s2eV;
 }
 
 
 // void functions for splitting jobs
-void Atlas( vector<vector<double>> flux, vector<double> mtab, vector<double> wtab, double L, double pressure, string name ) {
+void Atlas( vector<vector<double>> flux, vector<double> mtab, vector<double> wtab, double L, string name ) {
 	
 	// define vectors
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
+	double pressure = 0;
+	double T = 300*K2eV;
+	double wmin = 100;	// eV
 
 	// set path for writeout
 	string path = "data/limits/";
 	string ext = ".dat";
-	if(pressure!=0) { ext = "-gas.dat"; }
 
 	// get for many DP mass values
 	for ( int c = 0; c < mtab.size(); c++ ) {
-			double phi = integrateAtlas(flux[c],mtab[c],wtab,L,pressure);
+			//pressure = mtab[c]*mtab[c]*m_e*T/(8*pi*a);		// [eV4]
+			//pressure = 0.1*0.1*m_e*T/(8*pi*a);				// 0.1eV
+			double phi = integrateAtlas(flux[c],mtab[c],wtab,L,pressure,wmin);
 			chiIAXO.push_back(phi);
 			massIAXO.push_back(mtab[c]) ;
 			cout << name << ":	m = " << mtab[c] << "	phi X-4 = " << phi << endl;
 	}
+	if(pressure!=0) { ext = "-gas.dat"; }
 	// write out
 	write2D( path + name + ext, massIAXO, chiIAXO );
 }
@@ -119,28 +124,26 @@ int main( int argc, char** argv ) {
 	vector<double> wtab = read("data/wtab.dat");
 	vector<double> mtab = read("data/mtab.dat");
 	vector<vector<double>> flux = readAtlas("data/limits/output_T.dat");	// cm-2 s-1
-	
-	double pressure = 0;
 
 	// babyIAXO
 	string nameBaby = "babyIAXO-Atlas" + suffix;
 	double L1 = 10 / m2eV;	// in eV^-1
 	// multithread to run simultaneously
-	thread t2( Atlas, flux, mtab, wtab, L1, pressure, nameBaby );	
+	thread t2( Atlas, flux, mtab, wtab, L1, nameBaby );	
 
 	
 	//IAXO baseline
 	string nameBaseline = "baselineIAXO-Atlas" + suffix;
 	double L2 = 20 / m2eV;	// in eV^-1
 	// multithread to run simultaneously
-	thread t4(  Atlas, flux, mtab, wtab, L2, pressure, nameBaseline );
+	thread t4(  Atlas, flux, mtab, wtab, L2, nameBaseline );
 
 
 	/// IAXO upgraded
 	string nameUpgraded = "upgradedIAXO-Atlas" + suffix;
 	double L3 = 22 / m2eV;	// in eV^-1
 	// multithread to run simultaneously
-	thread t6(  Atlas, flux, mtab, wtab, L3, pressure, nameUpgraded );
+	thread t6(  Atlas, flux, mtab, wtab, L3, nameUpgraded );
 
 
 	// wait until all threads are finished

@@ -17,6 +17,9 @@ m2eV = (1.973269804e-7)
 sigma = 1e3		# eV
 E0 = 559.1987036540328e3	# eV
 
+#print(6.8475e-18*1e-4/(m2eV**2))
+print(5.29e-11 / m2eV)
+
 def Lorentz(E1,theta):
 	gamma = 1.046099691693158
 	beta = 0.2935886968984385

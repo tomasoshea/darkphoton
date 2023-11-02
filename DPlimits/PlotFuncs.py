@@ -54,14 +54,14 @@ class DarkPhoton():
              m_min = 3e-18,m_max = 7e5,\
              lw=2.5,lfs=40,tfs=25,tickdir='out',\
              Grid=False,Shape='Rectangular',mathpazo=True,\
-             TopAndRightTicks=False,FrequencyAxis=True,FrequencyLabels=True,UnitAxis=True,f_rescale=1,\
+             TopAndRightTicks=False,FrequencyAxis=False,FrequencyLabels=False,UnitAxis=True,f_rescale=1,\
             tick_rotation = 20,width=20,height=10,upper_tickdir='out', reduced = False):
         
         if reduced:
-            chi_min = 1.0e-17
+            chi_min = 1.0e-13
             chi_max = 1.0e-7
             m_min = 1e-3
-            m_max = 1e4
+            m_max = 1e0
 
         plt.rcParams['axes.linewidth'] = lw
         plt.rc('text', usetex=True)
@@ -221,7 +221,7 @@ class DarkPhoton():
         # Solar bound
         Solar_col = 'ForestGreen'
         Solar = loadtxt("limit_data/DarkPhoton/Solar.txt")
-        plt.fill_between(Solar[:,0],Solar[:,1],y2=y2,edgecolor=None,facecolor=Solar_col,zorder=1.02)
+        plt.fill_between(Solar[:,0],Solar[:,1],y2=y2,edgecolor=None,facecolor=Solar_col,zorder=1.02,label="Solar")
         plt.plot(Solar[:,0],Solar[:,1],color='k',alpha=1,zorder=1.02,lw=lw)
 
         Solar = loadtxt("limit_data/DarkPhoton/Solar-Global.txt")
@@ -257,12 +257,12 @@ class DarkPhoton():
 
 
         dat = loadtxt("limit_data/DarkPhoton/XENON1T_Solar_SE.txt")
-        plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.302)
+        plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.302,label="XENON1T")
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.302,lw=lw)
 
 
         dat = loadtxt("limit_data/DarkPhoton/XENONnT.txt")
-        plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.5)
+        plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.5)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.5,lw=lw)
 
         if text_on:
@@ -798,24 +798,30 @@ class DarkPhoton():
     def IAXO(ax,col='magenta',fs=30,text_on=True,lw=2.5,pureL=False):
         y2 = ax.get_ylim()[1]
         
-        suffix = "perfect"
+        suffix = "-10keV"
         #suffixGas = "-tPlasmon-newerE-gas"
-        suffixGas = "tPlasmon-Atlas-1e0"
+        suffixGas = "AtlasGas-30eV-5yr"
+        #"newstats-5yr-2-babyIAXO-tPlasmonGas.dat"
+        #newstats-10keVbaselineIAXO-tPlasmonGas
 
         if pureL:
             #col = 'yellow' stats-10keVagainbaselineIAXO-tPlasmonGas.dat
-            datGas = loadtxt("../data/limits/stats-{}-babyIAXO-pureL.dat".format(suffix))
+            datGas = loadtxt("../data/limits/babyIAXO{}-pureL.dat".format(suffix))
             #datGas = loadtxt("../data/limits/baselineIAXO-tPlasmonGas.dat".format(suffix))
-            plt.plot(datGas[:,0],datGas[:,1],color='magenta',ls='--',alpha=1,zorder=.301,lw=lw)
-            #plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=1.)
+            plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=301,lw=lw)
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=1.)
 
-            #datGas = loadtxt("../data/limits/stats-{}-baselineIAXO-pureL.dat".format(suffix))
-            #plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=301,lw=lw, ls='-')
-            #plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=1.)
-            #
-            #datGas = loadtxt("../data/limits/stats-{}-upgradedIAXO-pureL.dat".format(suffix))
-            #plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=301,lw=lw, ls='-')
-            #plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=0.6)
+            datGas = loadtxt("../data/limits/baselineIAXO{}-pureL.dat".format(suffix))
+            plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=301,lw=lw, ls='-')
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=1.)
+        
+            datGas = loadtxt("../data/limits/upgradedIAXO{}-pureL.dat".format(suffix))
+            plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=301,lw=lw, ls='-')
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=0.6)
+
+
+            datGas = loadtxt("../data/limits/stats-70eVagainbaselineIAXO-tPlasmonGas.dat".format(suffix))
+            plt.plot(datGas[:,0],datGas[:,1],color='magenta', ls='--',alpha=1,zorder=0.301,lw=lw)
 
             if text_on:
                 plt.text(1e-1,5e-11,r'{\bf babyIAXO}',fontsize=25,color='black',rotation=-33,rotation_mode='anchor',ha='center',va='center', zorder=105.5)
@@ -823,36 +829,35 @@ class DarkPhoton():
 
         else:
     #		babyIAXO
-            datGas = loadtxt("../data/limits/stats-upgradedIAXO-{}.dat".format(suffixGas))
-            #datGas = loadtxt("../data/limits/babyIAXO-{}.dat".format(suffixGas))
-            plt.plot(datGas[:,0],datGas[:,1],color='cyan',alpha=1,zorder=100.301,lw=lw, label="Atlas 1eV")
+            datGas = loadtxt("../data/limits/stats-babyIAXO-{}.dat".format(suffixGas))
+            #datGas = loadtxt("../data/limits/{}babyIAXO-tPlasmonGas.dat".format(suffixGas))
+            plt.plot(datGas[:,0],datGas[:,1],color='cyan',alpha=1,zorder=100.301,lw=lw,ls='-',label="babyIAXO")
             plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
 
     #		baselineIAXO
-            #datGas = loadtxt("../data/limits/stats-baselineIAXO-{}.dat".format(suffixGas))
+            datGas = loadtxt("../data/limits/stats-baselineIAXO-{}.dat".format(suffixGas))
             #datGas = loadtxt("../data/limits/{}baselineIAXO-tPlasmonGas.dat".format(suffixGas))
-            #plt.plot(datGas[:,0],datGas[:,1],color='cyan',alpha=1,zorder=100.301,lw=lw, ls='-')
-            #plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
+            plt.plot(datGas[:,0],datGas[:,1],color='orange',alpha=1,zorder=100.301,lw=lw,ls='--',label="IAXO")
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
             
     #		upgradedIAXO
-            #datGas = loadtxt("../data/limits/stats-upgradedIAXO-{}.dat".format(suffixGas))
+            datGas = loadtxt("../data/limits/stats-upgradedIAXO-{}.dat".format(suffixGas))
             #datGas = loadtxt("../data/limits/{}upgradedIAXO-tPlasmonGas.dat".format(suffixGas))
-            #plt.plot(datGas[:,0],datGas[:,1],color='cyan',alpha=1,zorder=100.301,lw=lw, ls='-')
-            #plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
-            #plt.vlines(datGas[-1,0], datGas[-1,1], 1, zorder=0.301,lw=lw, color='cyan')
-            
-            datGas = loadtxt("../data/limits/stats-upgradedIAXO-tPlasmon.dat")
-            plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw, label="Vacuum")
+            plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw, ls='-.',label="IAXO+")
+            plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
+            plt.vlines(datGas[-1,0], datGas[-1,1], 1, zorder=0.301,lw=lw, color='cyan')
 
-            datGas = loadtxt("../data/limits/stats-upgradedIAXO-tPlasmonGas.dat")
-            plt.plot(datGas[:,0],datGas[:,1],color='black',ls="--",alpha=1,zorder=100.301,lw=lw, label="Gas")            
 
             if text_on:
                 plt.text(1e-1,5e-11,r'{\bf IAXO}',fontsize=fs,color='white',rotation=-32,rotation_mode='anchor',ha='center',va='center', zorder=105.5)
 
         return
 
-#####################################################################
+
+##############################################################################################################################################################
+##############################################################################################################################################################
+##############################################################################################################################################################
+
 
     def SHIPS(ax,col='indianred',fs=20,text_on=True):
         y2 = ax.get_ylim()[1]

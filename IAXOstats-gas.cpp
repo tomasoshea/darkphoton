@@ -201,7 +201,7 @@ void chis( int detector ) {
 	double A, phiBg, a, t, effD, effO, effT, len;
 	string name, load;
 	vector<double> flux, m;
-	string loadversion = "-perfect-pureL.dat";
+	string loadversion = "-Atlas-pureL-30eV.dat";
 	// choose detector
 
 	if ( detector==0 ) {
@@ -270,7 +270,7 @@ void chis( int detector ) {
 		double Nsig = ( flux[c] * pow(m2eV, -2) / s2eV ) * A * effO * effD * effT * t;
 		double total = 0;	// keep total of all runs
 
-		if ( flux[c] == 0 ) { total = 1e99; }
+		if ( flux[c] == 0 ) { total = 1e200; }
 		else {
 			// get sample of random N from poisson
 			for ( int i = 0; i < samplesize; i++ ) {
@@ -288,7 +288,7 @@ void chis( int detector ) {
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
 	//string savename = "data/limits/stats-5yr-" + name + "-tPlasmonGas.dat";
-	string savename = "data/limits/stats-perfect-" + name + "-pureL.dat";
+	string savename = "data/limits/stats-" + name + "-Atlas-pureL-30eV-full.dat";
 	write2D( savename, m, chi );
 }
 
