@@ -192,7 +192,7 @@ void chis( int detector ) {
 	string name, load;
 	vector<double> flux, m;
 	
-	string loadfile = "-lMixing-1eV.dat";
+	string loadfile = "-Atlas-100eV.dat";
 
 	// choose detector
 
@@ -283,7 +283,7 @@ void chis( int detector ) {
 	
 	//cout << "chi length: " << chi.size() << "	m length: " << m.size() << endl;
 	// write out
-	string savename = "data/limits/stats-" + name + "-lMixing-1eV.dat";
+	string savename = "data/limits/stats-" + name + "-Atlas-100eV.dat";
 	write2D( savename, m, chi );
 }
 

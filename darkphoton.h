@@ -1720,7 +1720,7 @@ void spectrumResL( double m ) {
 			double g2 = z2[ indexT2 ][ indexX2 ];
 		
 			double dr = r[j+1] - r[j];
-			double entry = lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], nH[j], nHe4[j], nHe3[j], g1, g2 );
+			double entry = lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], nH[j], nHe4[j], nHe3[j], g1, g2 )/pow(m,4);
 			E.push_back(wp[j]);
 			phi.push_back(entry);
 			R.push_back(rFrac[j]);

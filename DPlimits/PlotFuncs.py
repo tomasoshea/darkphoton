@@ -262,7 +262,7 @@ class DarkPhoton():
 
 
         dat = loadtxt("limit_data/DarkPhoton/XENONnT.txt")
-        plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.5)
+        plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.5)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.5,lw=lw)
 
         if text_on:
@@ -800,7 +800,7 @@ class DarkPhoton():
         
         suffix = "-10keV"
         #suffixGas = "-tPlasmon-newerE-gas"
-        suffixGas = "AtlasGas-30eV-5yr"
+        suffixGas = "AtlasGas-100eV-full"
         #"newstats-5yr-2-babyIAXO-tPlasmonGas.dat"
         #newstats-10keVbaselineIAXO-tPlasmonGas
 

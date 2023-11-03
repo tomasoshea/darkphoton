@@ -122,6 +122,83 @@ double lMixingResIntegrate( double m, vector<double> ne, vector<double> T, vecto
 }
 
 
+// function to output E spectrum for L-mixing at resonance
+void spectrumResL( double m ) {
+	
+	vector<double> r = read("data/r.dat");	// sun radial distance [eV-1]
+	vector<double> rFrac = read("data/rFrac.dat");	// sun radial distance [eV-1]
+	vector<double> T = read("data/T.dat");	// solar temperature [eV]
+	vector<double> ne = read("data/ne.dat");	// electron number density [eV3]
+	vector<double> wp = read("data/wp.dat");	// plasma frequency [eV]
+	vector<double> nH = read("data/nH.dat");	// H ion density [eV3]
+	vector<double> nHe4 = read("data/nHe4.dat");	// He4 ion density [eV3]
+	vector<double> nHe3 = read("data/nHe3.dat");	// He3 ion density [eV3]
+	
+	// get gaunt factors
+	vector<vector<double>> z1 = readGaunt("data/Z1.dat");	// gaunt factors for Z=1
+	vector<vector<double>> z2 = readGaunt("data/Z2.dat");	// gaunt factors for Z=2
+
+	// convert Gaunt factor Theta to T in eV
+	for( int i = 1; i < 201; i++ ) { z1[0][i] = z1[0][i] * m_e; }
+	for( int i = 1; i < 201; i++ ) { z2[0][i] = z2[0][i] * m_e; }
+	
+	// initialise phi vector
+	vector<double> phi;
+	vector<double> E;
+	vector<double> R;
+	
+	int lenWp = wp.size();
+	
+	// get phi values for each w = wp for resonance
+	for ( int j = 0; j < lenWp - 1; j++ ) {
+
+		if ( wp[j] <= m ) { continue; }	// only for m < wp
+		
+		else {
+		
+			double w = wp[j];
+		
+			// select g(w, T) value from matrix
+			int indexT1;
+			int indexT2;
+			int indexX1;
+			int indexX2;
+			
+			for( int i = 1; i < 200; i++ ) {
+				if( z1[0][i] < T[j] and z1[0][i+1] > T[j] ) { indexT1 = i; }
+				if( z2[0][i] < T[j] and z2[0][i+1] > T[j] ) { indexT2 = i; }
+			}
+			
+			for( int i = 1; i < 500; i++ ) {
+				if( (z1[i][0] * T[j]) < w and (z1[i+1][0] * T[j]) > w ) { indexX1 = i; }
+				if( (z2[i][0] * T[j]) < w and (z2[i+1][0] * T[j]) > w ) { indexX2 = i; }
+			}
+			
+			double g1 = z1[ indexT1 ][ indexX1 ];
+			double g2 = z2[ indexT2 ][ indexX2 ];
+		
+			double dr = r[j+1] - r[j];
+			double entry = lMixingResIntegrand( m, ne[j], T[j], wp[j], r[j], nH[j], nHe4[j], nHe3[j], g1, g2 )
+										/(pow(m,4)*pow(100*m2eV,2)*s2eV);	// cm-2 s-1 eV-1 /chi^2 mass^4
+			E.push_back(wp[j]);
+			phi.push_back(entry);
+			R.push_back(rFrac[j]);
+		}
+	}
+	
+	// write to file
+	int mint = (int)log10(m);	// for labelling filename
+	string name = "data/Espectrum-lMixing" + to_string( mint ) + ".dat";
+	string nameR = "data/Espectrum-lMixing-R" + to_string( mint ) + ".dat";
+	
+	write2D( name , E, phi );
+	write2D( nameR , R, phi );
+		
+	cout << "length of E vector: " << E.size() << endl;
+	cout << "length of phi vector: " << phi.size() << "\n" << endl;
+
+}
+
 // now to run the integral
 void lMixingRes( vector<double> ne, vector<double> T, vector<double> wp, vector<double> nH, vector<double> nHe4,
 				vector<double> nHe3, vector<vector<double>> z1, vector<vector<double>> z2, vector<double> r,
@@ -157,6 +234,11 @@ void lMixingRes( vector<double> ne, vector<double> T, vector<double> wp, vector<
 // argv is a vector containing cmd args separated by space (including script itself)
 int main( int argc, char** argv ) {
 
+	// FOR SPECTRA
+	for( double m = 1e-6; m <= 1e4; m *= 10 ) {	spectrumResL(m) ; }
+
+	// FOR FLUX
+	/*
 	// check suffix is given as argument
 	if( argc == 1 ){
 		cout << "enter filename descriptor as argument" << endl;
@@ -224,5 +306,5 @@ int main( int argc, char** argv ) {
 	else{
 		cout << "only input filename suffix" << endl;
 		return 2;
-	}
+	}*/
 }
