@@ -11,7 +11,7 @@
 using namespace std;
 
 // set params
-bool gas = true;
+bool gas = false;
 int samplesize = 1e2;
 double days = 5;
 double dE = 1e4;
@@ -74,6 +74,7 @@ double integrateAtlas( vector<double> flux, double m, vector<double> wtab, doubl
 				+ ( Pgas(wtab[c],m,L,pressure) * flux[c] ) );
 		}
 	}
+	//if( isnan(total) ) { return 0; }
 	return pow(m,4)*total*pow(m2eV*100,2)*s2eV;
 }
 
@@ -84,8 +85,10 @@ double likelihood( double g, double m, double n, double bg, vector<double> flux,
 	// only sum over densities for gas run
 	if( gas == false ) {
 		double N = pow(g,4)*integrateAtlas( flux, m, wtab, L, 0, wmin )*A*t*effO*effD;
+		//cout << N << endl;
+		if( N == 0 ) { return 0; }
 		mu = bg + N;
-		if(n==0) { -mu; }
+		if(n==0) { logL = -mu; }
 		else if (n==1) { logL = log(mu) - mu + 1; }
 		else{ logL = n * (log(mu) - log(n)) - mu + n; }
 	}
@@ -95,12 +98,14 @@ double likelihood( double g, double m, double n, double bg, vector<double> flux,
 		for( double pm = 0.9*m; pm <= 1.1*m; pm+=0.02*m ) {
 			double pressure = pm*pm*m_e*TIAXO/(8*pi*a);		// eV4
 			double N = pow(g,4)*integrateAtlas( flux, m, wtab, L, pressure, wmin )*A*t*effO*effD;
+			if( N == 0 ) { return 0; }
 			mu = bg + N;
-			if(n==0) { -mu; }
+			if(n==0) { logL = -mu; }
 			else if (n==1) { logL = log(mu) - mu + 1; }
 			else{ logL = n * (log(mu) - log(n)) - mu + n; }
 		}
 	}
+	//cout << "alive" << endl;
 	return exp(logL);
 }
 
@@ -109,29 +114,40 @@ double CL95( double m, double n, double bg, vector<double> flux, vector<double> 
 			 double A, double t, double effO, double effD ) {
 	// first, get total area of intg for normalisation
 	double norm = 0;
-	double mg = 2;
-	double thresh = 1e-20;
+	double mg = 1.1;
+	double thresh = 1e-100;
 	double g = 1e-20;
 	while(true) {
-		double dg = g*(mg-1);
+		double dg = g;
 		double L1 = likelihood(g, m, n, bg, flux, wtab, L, wmin, A, t, effO, effD);
-		double L2 = likelihood(g*mg, m, n, bg, flux, wtab, L, wmin, A, t, effO, effD);
+		double L2 = likelihood(g*2, m, n, bg, flux, wtab, L, wmin, A, t, effO, effD);
 		norm += 0.5*dg*(L2+L1);
-		if( 0.5*dg*(L2+L1) < norm*thresh ) { break; }
-		//cout << norm << endl;
-		g*=mg;
+		if( 0.5*dg*(L2+L1) < thresh ) { break; }
+		g*=2;
+		//cout << L1 + L2 << endl;
 	}
-	
+	if( norm == 0 ) { return 1e200; }
 	// now, get 95% CL
 	double total = 0;
 	g = 1e-20;
+	/*while(true) {
+		double dg = g*9;
+		double L1 = likelihood(g, m, n, bg, flux, wtab, L, wmin, A, t, effO, effD);
+		double L2 = likelihood(g*10, m, n, bg, flux, wtab, L, wmin, A, t, effO, effD);
+		total += 0.5*dg*(L2+L1);
+		if( total > 0.95*norm ) {
+			total -= 0.5*dg*(L2+L1);
+			break;
+		}
+		else { g*=10; }
+	}*/
 	while(true) {
 		double dg = g*(mg-1);
 		double L1 = likelihood(g, m, n, bg, flux, wtab, L, wmin, A, t, effO, effD);
 		double L2 = likelihood(g*mg, m, n, bg, flux, wtab, L, wmin, A, t, effO, effD);
-		norm += 0.5*dg*(L2+L1);
+		total += 0.5*dg*(L2+L1);
 		g*=mg;
-		if( g > 1e0 ) { break; }
+		if( total > 0.95*norm ) { break; }
 	}
 	
 	return g;
@@ -146,7 +162,7 @@ void statsAtlas( vector<vector<double>> flux, vector<double> mtab, vector<double
 	// define vectors
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
-	double wmin = 100;	// eV
+	double wmin = 1;	// eV
 
 	// set path for writeout
 	string path = "data/limits/statsAtlas-";
@@ -199,13 +215,13 @@ void statsAtlas( vector<vector<double>> flux, vector<double> mtab, vector<double
 	// get for many DP mass values
 	//cout << "alive!" << endl;
 	for ( int c = 0; c < mtab.size(); c++ ) {
+		//if (c<70){continue;}
 		double total = 0;
-		if( flux[c][3999]==0 ) { total = 1e200; }
-		else{
-			for( int i = 0; i < samplesize; i++ ) {
-				int n = distribution(generator);
-				total += CL95( mtab[c], n, bgCount, flux[c], wtab, L, wmin, A, t, effO, effD );
-			}
+		for( int i = 0; i < samplesize; i++ ) {
+			int n = distribution(generator);
+			total += CL95( mtab[c], n, bgCount, flux[c], wtab, L, wmin, A, t, effO, effD );
+			//cout << i << endl;
+			//cout << total << endl;
 		}
 		double chi = total/samplesize;
 		chiIAXO.push_back(chi);
@@ -224,24 +240,26 @@ void statsAtlas( vector<vector<double>> flux, vector<double> mtab, vector<double
 // argc counts number of command line inputs (including the script itself)
 // argv is a vector containing cmd args separated by space (including script itself)
 int main( int argc, char** argv ) {
-
+	
+	string suffix = "-1eV";
+	
 	// read csv files to vectors
 	vector<double> wtab = read("data/wtab.dat");
 	vector<double> mtab = read("data/mtab.dat");
 	vector<vector<double>> flux = readAtlas("data/limits/output_T.dat");	// cm-2 s-1
 
 	// babyIAXO
-	string nameBaby = "babyIAXO-Atlas";
+	string nameBaby = "babyIAXO" + suffix;
 	thread t2( statsAtlas, flux, mtab, wtab, nameBaby, 0 );	
 
 	
 	//IAXO baseline
-	string nameBaseline = "baselineIAXO-Atlas";
+	string nameBaseline = "baselineIAXO" + suffix;
 	thread t4(  statsAtlas, flux, mtab, wtab, nameBaseline, 1 );
 
 
 	/// IAXO upgraded
-	string nameUpgraded = "upgradedIAXO-Atlas";
+	string nameUpgraded = "upgradedIAXO" + suffix;
 	thread t6(  statsAtlas, flux, mtab, wtab, nameUpgraded, 2 );
 
 
