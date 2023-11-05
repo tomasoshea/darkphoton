@@ -335,7 +335,6 @@ void interrupt( int sig ) {
 
 
 // T plasmon absorbtion length
-// from Redondo's HP Atlas https://arxiv.org/abs/1501.07292
 double Gamma( double w, double number, double T, double nH, double nHe4, double nHe3, double g1, double g2 ) {
 
 	double p1 = 64 * pow(pi,2) * pow(a,3);

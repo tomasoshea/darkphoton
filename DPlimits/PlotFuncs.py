@@ -58,10 +58,10 @@ class DarkPhoton():
             tick_rotation = 20,width=20,height=10,upper_tickdir='out', reduced = False):
         
         if reduced:
-            chi_min = 1.0e-13
-            chi_max = 1.0e-7
-            m_min = 1e-3
-            m_max = 1e0
+            chi_min = 1e-17#1.0e-13
+            chi_max = 1e-9#1.0e-7
+            m_min = 1e-3#1e-3
+            m_max = 5e3#1e0
 
         plt.rcParams['axes.linewidth'] = lw
         plt.rc('text', usetex=True)
@@ -800,7 +800,7 @@ class DarkPhoton():
         
         suffix = "-10keV"
         #suffixGas = "-tPlasmon-newerE-gas"
-        suffixGas = "AtlasGas-100eV-full"
+        suffixGas = "AtlasGas-30eV-full-5yr"
         #"newstats-5yr-2-babyIAXO-tPlasmonGas.dat"
         #newstats-10keVbaselineIAXO-tPlasmonGas
 

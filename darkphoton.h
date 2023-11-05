@@ -81,7 +81,7 @@ vector<double> read( string name ) {
 	return row;	// returns vector of values
 	
 	}
-	else{ cout << "some error i guess..." << endl ; vector<double> err = {69.} ; return err ; }
+	else{ cout << "couldn't find file: " << name << endl ; vector<double> err = {69.} ; return err ; }
 }
 
 
@@ -138,7 +138,7 @@ vector<vector<double>> readGaunt( string name ) {
 	return g2D;	// returns vector of values
 	}
 	
-	else{ cout << "some error i guess..." << endl ; vector<vector<double>> err = {{69.}} ; return err ; }
+	else{ cout << "couldn't find file: " << name << endl ; vector<vector<double>> err = {{69.}} ; return err ; }
 }
 
 
@@ -511,7 +511,7 @@ double Gamma( double w, double wp, double T, double nH0, double ne, double np, d
 double Gamma_IAXO( double w, double pressure ) {	// p[eV4] and w[eV]
 	w /= 1000;				// [keV]
 	pressure /= (100*m2eV*s2eV*s2eV*kg2eV);		// [mbar]	
-	//if( pressure > 1013.25e1 ) { return 1e200; }
+	//if( pressure > 1e3 ) { return 1e200; }
 	double logw = log10(w);
 	double logG = 0.014*pow(logw,6) + 0.166*pow(logw,5)
 				+ 0.464*pow(logw,4) + 0.473*pow(logw,3)
@@ -537,16 +537,13 @@ double m2IAXO( double w, double T, double nHe0 ) {
 double Pvacuum( double w, double m, double L ) {
 
 	// calculate Delta P
-	double dP = w - pow( pow(w,2) - pow(m,2) , 0.5 );
+	double dP = w - sqrt(pow(w,2) - pow(m,2));
+	if( isnan(dP) ) { return 0; }
 	
 	// plug into sin2
 	double arg = dP * L / 2;
-	
-	double item = 4 * pow( sin(arg) , 2 );
-	if(isnan(item)){return 0;}
-
 	if( arg > 20 * pi ) { return 2; }	// average
-	else{ return item; }
+	else{ return 4 * pow( sin(arg) , 2 ); }
 }
 
 
@@ -554,13 +551,12 @@ double Pvacuum( double w, double m, double L ) {
 double Pgas( double w, double m, double L, double pressure ) {
 	
 	// define detector parameters for Gamma_t
-	double T = 300*K2eV;
-	double nHe0 = m_e * pow(m,2) / (8 * pi * a);	// FOR NOW - remove later
+	double T = 300*K2eV;							// eV
 	double G = Gamma_IAXO(w, pressure);				// eV
 	double mp2 = 8*pi*a*pressure/(m_e*T);			// eV2
 	double dP = sqrt(w*w - mp2) - sqrt(w*w - m*m);
 
-	if( abs(mp2 - m*m)/mp2 > 1e-10 ) {	// non-resonant conversion
+	if( abs(mp2 - m*m) > G*w/10 ) {	// non-resonant conversion
 		//cout <<( mp2-(m*m))/mp2 << endl;
 		return (m*m*m*m/(pow(mp2 - m*m, 2) + pow(w*G,2))) * (1 + exp(- G*L) - (2 * exp(- G*L / 2) * cos(dP*L)));
 		//return  pow(m*m/mp2,2)*(1 + exp(- G*L) - (2 * exp(- G*L / 2) * cos(dP*L)));

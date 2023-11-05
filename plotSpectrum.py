@@ -61,9 +61,8 @@ mtab = 10**np.arange(-3,4.1,0.1)
 # T-plasmon 100 eV
 i=40
 m=mtab[i]
-dat = tPlasmon[i]*m**2
-print(m)
-print(m)
+dat = tPlasmon[i]*(m**2)
+#print(m)
 k = wtab>m
 p = np.sqrt( (1-m*m/(wtab*wtab))*(k) )
 print("m = 10 eV:	max = {}".format(np.nanmax(dat)))
@@ -72,14 +71,14 @@ if log:	dat = dat/max100
 else: dat = dat/np.nanmax(dat)
 ax2.plot(wtab, p*dat, ls = '--', label = 'T plasmon m = 10 eV')
 
-# T-plasmon 0.1 meV
+# T-plasmon 0.1 eV
 i=20
 m=mtab[i]
-dat = tPlasmon[i]*m**2
-print(m)
+dat = tPlasmon[i]*(m**2)
+#print(m)
 k = wtab>m
 p = np.sqrt( (1-m*m/(wtab*wtab))*(k) )
-print("m = 100 meV:	max = {}".format(np.nanmax(dat)))
+print("m = 0.1 eV:	max = {}".format(np.nanmax(dat)))
 if log:	dat = dat/max100
 else: dat = dat/np.nanmax(dat)
 ax2.plot(wtab, p*dat, ls='-', label = 'T plasmon m = 0.1 eV')
