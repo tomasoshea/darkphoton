@@ -511,7 +511,7 @@ double Gamma( double w, double wp, double T, double nH0, double ne, double np, d
 double Gamma_IAXO( double w, double pressure ) {	// p[eV4] and w[eV]
 	w /= 1000;				// [keV]
 	pressure /= (100*m2eV*s2eV*s2eV*kg2eV);		// [mbar]	
-	if( pressure > 1e4 ) { return 1e200; }
+	//if( pressure > 1e4 ) { return 1e200; }
 	double logw = log10(w);
 	double logG = 0.014*pow(logw,6) + 0.166*pow(logw,5)
 				+ 0.464*pow(logw,4) + 0.473*pow(logw,3)
@@ -543,13 +543,17 @@ double Pvacuum( double w, double m, double L ) {
 	// plug into sin2
 	double arg = dP * L / 2;
 	if( arg > 20 * pi ) { return 2; }	// average
-	else{ return 4 * pow( sin(arg) , 2 ); }
+	else{ 
+		if( arg < 0.1 ) { return pow(m*m*L/(2*w),2); }
+		else{ return 4 * pow( sin(arg) , 2 ); }
+	}
 }
 
 
 // conversion probability for gas resonance
 double Pgas( double w, double m, double L, double pressure ) {
 	
+	if( w < m ) { return 0; }
 	// define detector parameters for Gamma_t
 	double T = 300*K2eV;							// eV
 	double G = Gamma_IAXO(w, pressure);				// eV

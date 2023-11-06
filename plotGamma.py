@@ -14,10 +14,12 @@ ax2 = fig2.add_axes((.1,.1,.8,.8))
 #ax2.set(xlim=(1,10), ylim=(1e-7,1e3))
 ax2.set(xlim=(1e-4,1e4), ylim=(1e-7,1e13))
 
-dat = loadtxt("data/GammaVsMass-30eV.dat")
-ax2.plot(dat[:,0],dat[:,1],color='black',ls='--',label="w = 30 eV")
+dat = loadtxt("data/GammaVsMass-100eV.dat")
+ax2.plot(dat[:,0],dat[:,1],color='black',ls='--',label="w = 100 eV")
 dat = loadtxt("data/GammaVsMass-1keV.dat")
 ax2.plot(dat[:,0],dat[:,1],color='black',ls=':',label="w = 1 keV")
+dat = loadtxt("data/GammaVsMass-10keV.dat")
+ax2.plot(dat[:,0],dat[:,1],color='black',ls='-.',label="w = 10 keV")
 
 # axes
 ax2.set_xlabel("DP mass [eV]")
