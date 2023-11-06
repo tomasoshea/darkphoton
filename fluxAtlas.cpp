@@ -80,7 +80,7 @@ void Atlas( vector<vector<double>> flux, vector<double> mtab, vector<double> wta
 	vector<double> chiIAXO;
 	double pressure = 0;
 	double T = 300*K2eV;
-	double wmin = 100;	// eV
+	double wmin = 30;	// eV
 
 	// set path for writeout
 	string path = "data/limits/";

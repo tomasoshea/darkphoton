@@ -511,7 +511,7 @@ double Gamma( double w, double wp, double T, double nH0, double ne, double np, d
 double Gamma_IAXO( double w, double pressure ) {	// p[eV4] and w[eV]
 	w /= 1000;				// [keV]
 	pressure /= (100*m2eV*s2eV*s2eV*kg2eV);		// [mbar]	
-	//if( pressure > 1e3 ) { return 1e200; }
+	if( pressure > 1e4 ) { return 1e200; }
 	double logw = log10(w);
 	double logG = 0.014*pow(logw,6) + 0.166*pow(logw,5)
 				+ 0.464*pow(logw,4) + 0.473*pow(logw,3)

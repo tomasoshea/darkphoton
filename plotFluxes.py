@@ -10,46 +10,23 @@ plt.style.use("style.txt")	# import plot style
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
 #ax2.set(xlim=(1e-4,1e7), ylim=(1e-35,2e0))
-ax2.set(xlim=(1e-6,1e7), ylim=(1e-55,2e0))
+ax2.set(xlim=(1e-3,1e7), ylim=(1e-35,2e0))
 
 
 
 ############## Atlas data #################
 
-# T-plasmon Atlas (gas)
-dat = loadtxt("data/limits/babyIAXO-Atlas-30eV-full-gas.dat")
-top = np.nanmax(dat[:,1])
-dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon (gas)', color='black',ls='-', lw=2)
-
 # T-plasmon Altas (vacuum)
 dat = loadtxt("data/limits/babyIAXO-Atlas-1eV.dat")
+top = np.nanmax(dat[:,1])
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='T-plasmon', color='black', ls='-', lw=5)
 
-# T-plasmon old
-dat = loadtxt("data/limits/babyIAXO-tPlasmon-old.dat")
+# T-plasmon Atlas (gas)
+dat = loadtxt("data/limits/babyIAXO-Atlas-30eV-gas.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon old', color='red', ls='-', lw=5)
+ax2.plot(dat[:,0],dat[:,1], label='T-plasmon (gas) 30 eV', color='black',ls='-', lw=2)
 
-# T-plasmon old (gas)
-dat = loadtxt("data/limits/babyIAXO-tPlasmon-old-100eV-gas.dat")
-dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon old (gas)', color='red',ls='-', lw=2)
-
-dat = loadtxt("data/limits/babyIAXO-tPlasmon-old-100eV-lowP-gas.dat")
-dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon old-lowP (gas)', color='red',ls='--', lw=2)
-
-# T-plasmon old old (gas)
-dat = loadtxt("data/limits/babyIAXO-tPlasmon-1e-6-gas.dat")
-dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon old-old (gas)', color='magenta', lw=2)
-
-#dat = loadtxt("data/limits/babyIAXO-Atlas-100eV.dat")
-#dat[:,1] = dat[:,1] / top
-#ax2.plot(dat[:,0],dat[:,1], label='T-plasmon', color='red', ls='-', lw=5)
-"""
 # L-plasmon mixing (vacuum)
 dat = loadtxt("data/limits/babyIAXO-lMixing-1eV.dat")
 dat[:,1] = dat[:,1] / top
@@ -58,6 +35,8 @@ ax2.plot(dat[:,0],dat[:,1], label='L-plasmon', color='black', ls='--', lw=5)
 # L-plasmon mixing (gas)
 dat = loadtxt("data/limits/babyIAXO-lMixing-30eV-gas.dat")
 dat[:,1] = dat[:,1] / top
+for i in range(len(dat[:,0])):
+		if dat[i,0] >= 0.835: dat[i,1] = 0
 ax2.plot(dat[:,0],dat[:,1], label='L-plasmon (gas)', color='black',ls='--', lw=2)
 
 # pureL B-field
@@ -73,23 +52,23 @@ ax2.plot(dat[:,0],dat[:,1], label='L-DP conversion',ls=(0,(5,6)),color='black')
 # pp chain
 dat = loadtxt("data/limits/babyIAXO-pp-new.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='pp-chain',ls=':',color='black')
+ax2.plot(dat[:,0],dat[:,1], label='pp-chain',ls=':',color='black', lw=5)
 
 # ee annihilation
 dat = loadtxt("data/limits/babyIAXO-pp-ee-new.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='e+ e- annihilation',ls='-.',color='black')
+ax2.plot(dat[:,0],dat[:,1], label='e+ e- annihilation',ls='-.',color='black', lw=5)
 
 # 57Fe
 dat = loadtxt("data/limits/babyIAXO-57Fe-3.dat")
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='57Fe', color='black', ls=(0, (3, 5, 1, 5, 1, 5)))
+ax2.plot(dat[:,0],dat[:,1], label='57Fe', color='black', ls=(0, (3, 5, 1, 5, 1, 5)), lw=5)
 
 # 55Mn
 #dat = loadtxt("data/limits/babyIAXO-55Mn-1.dat")
 #dat[:,1] = dat[:,1] / top
 #ax2.plot(dat[:,0],dat[:,1], label='55Mn')
-"""
+
 
 # axes
 ax2.set_xlabel("Dark photon mass [eV]")
@@ -98,7 +77,7 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend(loc='upper right')
 
-plt.savefig('plots/flux-comparison-Atlas-test.jpg')
+plt.savefig('plots/flux-comparison-Atlas.jpg')
 plt.show()
 
 
@@ -147,4 +126,33 @@ ax2.plot(dat[:,0],dat[:,1], label='e+ e- annihilation',ls='-.')
 dat = loadtxt("data/limits/babyIAXO-57Fe-3.dat")
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='57Fe',ls=(0, (3, 5, 1, 5, 1, 5)))
+
+
+
+
+# T-plasmon old
+dat = loadtxt("data/limits/babyIAXO-tPlasmon-old.dat")
+dat[:,1] = dat[:,1] / top
+#ax2.plot(dat[:,0],dat[:,1], label='T-plasmon old', color='red', ls='-', lw=5)
+
+# T-plasmon old (gas)
+dat = loadtxt("data/limits/babyIAXO-tPlasmon-old-100eV-gas.dat")
+dat[:,1] = dat[:,1] / top
+##ax2.plot(dat[:,0],dat[:,1], label='T-plasmon old (gas)', color='red',ls='-', lw=2)
+
+
+dat = loadtxt("data/limits/babyIAXO-Atlas-test-gas.dat")
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1], label='T-plasmon high p (gas)', color='red',ls='--', lw=2)
+
+# T-plasmon old old (gas)
+dat = loadtxt("data/limits/babyIAXO-tPlasmon-1e-6-gas.dat")
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1], label='T-plasmon old-old (gas)', color='magenta', lw=2)
+
+#dat = loadtxt("data/limits/babyIAXO-Atlas-100eV.dat")
+#dat[:,1] = dat[:,1] / top
+#ax2.plot(dat[:,0],dat[:,1], label='T-plasmon', color='red', ls='-', lw=5)
+
+
 """

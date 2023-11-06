@@ -800,7 +800,7 @@ class DarkPhoton():
         
         suffix = "-10keV"
         #suffixGas = "-tPlasmon-newerE-gas"
-        suffixGas = "AtlasGas-30eV-full-5yr"
+        suffixGas = "AtlasGas-30eV"
         #"newstats-5yr-2-babyIAXO-tPlasmonGas.dat"
         #newstats-10keVbaselineIAXO-tPlasmonGas
 

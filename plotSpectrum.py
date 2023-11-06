@@ -102,7 +102,7 @@ ax2.plot(dat[:,0], dat[:,1], ls='-.', label = 'pure L')
 
 # axes
 ax2.set_xlabel("Dark photon energy [eV]")
-ax2.set_ylabel("dPhi/dw per chi2 m2 [cm-2 s-1 eV-1] ")
+ax2.set_ylabel("dPhi/dw per chi2 m2 [cm-2 s-1 eV-3] ")
 #ax2.set_ylabel("Differential flux [eV2]")
 ax2.set_xscale('log')
 if log:
