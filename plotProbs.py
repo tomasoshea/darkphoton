@@ -22,10 +22,10 @@ dat = loadtxt("data/probVac-50eV.dat")
 ax2.plot(dat[:,0],dat[:,1], label='vacuum (50 eV)', color='black', ls='-', lw=lw, alpha=alp)
 
 dat = loadtxt("data/probVac-500eV.dat")
-ax2.plot(dat[:,0],dat[:,1], label='vacuum (500 eV)', color='black', ls=':', lw=lw, alpha=alp)
+#ax2.plot(dat[:,0],dat[:,1], label='vacuum (500 eV)', color='black', ls=':', lw=lw, alpha=alp)
 
 dat = loadtxt("data/probVac-5keV.dat")
-ax2.plot(dat[:,0],dat[:,1], label='vacuum (5 keV)', color='black', ls='--', lw=lw, alpha=alp)
+#ax2.plot(dat[:,0],dat[:,1], label='vacuum (5 keV)', color='black', ls='--', lw=lw, alpha=alp)
 
 
 # gas

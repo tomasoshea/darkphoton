@@ -20,6 +20,7 @@ ax2.plot(dat[:,0],dat[:,1], color='black',ls='-', lw=4)
 dat = loadtxt("DPlimits/limit_data/DarkPhoton/HB.txt")
 ax2.plot(dat[:,0],dat[:,1], color='black',ls='-', lw=4)
 
+
 # XENON
 col='cyan'
 y2= 1e-5
@@ -43,16 +44,15 @@ dat = loadtxt("DPlimits/limit_data/DarkPhoton/XENONnT.txt")
 plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.5,alpha=alp)
 
 
-
 # vacuum Atlas
-dat = loadtxt("data/limits/statsAtlas-babyIAXO-1eV-test.dat")
-ax2.plot(dat[:,0],dat[:,1], label='BabyIAXO', color='red',ls='--', lw=4)
-
-dat = loadtxt("data/limits/statsAtlas-baselineIAXO-1eV-test.dat")
-ax2.plot(dat[:,0],dat[:,1], label='IAXO', color='red',ls='-', lw=4)
-
-dat = loadtxt("data/limits/statsAtlas-upgradedIAXO-1eV-test.dat")
-ax2.plot(dat[:,0],dat[:,1], label='IAXO+', color='red',ls=':', lw=4)
+#dat = loadtxt("data/limits/statsAtlas-babyIAXO-1eV-test.dat")
+#ax2.plot(dat[:,0],dat[:,1], label='BabyIAXO', color='red',ls='--', lw=4)
+#
+#dat = loadtxt("data/limits/statsAtlas-baselineIAXO-1eV-test.dat")
+#ax2.plot(dat[:,0],dat[:,1], label='IAXO', color='red',ls='-', lw=4)
+#
+#dat = loadtxt("data/limits/statsAtlas-upgradedIAXO-1eV-test.dat")
+#ax2.plot(dat[:,0],dat[:,1], label='IAXO+', color='red',ls=':', lw=4)
 
 
 # gas Atlas
@@ -63,6 +63,17 @@ dat = loadtxt("data/limits/stats-baselineIAXO-AtlasGas-30eV.dat")
 ax2.plot(dat[:,0],dat[:,1], label='IAXO (gas)', color='g',ls='-', lw=3)
 
 dat = loadtxt("data/limits/stats-upgradedIAXO-AtlasGas-30eV.dat")
+ax2.plot(dat[:,0],dat[:,1], label='IAXO+ (gas)', color='g',ls=':', lw=3)
+
+
+# gas Atlas
+dat = loadtxt("data/limits/statsAtlas-babyIAXO-30eV-gas.dat")
+ax2.plot(dat[:,0],dat[:,1], label='BabyIAXO (gas)', color='g',ls='--', lw=3)
+
+dat = loadtxt("data/limits/statsAtlas-baselineIAXO-30eV-gas.dat")
+ax2.plot(dat[:,0],dat[:,1], label='IAXO (gas)', color='g',ls='-', lw=3)
+
+dat = loadtxt("data/limits/statsAtlas-upgradedIAXO-30eV-gas.dat")
 ax2.plot(dat[:,0],dat[:,1], label='IAXO+ (gas)', color='g',ls=':', lw=3)
 
 
