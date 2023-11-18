@@ -28,19 +28,19 @@ dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='T-plasmon (gas)', color='black',ls='-', lw=2)
 
 # L-plasmon mixing (vacuum)
-dat = loadtxt("data/limits/babyIAXO-lMixing-1eV.dat")
+dat = loadtxt("data/limits/babyIAXO-lMixing-x.dat")
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='L-plasmon', color='black', ls='--', lw=5)
 
 # L-plasmon mixing (gas)
-dat = loadtxt("data/limits/babyIAXO-lMixing-30eV-gas.dat")
+dat = loadtxt("data/limits/babyIAXO-lMixing-x-gas.dat")
 dat[:,1] = dat[:,1] / top
 for i in range(len(dat[:,0])):
 		if dat[i,0] >= 0.835: dat[i,1] = 0
 ax2.plot(dat[:,0],dat[:,1], label='L-plasmon (gas)', color='black',ls='--', lw=2)
 
 # pureL B-field
-dat = loadtxt("data/limits/babyIAXO-Atlas-pureL-100eV.dat")
+dat = loadtxt("data/limits/babyIAXO-Atlas-pureL-x.dat")
 dat[:,1] = dat[:,1] / top
 ax2.plot(dat[:,0],dat[:,1], label='L-DP conversion',ls=(0,(10,3)),color='black')
 
@@ -78,7 +78,7 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend(loc='upper right')
 
-plt.savefig('plots/flux-comparison-Atlas.jpg')
+plt.savefig('plots/flux-comparison-x.jpg')
 plt.show()
 
 

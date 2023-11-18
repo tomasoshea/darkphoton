@@ -58,7 +58,8 @@ double lMixingResIntegrand( double m, double ne, double T, double wp, double r, 
 		double Gt = GammaT(wp, ne, T, nH, nHe4, nHe3, g1, g2);
 
 		double p1 = pow( r/R , 2 ) / (8*pi);
-		double p2 = wp * pow(m,4) * pow(wB,2) * pow( pow(wp,2) - pow(m,2) , 0.5 );
+		//double p2 = wp * pow(m,4) * pow(wB,2) * pow( pow(wp,2) - pow(m,2) , 0.5 );
+		double p2 = pow(m,4) * pow(wB,4) * pow( pow(wp,2) - pow(m,2) , 0.5 ) / wp;
 		double p3 = exp( wp / T ) - 1;
 		double p4 = pow( pow(m,2) - pow(wp,2) , 2 ) + pow(wp*Gt,2);
 		
@@ -208,7 +209,7 @@ void lMixingRes( vector<double> ne, vector<double> T, vector<double> wp, vector<
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
 	double pressure = 0;
-	double wmin = 100;	// eV
+	double wmin = 1;	// eV
 	double T0 = 300*K2eV;
 
 	// set path for writeout
@@ -235,10 +236,10 @@ void lMixingRes( vector<double> ne, vector<double> T, vector<double> wp, vector<
 int main( int argc, char** argv ) {
 
 	// FOR SPECTRA
-	for( double m = 1e-6; m <= 1e4; m *= 10 ) {	spectrumResL(m) ; }
+	//for( double m = 1e-6; m <= 1e4; m *= 10 ) {	spectrumResL(m) ; }
 
 	// FOR FLUX
-	/*
+	
 	// check suffix is given as argument
 	if( argc == 1 ){
 		cout << "enter filename descriptor as argument" << endl;
@@ -306,5 +307,5 @@ int main( int argc, char** argv ) {
 	else{
 		cout << "only input filename suffix" << endl;
 		return 2;
-	}*/
+	}
 }

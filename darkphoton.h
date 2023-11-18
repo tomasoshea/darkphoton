@@ -588,7 +588,7 @@ double PpureL_B( double m, double w, double B, double L, double pressure ) {
 				/ ( pow( w*w - m*m , 2 ) + w*w*G*G );
 	}
 	else{
-		return pow( m * m / w , 4 ) * pow(wB/G, 2)
+		return pow( m * m / (w*w) , 4 ) * pow(wB*wB/G, 2)
 					* ( 1 + exp(-G*L) - 2*exp(-G*L/2) )
 				/ ( pow( w*w - m*m , 2 ) + w*w*G*G );
 	}
