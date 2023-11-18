@@ -47,7 +47,7 @@ plt.show()
 log = True				# log or linear normalised
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
-if log:	ax2.set( xlim=(1e0, 1e4), ylim=(1e-28, 4e0) )
+if log:	ax2.set( xlim=(1e0, 1e4), ylim=(1e-12, 1.1e0) )
 else: ax2.set( xlim=(1e-2, 3e4), ylim=(0, 1.01))
 
 
@@ -69,7 +69,7 @@ print("m = 10 eV:	max = {}".format(np.nanmax(dat)))
 max100 = np.nanmax(dat)
 if log:	dat = dat/max100
 else: dat = dat/np.nanmax(dat)
-ax2.plot(wtab, p*dat, ls = '--', label = 'T plasmon m = 10 eV')
+ax2.plot(wtab, p*dat, ls = '--', label = 'T-DP m = 10 eV')
 
 # T-plasmon 0.1 eV
 i=20
@@ -81,7 +81,7 @@ p = np.sqrt( (1-m*m/(wtab*wtab))*(k) )
 print("m = 0.1 eV:	max = {}".format(np.nanmax(dat)))
 if log:	dat = dat/max100
 else: dat = dat/np.nanmax(dat)
-ax2.plot(wtab, p*dat, ls='-', label = 'T plasmon m = 0.1 eV')
+ax2.plot(wtab, p*dat, ls='-', label = 'T-DP m = 0.1 eV')
 
 # lMixing
 dat = loadtxt("data/Espectrum-lMixing-1.dat")
@@ -90,19 +90,23 @@ dat[:,1] = dat[:,1]*(m**2)
 print("l-Mixing:	max = {}".format(np.nanmax(dat[:,1])))
 if log:	dat[:,1] = dat[:,1]/max100
 else: dat[:,1] = dat[:,1]/np.nanmax(dat[:,1])
-ax2.plot(dat[:,0], dat[:,1], ls=':', label = 'L mixing')
+#ax2.plot(dat[:,0], dat[:,1], ls=':', label = 'L mixing')
 
 # pure L
 dat = loadtxt("data/limits/output_L.dat")
 print("pure L:	max = {}".format(np.nanmax(dat[:,1])))
 if log:	dat[:,1] = dat[:,1]/max100
 else: dat[:,1] = dat[:,1]/np.nanmax(dat[:,1])
-ax2.plot(dat[:,0], dat[:,1], ls='-.', label = 'pure L')
+ax2.plot(dat[:,0], dat[:,1], ls=':', label = 'L-DP')
 
 
 # axes
 ax2.set_xlabel("Dark photon energy [eV]")
+<<<<<<< HEAD
 ax2.set_ylabel("dPhi/dw [cm-2 s-1 eV-1] ")
+=======
+ax2.set_ylabel("Differential flux per mass^2 (normalised) ")
+>>>>>>> 62664e3 (fixing plots)
 #ax2.set_ylabel("Differential flux [eV2]")
 ax2.set_xscale('log')
 if log:
@@ -114,7 +118,7 @@ else:
 ax2.tick_params(axis='both')
 ax2.legend()
 
-fig2.savefig('plots/spectrumAtlas{}'.format(ext))
+fig2.savefig('plots/spectrumAtlas-2{}'.format(ext))
 
 plt.show()
 

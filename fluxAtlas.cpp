@@ -80,7 +80,7 @@ void Atlas( vector<vector<double>> flux, vector<double> mtab, vector<double> wta
 	vector<double> chiIAXO;
 	double pressure = 0;
 	double T = 300*K2eV;
-	double wmin = 30;	// eV
+	double wmin = 1000;	// eV
 
 	// set path for writeout
 	string path = "data/limits/";
@@ -88,7 +88,7 @@ void Atlas( vector<vector<double>> flux, vector<double> mtab, vector<double> wta
 
 	// get for many DP mass values
 	for ( int c = 0; c < mtab.size(); c++ ) {
-			pressure = mtab[c]*mtab[c]*m_e*T/(8*pi*a);		// [eV4]
+			//pressure = mtab[c]*mtab[c]*m_e*T/(8*pi*a);		// [eV4]
 			//pressure = 0.1*0.1*m_e*T/(8*pi*a);				// 0.1eV
 			double phi = integrateAtlas(flux[c],mtab[c],wtab,L,pressure,wmin);
 			chiIAXO.push_back(phi);

@@ -10,21 +10,23 @@ plt.style.use("style.txt")	# import plot style
 # setup plot
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
-ax2.set(xlim=(1e-3,1e4), ylim=(1e-15,1e-7))
+ax2.set(xlim=(1e-3,7e3), ylim=(1e-15,1e-7))
+y2= 1e-5
+alp=1
 
 # solar bounds
+col='lime'
+z=0.6
 dat = loadtxt("DPlimits/limit_data/DarkPhoton/Solar.txt")
-ax2.plot(dat[:,0],dat[:,1], label='Stellar', color='black',ls='-', lw=4)
+plt.fill_between(dat[:,0],dat[:,1],y2=y2,label='Stellar',facecolor=col,edgecolor=None,zorder=z)
 dat = loadtxt("DPlimits/limit_data/DarkPhoton/RG.txt")
-ax2.plot(dat[:,0],dat[:,1], color='black',ls='-', lw=4)
+plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,edgecolor=None,zorder=z)
 dat = loadtxt("DPlimits/limit_data/DarkPhoton/HB.txt")
-ax2.plot(dat[:,0],dat[:,1], color='black',ls='-', lw=4)
+plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,edgecolor=None,zorder=z)
 
 
 # XENON
 col='cyan'
-y2= 1e-5
-alp=1
 dat = loadtxt("DPlimits/limit_data/DarkPhoton/Xenon1T.txt")
 dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
 plt.fill_between(1e3*dat[:,0],dat[:,1],y2=y2,label='XENON',edgecolor=None,facecolor=col,zorder=0.5,alpha=alp)
@@ -45,6 +47,7 @@ plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.5
 
 
 # vacuum Atlas
+<<<<<<< HEAD
 #dat = loadtxt("data/limits/statsAtlas-babyIAXO-1eV-test.dat")
 #ax2.plot(dat[:,0],dat[:,1], label='BabyIAXO', color='red',ls='--', lw=4)
 #
@@ -54,16 +57,29 @@ plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.5
 #dat = loadtxt("data/limits/statsAtlas-upgradedIAXO-1eV-test.dat")
 #ax2.plot(dat[:,0],dat[:,1], label='IAXO+', color='red',ls=':', lw=4)
 
+=======
+col='black'
+lw=5
+dat = loadtxt("data/limits/statsAtlas-babyIAXO-1eV-test.dat")
+ax2.plot(dat[:,0],dat[:,1], label='BabyIAXO',color=col,ls='--',lw=lw)
 
+dat = loadtxt("data/limits/statsAtlas-baselineIAXO-1eV-test.dat")
+ax2.plot(dat[:,0],dat[:,1], label='IAXO',color=col,ls='-',lw=lw)
+
+dat = loadtxt("data/limits/statsAtlas-upgradedIAXO-1eV-test.dat")
+ax2.plot(dat[:,0],dat[:,1], label='IAXO+',color=col,ls=':',lw=lw)
+>>>>>>> 62664e3 (fixing plots)
+
+lw=2
 # gas Atlas
 dat = loadtxt("data/limits/stats-babyIAXO-AtlasGas-30eV.dat")
-ax2.plot(dat[:,0],dat[:,1], label='BabyIAXO (gas)', color='g',ls='--', lw=3)
+ax2.plot(dat[:,0],dat[:,1], label='BabyIAXO (gas)',color=col,ls='--',lw=lw)
 
 dat = loadtxt("data/limits/stats-baselineIAXO-AtlasGas-30eV.dat")
-ax2.plot(dat[:,0],dat[:,1], label='IAXO (gas)', color='g',ls='-', lw=3)
+ax2.plot(dat[:,0],dat[:,1], label='IAXO (gas)',color=col,ls='-',lw=lw)
 
 dat = loadtxt("data/limits/stats-upgradedIAXO-AtlasGas-30eV.dat")
-ax2.plot(dat[:,0],dat[:,1], label='IAXO+ (gas)', color='g',ls=':', lw=3)
+ax2.plot(dat[:,0],dat[:,1], label='IAXO+ (gas)',color=col,ls=':',lw=lw)
 
 
 # gas Atlas
@@ -78,12 +94,12 @@ ax2.plot(dat[:,0],dat[:,1], label='IAXO+ (gas)', color='g',ls=':', lw=3)
 
 
 # axes
-#ax2.set_xlabel("Dark photon mass [eV]")
-#ax2.set_ylabel("Flux (normalised)")
+ax2.set_xlabel("Dark photon mass [eV]")
+ax2.set_ylabel("Kintetic Mixing Parameter")
 ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()#loc='upper right')
 
-plt.savefig('plots/limit-comparison.jpg')
+plt.savefig('plots/limit-comparison-2.jpg')
 plt.show()
 

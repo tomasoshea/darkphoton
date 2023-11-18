@@ -6,11 +6,15 @@ from matplotlib import pyplot as plt
 
 plt.style.use("style.txt")	# import plot style
 
+s2eV = (6.582119569e-16)
+m2eV = (1.973269804e-7)
+
 # setup plot
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
 #ax2.set(xlim=(1e-4,1e7), ylim=(1e-35,2e0))
-ax2.set(xlim=(1e-3,1e7), ylim=(1e-35,2e1))
+ax2.set(xlim=(1e-3,7e3), ylim=(1e-27,2e0))
+lw = 4
 
 
 
@@ -19,9 +23,33 @@ ax2.set(xlim=(1e-3,1e7), ylim=(1e-35,2e1))
 # T-plasmon Altas (vacuum)
 dat = loadtxt("data/limits/babyIAXO-Atlas-1eV.dat")
 top = np.nanmax(dat[:,1])
+print(top/(((100*m2eV)**2)*s2eV))		# cm-2 s-1
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon', color='black', ls='-', lw=5)
+ax2.plot(dat[:,0],dat[:,1], label='1 eV', color='black', ls='-', lw=4)
 
+dat = loadtxt("data/limits/babyIAXO-Atlas-10eV.dat")
+top = np.nanmax(dat[:,1])
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1], label='10 eV', color='black', ls='--', lw=4)
+
+dat = loadtxt("data/limits/babyIAXO-Atlas-100eV.dat")
+top = np.nanmax(dat[:,1])
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1], label='100 eV', color='black', ls=':', lw=4)
+
+dat = loadtxt("data/limits/babyIAXO-Atlas-1keV.dat")
+top = np.nanmax(dat[:,1])
+dat[:,1] = dat[:,1] / top
+ax2.plot(dat[:,0],dat[:,1], label='1 keV', color='black', ls='-.', lw=4)
+
+
+
+
+
+
+
+
+"""
 # T-plasmon Atlas (gas)
 dat = loadtxt("data/limits/babyIAXO-Atlas-30eV-gas.dat")
 dat[:,1] = dat[:,1] / top
@@ -69,16 +97,20 @@ ax2.plot(dat[:,0],dat[:,1], label='57Fe', color='black', ls=(0, (3, 5, 1, 5, 1, 
 #dat = loadtxt("data/limits/babyIAXO-55Mn-1.dat")
 #dat[:,1] = dat[:,1] / top
 #ax2.plot(dat[:,0],dat[:,1], label='55Mn')
-
+"""
 
 # axes
 ax2.set_xlabel("Dark photon mass [eV]")
 ax2.set_ylabel("Flux (normalised)")
 ax2.set_xscale('log')
 ax2.set_yscale('log')
-ax2.legend(loc='upper right')
+ax2.legend()#loc='upper right')
 
+<<<<<<< HEAD
 plt.savefig('plots/flux-comparison-x.jpg')
+=======
+plt.savefig('plots/flux-comparison-threshold.jpg')
+>>>>>>> 62664e3 (fixing plots)
 plt.show()
 
 

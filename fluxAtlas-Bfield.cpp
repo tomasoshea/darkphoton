@@ -62,6 +62,7 @@ double integrateAtlas( vector<double> flux, double m, vector<double> wtab, doubl
 		if ( wtab[c] < wmin ) { continue; }
 		double dw = wtab[c+1] - wtab[c];
 		if( B == 0 ) {
+			if(wtab[c+1] > 300) { continue; }
 			total += 0.5*dw*( ( PpureL_ideal(m,wtab[c+1],L,pressure) * flux[c+1] )
 				+ ( PpureL_ideal(m,wtab[c],L,pressure) * flux[c] ) );
 		}
@@ -134,7 +135,7 @@ int main( int argc, char** argv ) {
 	double L1 = 10 / m2eV;	// in eV^-1
 	double B1 = 2;			// [T]
 	// multithread to run simultaneously
-	thread t2( Atlas, flux, wtab, L1, nameBaby, B1 );	
+	thread t2( Atlas, flux, wtab, L1, nameBaby, 0 );	
 
 	
 	//IAXO baseline
@@ -142,7 +143,7 @@ int main( int argc, char** argv ) {
 	double L2 = 20 / m2eV;	// in eV^-1
 	double B2 = 2.5;		// [T]
 	// multithread to run simultaneously
-	thread t4(  Atlas, flux, wtab, L2, nameBaseline, B2 );
+	thread t4(  Atlas, flux, wtab, L2, nameBaseline, 0 );
 
 
 	/// IAXO upgraded
@@ -150,7 +151,7 @@ int main( int argc, char** argv ) {
 	double L3 = 22 / m2eV;	// in eV^-1
 	double B3 = 3.5;		// [T]
 	// multithread to run simultaneously
-	thread t6(  Atlas, flux, wtab, L3, nameUpgraded, B3 );
+	thread t6(  Atlas, flux, wtab, L3, nameUpgraded, 0 );
 
 
 	// wait until all threads are finished

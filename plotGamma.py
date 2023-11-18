@@ -22,7 +22,7 @@ dat = loadtxt("data/GammaVsMass-10keV.dat")
 ax2.plot(dat[:,0],dat[:,1],color='black',ls='-.',label="w = 10 keV")
 
 # axes
-ax2.set_xlabel("DP mass [eV]")
+ax2.set_xlabel("Effective photon mass [eV]")
 ax2.set_ylabel("Absorption Gamma [m-1]")
 ax2.set_xscale('log')
 ax2.set_yscale('log')
