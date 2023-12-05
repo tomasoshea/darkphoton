@@ -13,7 +13,7 @@ m2eV = (1.973269804e-7)
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
 #ax2.set(xlim=(1e-4,1e7), ylim=(1e-35,2e0))
-ax2.set(xlim=(1e-3,6e6), ylim=(1e-35,2e1))
+ax2.set(xlim=(1e-3,1e3), ylim=(1e-27,2e0))
 lw = 4
 
 
@@ -26,61 +26,22 @@ dat = loadtxt("data/limits/babyIAXO-Atlas-1eV.dat")
 top = np.nanmax(dat[:,1])
 print(top/(((100*m2eV)**2)*s2eV))		# cm-2 s-1
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon', color='black', ls='-', lw=4)
+ax2.plot(dat[:,0],dat[:,1], label='1 eV', color='black', ls='-', lw=4)
 
-# T-plasmon Atlas (gas)
-dat = loadtxt("data/limits/babyIAXO-Atlas-30eV-gas.dat")
+dat = loadtxt("data/limits/babyIAXO-Atlas-10eV.dat")
+top = np.nanmax(dat[:,1])
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon (gas)', color='black',ls='-', lw=2)
-plt.text(1.2e-2,1e-14,'T',size=fs)
+ax2.plot(dat[:,0],dat[:,1], label='10 eV', color='black', ls='--', lw=4)
 
-# L-plasmon mixing (vacuum)
-#dat = loadtxt("data/limits/babyIAXO-lMixing-x.dat")
-dat = loadtxt("data/limits/babyIAXO-lMixing-1eV.dat")
+dat = loadtxt("data/limits/babyIAXO-Atlas-100eV.dat")
+top = np.nanmax(dat[:,1])
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='L-plasmon', color='black', ls='--', lw=5)
+ax2.plot(dat[:,0],dat[:,1], label='100 eV', color='black', ls=':', lw=4)
 
-# L-plasmon mixing (gas)
-dat = loadtxt("data/limits/babyIAXO-lMixing-30eV-gas.dat")
+dat = loadtxt("data/limits/babyIAXO-Atlas-1keV.dat")
+top = np.nanmax(dat[:,1])
 dat[:,1] = dat[:,1] / top
-for i in range(len(dat[:,0])):
-		if dat[i,0] >= 0.835: dat[i,1] = 0
-ax2.plot(dat[:,0],dat[:,1], label='L-plasmon (gas)', color='black',ls='--', lw=2)
-plt.text(1.2e-2,1e-25,'L',size=fs)
-
-# pureL B-field
-#dat = loadtxt("data/limits/babyIAXO-Atlas-pureL-x.dat")
-#dat[:,1] = dat[:,1] / top
-#ax2.plot(dat[:,0],dat[:,1], label='L-DP conversion',ls=(0,(10,3)),color='black')
-
-# pureL idealised conversion
-#dat = loadtxt("data/limits/babyIAXO-Atlas-pureL-100eV-ideal.dat")
-#dat[:,1] = dat[:,1] / top
-#ax2.plot(dat[:,0],dat[:,1], label='L-DP conversion (idealised)',ls=(0,(1,3)))
-
-# pp chain
-dat = loadtxt("data/limits/babyIAXO-pp-new.dat")
-dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='pp-chain',ls=':',color='black', lw=5)
-plt.text(1.2e6,1e-32,'pp',size=fs)
-
-# ee annihilation
-dat = loadtxt("data/limits/babyIAXO-pp-ee-new.dat")
-dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='e+ e- annihilation',ls='-.',color='black', lw=5)
-plt.text(4e4,1e-32,'ee',size=fs)
-
-# 57Fe
-dat = loadtxt("data/limits/babyIAXO-57Fe-3.dat")
-dat[:,1] = dat[:,1] / top
-dat[-1,1] = 0
-ax2.plot(dat[:,0],dat[:,1], label='57Fe', color='black', ls=(0, (3, 5, 1, 5, 1, 5)), lw=5)
-plt.text(1.2e1,1e-24,'Fe',size=fs)
-
-# 55Mn
-#dat = loadtxt("data/limits/babyIAXO-55Mn-1.dat")
-#dat[:,1] = dat[:,1] / top
-#ax2.plot(dat[:,0],dat[:,1], label='55Mn')
+ax2.plot(dat[:,0],dat[:,1], label='1 keV', color='black', ls='-.', lw=4)
 
 
 # axes
@@ -88,9 +49,9 @@ ax2.set_xlabel("Dark photon mass [eV]")
 ax2.set_ylabel("Flux (normalised)")
 ax2.set_xscale('log')
 ax2.set_yscale('log')
-#ax2.legend()#loc='upper right')
+ax2.legend()#loc='upper right')
 
-plt.savefig('plots/flux-comparison-1eV-1.jpg')
+plt.savefig('plots/flux-comparison-E2.jpg')
 plt.show()
 
 
@@ -98,20 +59,6 @@ plt.show()
 
 """
 
-dat = loadtxt("data/limits/babyIAXO-Atlas-10eV.dat")
-top = np.nanmax(dat[:,1])
-dat[:,1] = dat[:,1] / top
-#ax2.plot(dat[:,0],dat[:,1], label='10 eV', color='black', ls='--', lw=4)
-
-dat = loadtxt("data/limits/babyIAXO-Atlas-100eV.dat")
-top = np.nanmax(dat[:,1])
-dat[:,1] = dat[:,1] / top
-#ax2.plot(dat[:,0],dat[:,1], label='100 eV', color='black', ls=':', lw=4)
-
-dat = loadtxt("data/limits/babyIAXO-Atlas-1keV.dat")
-top = np.nanmax(dat[:,1])
-dat[:,1] = dat[:,1] / top
-#ax2.plot(dat[:,0],dat[:,1], label='1 keV', color='black', ls='-.', lw=4)
 
 
 

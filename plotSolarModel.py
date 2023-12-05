@@ -17,22 +17,28 @@ r = loadtxt("data/rFrac.dat")
 # plasma freq
 dat = loadtxt("data/wp.dat")
 dat = dat / np.nanmax(dat)
-ax2.plot(r,dat, label='Plasma frequency')
+ax2.plot(r,dat, label='Plasma frequency', ls='--')
 
 # temperature
 dat = loadtxt("data/T.dat")
 dat = dat / np.nanmax(dat)
-ax2.plot(r,dat,label="Temperature")
+ax2.plot(r,dat,label="Temperature",ls=':')
+
+# B-field
+dat = loadtxt("data/Bfields-R.dat")
+dat[:,1] = dat[:,1] / np.nanmax(dat[:,1])
+ax2.plot(dat[:,0],dat[:,1],label="Magnetic field strength",ls='-')
+
 
 # electron number density
-dat = loadtxt("data/ne.dat")
-dat = dat / np.nanmax(dat)
-ax2.plot(r,dat,label="Electron number density")
+#dat = loadtxt("data/ne.dat")
+#dat = dat / np.nanmax(dat)
+#ax2.plot(r,dat,label="Electron number density")
 
 # H number density
-dat = loadtxt("data/nH.dat")
-dat = dat / np.nanmax(dat)
-ax2.plot(r,dat,label="H number density")
+#dat = loadtxt("data/nH.dat")
+#dat = dat / np.nanmax(dat)
+#ax2.plot(r,dat,label="H number density")
 
 # 3He number density
 #dat = loadtxt("data/nHe3.dat")
@@ -47,14 +53,14 @@ ax2.plot(r,dat,label="H number density")
 # 57Fe number density
 dat = loadtxt("data/n57Fe.dat")
 dat = dat / np.nanmax(dat)
-ax2.plot(r,dat,label="57Fe number density")
+ax2.plot(r,dat,label="57Fe number density",ls='-.')
 
 # axes
-ax2.set_xlabel("Solar radius")
-#ax2.set_ylabel("Plasma frequency [eV]")
+ax2.set_xlabel("Solar radius fraction")
+ax2.set_ylabel("Solar parameters (normalised)")
 #ax2.set_xscale('log')
-ax2.set_yscale('log')
+#ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/solarmodel-log2.jpg')
+plt.savefig('plots/solarmodel-lin2.jpg')
 plt.show()

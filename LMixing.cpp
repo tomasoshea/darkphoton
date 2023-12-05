@@ -61,11 +61,12 @@ double lMixingResIntegrand( double m, double ne, double T, double wp, double r, 
 		//double p2 = wp * pow(m,4) * pow(wB,2) * pow( pow(wp,2) - pow(m,2) , 0.5 );
 		double p2 = pow(m,4) * pow(wB,4) * pow( pow(wp,2) - pow(m,2) , 0.5 ) / wp;
 		double p3 = exp( wp / T ) - 1;
-		double p4 = pow( pow(m,2) - pow(wp,2) , 2 ) + pow(wp*Gt,2);
+		//double p4 = pow( pow(m,2) - pow(wp,2) , 2 ) + pow(wp*Gt,2);
+		double p4 = (pow(wp,4) + pow(wp*Gt,2))*pow(wp*Gt,2);
 		
 		double item = p1 * p2 / ( p3 * p4 );
 		if(isnan(item)){cout<<"AHH!!"<<endl;}
-		return item;
+		return item * pow(wp/m,4);
 	}
 }
 

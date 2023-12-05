@@ -83,9 +83,9 @@ void Atlas( vector<double> flux, vector<double> wtab, double L, string name, dou
 	vector<double> chiIAXO;
 	double pressure = 0;
 	double T = 300*K2eV;
-	double wmin = 100;	// eV
+	double wmin = 30;	// eV
 	
-	//B = 0;
+	B = 0;
 
 	// set path for writeout
 	string path = "data/limits/";

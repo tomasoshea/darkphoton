@@ -597,7 +597,7 @@ double PpureL_B( double m, double w, double B, double L, double pressure ) {
 double PpureL_ideal( double m, double w, double L, double pressure ) {
 	double G = Gamma_IAXO(w, pressure);
 	if( G * L < 1e-6 ) { return pow( m * L / 2 , 2 ); }
-	else { return pow( m / G , 2 ) * ( 1 + exp(-G*L) - (2 * exp( -0.5*G*L)) ); }
+	else { return pow( m / G , 2 ) * ( 1 + exp(-2*G*L) - (2 * exp( -G*L)) ); }
 
 }
 
