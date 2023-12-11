@@ -56,11 +56,11 @@ dat = dat / np.nanmax(dat)
 ax2.plot(r,dat,label="57Fe number density",ls='-.')
 
 # axes
-ax2.set_xlabel("Solar radius fraction")
+ax2.set_xlabel("Fraction of solar radius")
 ax2.set_ylabel("Solar parameters (normalised)")
 #ax2.set_xscale('log')
 #ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/solarmodel-lin2.jpg')
+plt.savefig('plots/solarmodel-lin4.jpg')
 plt.show()

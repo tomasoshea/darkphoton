@@ -102,11 +102,7 @@ ax2.plot(dat[:,0], dat[:,1], ls=':', label = 'L-DP')
 
 # axes
 ax2.set_xlabel("Dark photon energy [eV]")
-<<<<<<< HEAD
-ax2.set_ylabel("dPhi/dw [cm-2 s-1 eV-1] ")
-=======
-ax2.set_ylabel("Differential flux per mass^2 (normalised) ")
->>>>>>> 62664e3 (fixing plots)
+ax2.set_ylabel(r'$\frac{1}{m^2} \frac{d \Phi}{d \omega}$ (normalised)')
 #ax2.set_ylabel("Differential flux [eV2]")
 ax2.set_xscale('log')
 if log:
@@ -118,7 +114,7 @@ else:
 ax2.tick_params(axis='both')
 ax2.legend()
 
-fig2.savefig('plots/spectrumAtlas-2{}'.format(ext))
+fig2.savefig('plots/spectrumAtlas-3{}'.format(ext))
 
 plt.show()
 

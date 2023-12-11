@@ -12,7 +12,7 @@ plt.style.use("style.txt")	# import plot style
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
 #ax2.set(xlim=(1,10), ylim=(1e-7,1e3))
-ax2.set(xlim=(1e-4,1e4), ylim=(1e-7,1e13))
+ax2.set(xlim=(1e-4,1e4), ylim=(1e-7,1e11))
 
 dat = loadtxt("data/GammaVsMass-100eV.dat")
 ax2.plot(dat[:,0],dat[:,1],color='black',ls='--',label="w = 100 eV")
@@ -23,7 +23,7 @@ ax2.plot(dat[:,0],dat[:,1],color='black',ls='-.',label="w = 10 keV")
 
 # axes
 ax2.set_xlabel("Effective photon mass [eV]")
-ax2.set_ylabel("Absorption Gamma [m-1]")
+ax2.set_ylabel(r"$\Gamma$ [m$^{-1}$]")
 ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()
@@ -34,7 +34,7 @@ mtab = 10**np.arange(-3,4.1,0.1)
 np.savetxt('data/wtab.dat', wtab, delimiter=',')
 np.savetxt('data/mtab.dat', mtab, delimiter=',')
 
-plt.savefig('plots/GammaVsMass-1.jpg')
+plt.savefig('plots/GammaVsMass-2.jpg')
 plt.show()
 
 
