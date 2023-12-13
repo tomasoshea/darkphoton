@@ -56,7 +56,7 @@ DarkPhoton.NeutronStarCooling(ax)
 
 
 # ADDING IAXO BOUNDS!!
-DarkPhoton.IAXO(ax, pureL=True, text_on=False)
+#DarkPhoton.IAXO(ax, pureL=True, text_on=False)
 
 # BHSR
 plt.fill_between([6.5e-15,2.9e-11],[1e-18,1e-18],y2=1,color='gray',edgecolor='none',zorder=-100,alpha=0.25)
@@ -73,6 +73,6 @@ plt.text(4e-9,0.8e-14,r'{\bf Dark}',fontsize=27,ha='center')
 plt.text(4e-9,0.15e-14,r'{\bf photon}',fontsize=27,ha='center')
 plt.text(4e-9,0.02e-14,r'{\bf DM}',fontsize=27,ha='center')
 
-MySaveFig(fig,'DarkPhoton-pureL-idealised-30eV')
+MySaveFig(fig,'DarkPhoton')
 plt.show()
 
