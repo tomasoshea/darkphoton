@@ -1,6 +1,6 @@
 // Tom O'Shea 2023
 
-// get detector Gamma to check
+// calculate back-conversion probability in IAXO
 
 #include "darkphoton.h"
 using namespace std;

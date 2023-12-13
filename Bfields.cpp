@@ -1,4 +1,4 @@
-// Tom O'Shea 2022
+// Tom O'Shea 2023
 
 // output B-field values
 
@@ -7,9 +7,6 @@
 using namespace std;
 
 int main(){
-
-	Bfields();
-	
+	Bfields();	
 	return(0);
-
 }

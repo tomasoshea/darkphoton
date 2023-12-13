@@ -800,7 +800,7 @@ class DarkPhoton():
         
         suffix = "-pureL-30eV-ideal-2"
         #suffixGas = "-tPlasmon-newerE-gas"
-        suffixGas = "AtlasGas-30eV"
+        suffixGas = "Atlas-1eV"
         #"newstats-5yr-2-babyIAXO-tPlasmonGas.dat"
         #newstats-10keVbaselineIAXO-tPlasmonGas
 
@@ -818,7 +818,6 @@ class DarkPhoton():
             datGas = loadtxt("../data/limits/stats-upgradedIAXO{}.dat".format(suffix))
             #plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=301,lw=lw, ls='-')
             #plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3, alpha=0.6)
-
 
             datGas = loadtxt("../data/limits/stats-70eVagainbaselineIAXO-tPlasmonGas.dat".format(suffix))
             plt.plot(datGas[:,0],datGas[:,1],color='magenta', ls='--',alpha=1,zorder=0.301,lw=lw)
@@ -846,7 +845,6 @@ class DarkPhoton():
             plt.plot(datGas[:,0],datGas[:,1],color='black',alpha=1,zorder=100.301,lw=lw, ls='-.',label="IAXO+")
             plt.fill_between(datGas[:,0],datGas[:,1],y2=y2,edgecolor=None,facecolor='cyan',zorder=0.3, alpha=1.)
             plt.vlines(datGas[-1,0], datGas[-1,1], 1, zorder=0.301,lw=lw, color='cyan')
-
 
             if text_on:
                 plt.text(1e-1,5e-11,r'{\bf IAXO}',fontsize=fs,color='white',rotation=-32,rotation_mode='anchor',ha='center',va='center', zorder=105.5)

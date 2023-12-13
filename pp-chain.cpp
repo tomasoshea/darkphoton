@@ -1,9 +1,6 @@
-// Tom O'Shea 2022
+// Tom O'Shea 2023
 
-// script to generate a function of dark photon mixing parameter against dark photon mass
-// to give a theoretical upper limit on these parameters that IAXO could achieve
-
-// original t-plasmon integral for IAXO vacuum run
+// IAXO back-converted photon flux from pp-chain DPs
 
 #include "darkphoton.h"	// home of the real code
 #include <thread>

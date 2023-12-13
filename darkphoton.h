@@ -1,7 +1,7 @@
 // Tom O'Shea 2023
 
-// script to generate a function of dark photon mixing parameter against dark photon mass
-// to give a theoretical upper limit on these parameters that IAXO could achieve
+// calculation of IAXO sensitivity to solar hidden photons
+// header file containing all the bits
 
 #include <iostream>
 #include <fstream>
@@ -473,7 +473,6 @@ double m2BB( double w, double T, double nH0, double np ) {
 
 
 // bound-free m^2_gamma
-// !!! NOTE - in the paper Ee and E are used without definition, I have used En for both - ASK JAVIER !!! 
 double m2BF( double w, double T, double nH0, double np ) {
 	double sum = 0;
 	double Ztilde = partFunc(T,np);

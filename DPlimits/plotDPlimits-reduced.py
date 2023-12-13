@@ -29,5 +29,5 @@ DarkPhoton.IAXO(ax,text_on=False)
 #plt.text(1e-1,5e-10,r'{\bf IAXO}',fontsize=30,color='white',rotation=-20,rotation_mode='anchor',ha='center',va='center', zorder=105.5)
 
 ax.legend()
-MySaveFig(fig,'DarkPhoton-AtlasGas-30eV-5yr-reduced')
+MySaveFig(fig,'DarkPhoton-Atlas-1eV-reduced')
 plt.show()

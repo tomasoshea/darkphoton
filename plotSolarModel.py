@@ -9,7 +9,7 @@ plt.style.use("style.txt")	# import plot style
 # setup plot
 fig2 = plt.figure(1)	# display is 1920 x 1080 (16:9)
 ax2 = fig2.add_axes((.1,.1,.8,.8))
-ax2.set(xlim=(0.,1.01), ylim=(1e-3,1.01))
+ax2.set(xlim=(1e-2,1.01), ylim=(1e-3,1.01))
 
 # radius (fraction)
 r = loadtxt("data/rFrac.dat")
@@ -58,9 +58,9 @@ ax2.plot(r,dat,label="57Fe number density",ls='-.')
 # axes
 ax2.set_xlabel("Fraction of solar radius")
 ax2.set_ylabel("Solar parameters (normalised)")
-#ax2.set_xscale('log')
-#ax2.set_yscale('log')
+ax2.set_xscale('log')
+ax2.set_yscale('log')
 ax2.legend()
 
-plt.savefig('plots/solarmodel-lin4.jpg')
+plt.savefig('plots/solarmodel-log.jpg')
 plt.show()

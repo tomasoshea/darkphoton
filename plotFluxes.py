@@ -90,7 +90,7 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 #ax2.legend()#loc='upper right')
 
-plt.savefig('plots/flux-comparison-1eV-1.jpg')
+plt.savefig('plots/flux-comparison-1eV.jpg')
 plt.show()
 
 

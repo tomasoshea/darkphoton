@@ -41,7 +41,7 @@ ax2.plot(dat[:,0],dat[:,1], label='gas (5 keV)', color='red', ls='--', lw=lw, al
 
 # axes
 ax2.set_xlabel("Dark photon mass [eV]")
-ax2.set_ylabel("Back-conversion probablity")
+ax2.set_ylabel(r"Back-conversion probablity per $\chi^2$")
 ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()

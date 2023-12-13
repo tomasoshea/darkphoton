@@ -1,4 +1,4 @@
-# Tom O'Shea 2022
+# Tom O'Shea 2023
 
 # filter - create CSV files from solar model to feed to C++ program
 

@@ -1,9 +1,6 @@
-// Tom O'Shea 2022
+// Tom O'Shea 2023
 
-// script to generate a function of dark photon mixing parameter against dark photon mass
-// to give a theoretical upper limit on these parameters that IAXO could achieve
-
-// original t-plasmon integral for IAXO vacuum run
+// calculate the flux of back-converted photons at IAXO from solar gamma decays
 
 #include "darkphoton.h"	// home of the real code
 #include <thread>
@@ -69,17 +66,17 @@ int main( int argc, char** argv ) {
 	//IAXO baseline
 	double L2 = 20 / m2eV;
 	string nameBaseline = "baselineIAXO-" + isotope + suffix;
-	//thread t4( nuclearFlux, r, wp, T, nI, L2, w, J1, J0, tau, nameBaseline );	
+	thread t4( nuclearFlux, r, wp, T, nI, L2, w, J1, J0, tau, nameBaseline );	
 
 	// IAXO upgraded
 	string nameUpgraded = "upgradedIAXO" + isotope + suffix;
 	double L3 = 22 / m2eV;	// in eV^-1
-	//thread t6( nuclearFlux, r, wp, T, nI, L3, w, J1, J0, tau, nameUpgraded );	
+	thread t6( nuclearFlux, r, wp, T, nI, L3, w, J1, J0, tau, nameUpgraded );	
 
 	// wait until all threads are finished
 	t2.join();
-	//t4.join();
-	//t6.join();
+	t4.join();
+	t6.join();
 	
 	cout << "\nProcess completed!\n" << endl;
 	

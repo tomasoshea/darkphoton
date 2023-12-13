@@ -34,7 +34,7 @@ mtab = 10**np.arange(-3,4.1,0.1)
 np.savetxt('data/wtab.dat', wtab, delimiter=',')
 np.savetxt('data/mtab.dat', mtab, delimiter=',')
 
-plt.savefig('plots/GammaVsMass-2.jpg')
+plt.savefig('plots/GammaVsMass.jpg')
 plt.show()
 
 
