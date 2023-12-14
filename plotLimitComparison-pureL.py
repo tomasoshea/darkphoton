@@ -110,7 +110,7 @@ plt.plot(dat[:,0],dat[:,1],zorder=0.2,color=col,lw=2)
 col='black'
 lw=5
 dat = loadtxt("data/limits/stats-babyIAXO-pureL-30eV-ideal-2.dat")
-ax2.plot(dat[:,0],dat[:,1], label='L-DP',color=col,ls='--',lw=lw,zorder=0.001)
+ax2.plot(dat[:,0],dat[:,1], label='L-DP',color=col,ls='--',lw=lw)
 
 
 # axes

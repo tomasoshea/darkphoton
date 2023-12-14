@@ -47,13 +47,13 @@ plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.5
 
 col='black'
 lw=5
-dat = loadtxt("data/limits/statsAtlas-babyIAXO-1eV-test.dat")
+dat = loadtxt("data/limits/stats-babyIAXO-Atlas-1eV.dat")
 ax2.plot(dat[:,0],dat[:,1], label='BabyIAXO',color=col,ls='--',lw=lw)
 
-dat = loadtxt("data/limits/statsAtlas-baselineIAXO-1eV-test.dat")
+dat = loadtxt("data/limits/stats-baselineIAXO-Atlas-1eV.dat")
 ax2.plot(dat[:,0],dat[:,1], label='IAXO',color=col,ls='-',lw=lw)
 
-dat = loadtxt("data/limits/statsAtlas-upgradedIAXO-1eV-test.dat")
+dat = loadtxt("data/limits/stats-upgradedIAXO-Atlas-1eV.dat")
 ax2.plot(dat[:,0],dat[:,1], label='IAXO+',color=col,ls=':',lw=lw)
 
 
@@ -75,6 +75,6 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()#loc='upper right')
 
-plt.savefig('plots/limit-comparison.jpg')
+plt.savefig('plots/limit-comparison-2.jpg')
 plt.show()
 

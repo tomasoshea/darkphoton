@@ -21,12 +21,23 @@ lw = 4
 ############## Atlas data #################
 fs=30
 
+## T-plasmon Altas (vacuum)
+#dat = loadtxt("data/limits/babyIAXO-Atlas-1eV.dat")
+#top = np.nanmax(dat[:,1])
+#print(top/(((100*m2eV)**2)*s2eV))		# cm-2 s-1
+#dat[:,1] = dat[:,1] / top
+#ax2.plot(dat[:,0],dat[:,1], label='T-plasmon', color='black', ls='-', lw=4)
+
 # T-plasmon Altas (vacuum)
-dat = loadtxt("data/limits/babyIAXO-Atlas-1eV.dat")
+dat = loadtxt("data/limits/babyIAXO-Atlas-1eV.dat")		# 1eV
 top = np.nanmax(dat[:,1])
 print(top/(((100*m2eV)**2)*s2eV))		# cm-2 s-1
 dat[:,1] = dat[:,1] / top
-ax2.plot(dat[:,0],dat[:,1], label='T-plasmon', color='black', ls='-', lw=4)
+ax2.plot(dat[:,0],dat[:,1], label='T-plasmon (1 eV)', color='black', ls='-', lw=4)
+dat2 = loadtxt("data/limits/babyIAXO-Atlas-1keV.dat")	# 1 keV
+dat2[:,1] = dat2[:,1] / top
+ax2.plot(dat2[:,0],dat2[:,1], label='T-plasmon (1 keV)', color='black', ls='-', lw=4)
+plt.fill_between(dat[:,0],dat2[:,1],dat[:,1], facecolor='white',label='T-plasmon', hatch='++')
 
 # T-plasmon Atlas (gas)
 dat = loadtxt("data/limits/babyIAXO-Atlas-30eV-gas.dat")
@@ -90,7 +101,7 @@ ax2.set_xscale('log')
 ax2.set_yscale('log')
 #ax2.legend()#loc='upper right')
 
-plt.savefig('plots/flux-comparison-1eV.jpg')
+plt.savefig('plots/flux-comparison-1eV-band.jpg')
 plt.show()
 
 

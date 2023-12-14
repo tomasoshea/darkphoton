@@ -11,11 +11,11 @@
 using namespace std;
 
 // set params
-bool gas = true;
-int samplesize = 1e2;
+bool gas = false;
+int samplesize = 1e3;
 double days = 5;
 double dE = 1e4;
-double wmin = 30;	// eV
+double wmin = 1;	// eV
 
 
 // read in gaunt factors from matlab matrix files
@@ -40,6 +40,7 @@ vector<vector<double>> readAtlas( string name ) {
 			vector<double> row;
 			while(getline(file, temp, delim)){	// get one row
 				if( temp == "\n" ) { continue; }
+				cout << c << endl;
 				row.push_back(stod(temp));	// append double to vector
 				temp.clear();
 				c++;
@@ -241,12 +242,12 @@ void statsAtlas( vector<vector<double>> flux, vector<double> mtab, vector<double
 // argv is a vector containing cmd args separated by space (including script itself)
 int main( int argc, char** argv ) {
 	
-	string suffix = "-30eV";
+	string suffix = "-1eV";
 	
 	// read csv files to vectors
 	vector<double> wtab = read("data/wtab.dat");
 	vector<double> mtab = read("data/mtab.dat");
-	vector<vector<double>> flux = readAtlas("data/limits/output_T.dat");	// cm-2 s-1
+	vector<vector<double>> flux = readAtlas("data/output_T.dat");	// cm-2 s-1
 
 	// babyIAXO
 	string nameBaby = "babyIAXO" + suffix;

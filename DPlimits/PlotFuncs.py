@@ -21,7 +21,7 @@ import matplotlib.cm as cm
 #from scipy.stats import norm
 import matplotlib.patheffects as pe
 
-pltdir_png = '../plots/'
+pltdir_png = 'plots/'
 pltdir = pltdir_png+'pdfs/'
 
 
@@ -70,13 +70,8 @@ class DarkPhoton():
         if mathpazo:
             plt.rcParams.update({"text.usetex": True,"font.family": "serif","font.serif": ["Palatino"],})
 
+        fig = plt.figure(figsize=(16,9))
 
-        if Shape=='Wide':
-            fig = plt.figure(figsize=(16.5,5))
-        elif Shape=='Rectangular':
-            fig = plt.figure(figsize=(16.5,11))
-        elif Shape=='Custom':
-            fig = plt.figure(figsize=(width,height))
 
         ax = fig.add_subplot(111)
 
@@ -92,43 +87,18 @@ class DarkPhoton():
         ax.set_ylim([chi_min,chi_max])
 
         locmaj = mpl.ticker.LogLocator(base=10.0, subs=(1.0, ), numticks=12)
-        locmin = mpl.ticker.LogLocator(base=10.0, subs=arange(2, 10)*.1,numticks=100)
+        #locmin = mpl.ticker.LogLocator(base=10.0, subs=arange(2, 10)*.1,numticks=100)
         ax.xaxis.set_major_locator(locmaj)
-        ax.xaxis.set_minor_locator(locmin)
+        #ax.xaxis.set_minor_locator(locmin)
         ax.xaxis.set_minor_formatter(mpl.ticker.NullFormatter())
 
         locmaj = mpl.ticker.LogLocator(base=10.0, subs=(1.0, ), numticks=10)
-        locmin = mpl.ticker.LogLocator(base=10.0, subs=arange(2, 10)*.1,numticks=100)
+        #locmin = mpl.ticker.LogLocator(base=10.0, subs=arange(2, 10)*.1,numticks=100)
         ax.yaxis.set_major_locator(locmaj)
-        ax.yaxis.set_minor_locator(locmin)
+        #ax.yaxis.set_minor_locator(locmin)
         ax.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
 
-        if Shape=='Rectangular':
-            plt.xticks(rotation=tick_rotation)
 
-        if Grid:
-            ax.grid(zorder=0)
-
-        if FrequencyAxis:
-            ax2 = ax.twiny()
-
-
-
-            ax2.set_xscale('log')
-            ax2.tick_params(which='major',direction=upper_tickdir,width=2.5,length=13,pad=7)
-            ax2.tick_params(which='minor',direction=upper_tickdir,width=1,length=10)
-            locmaj = mpl.ticker.LogLocator(base=10.0, subs=(1.0, ), numticks=50)
-            locmin = mpl.ticker.LogLocator(base=10.0, subs=arange(2, 10)*.1,numticks=100)
-            ax2.xaxis.set_major_locator(locmaj)
-            ax2.xaxis.set_minor_locator(locmin)
-            ax2.xaxis.set_minor_formatter(mpl.ticker.NullFormatter())
-
-            if FrequencyLabels:
-                ax2.set_xticks([1e-3,1e0,1e3,1e6,1e9,1e12,1*241.8*1e12,1000*241.8*1e12])
-                ax2.set_xticklabels(['mHz','Hz','kHz','MHz','GHz','THz','eV','keV'])
-            ax2.set_xlim([m_min*241.8*1e12/f_rescale,m_max*241.8*1e12/f_rescale])
-
-            plt.sca(ax)
         return fig,ax
 
 
@@ -137,58 +107,58 @@ class DarkPhoton():
         zo = 0.3
 
         # ADMX
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/ADMX.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/ADMX.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1,lw=3)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/ADMX2018.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/ADMX2018.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/ADMX2019_1.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/ADMX2019_1.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/ADMX2019_2.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/ADMX2019_2.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/ADMX2021.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/ADMX2021.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/ADMX_Sidecar.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/ADMX_Sidecar.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
 
         # HAYSTAC
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/HAYSTAC.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/HAYSTAC.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/HAYSTAC_2020.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/HAYSTAC_2020.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/HAYSTAC_2022.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/HAYSTAC_2022.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
 
         # CAPP
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/CAPP-1.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/CAPP-1.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/CAPP-2.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/CAPP-2.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/CAPP-3.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/CAPP-3.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/CAPP-4.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/CAPP-4.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/CAPP-5.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/CAPP-5.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/CAPP-6.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/CAPP-6.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/CAST-CAPP.txt")
-        plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
-
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/TASEH.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/CAST-CAPP.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
 
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/ORGAN-1a.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/TASEH.txt")
+        plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.1)
+
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/ORGAN-1a.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,zorder=0.21)
 
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/QUAX.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/QUAX.txt")
         dat[0,1] = 1e0
         plt.plot(dat[:,0],dat[:,1],zorder=0.2,color=col,lw=2)
 
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/QUAX2.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/QUAX2.txt")
         dat[0,1] = 1e0
         plt.plot(dat[:,0],dat[:,1],zorder=0.2,color=col,lw=2)
 
-        dat = loadtxt("limit_data/DarkPhoton/Rescaled/QUAX3.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Rescaled/QUAX3.txt")
         dat[0,1] = 1e0
         plt.plot(dat[:,0],dat[:,1],zorder=0.2,color=col,lw=2)
 
@@ -207,23 +177,23 @@ class DarkPhoton():
 
         # Globular clusters
         HB_col = [0.01, 0.75, 0.24]
-        HB = loadtxt("limit_data/DarkPhoton/RG.txt")
+        HB = loadtxt("DPlimits/limit_data/DarkPhoton/RG.txt")
         plt.fill_between(HB[:,0],HB[:,1],y2=y2,edgecolor=None,facecolor=HB_col,zorder=0.9)
         plt.plot(HB[:,0],HB[:,1],color='k',alpha=1,zorder=0.9,lw=lw)
 
         # Globular clusters
         HB_col = 'DarkGreen'
-        HB = loadtxt("limit_data/DarkPhoton/HB.txt")
+        HB = loadtxt("DPlimits/limit_data/DarkPhoton/HB.txt")
         plt.fill_between(HB[:,0],HB[:,1],y2=y2,edgecolor=None,facecolor=HB_col,zorder=0.95)
         plt.plot(HB[:,0],HB[:,1],color='k',alpha=1,zorder=0.95,lw=lw)
 
         # Solar bound
         Solar_col = 'ForestGreen'
-        Solar = loadtxt("limit_data/DarkPhoton/Solar.txt")
+        Solar = loadtxt("DPlimits/limit_data/DarkPhoton/Solar.txt")
         plt.fill_between(Solar[:,0],Solar[:,1],y2=y2,edgecolor=None,facecolor=Solar_col,zorder=1.02,label="Solar")
         plt.plot(Solar[:,0],Solar[:,1],color='k',alpha=1,zorder=1.02,lw=lw)
 
-        Solar = loadtxt("limit_data/DarkPhoton/Solar-Global.txt")
+        Solar = loadtxt("DPlimits/limit_data/DarkPhoton/Solar-Global.txt")
         plt.fill_between(Solar[:,0],Solar[:,1]/Solar[:,0],y2=y2,edgecolor=None,facecolor=Solar_col,zorder=1.021)
         plt.plot(Solar[:,0],Solar[:,1]/Solar[:,0],color='k',alpha=1,zorder=1.021,lw=lw)
 
@@ -236,31 +206,31 @@ class DarkPhoton():
 
     def Xenon(ax,col='crimson',fs=23,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/Xenon1T.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Xenon1T.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
 
         plt.fill_between(1e3*dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.5)
         plt.plot(1e3*dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.5,lw=lw)
 
-        dat = loadtxt("limit_data/DarkPhoton/Xenon1T_S1S2.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Xenon1T_S1S2.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
 
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.5)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.5,lw=lw)
 
 
-        dat = loadtxt("limit_data/DarkPhoton/XENON1T_SE.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/XENON1T_SE.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.5)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.5,lw=lw)
 
 
-        dat = loadtxt("limit_data/DarkPhoton/XENON1T_Solar_SE.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/XENON1T_Solar_SE.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.302,label="XENON1T")
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.302,lw=lw)
 
 
-        dat = loadtxt("limit_data/DarkPhoton/XENONnT.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/XENONnT.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.5)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.5,lw=lw)
 
@@ -276,8 +246,8 @@ class DarkPhoton():
 
 
     def DAMIC(ax,col='salmon',fs=21,text_on=True,lw=1.5):
-        m1,y1 = loadtxt("limit_data/DarkPhoton/DM_combined.txt",unpack=True)
-        dat = loadtxt("limit_data/DarkPhoton/DAMIC.txt")
+        m1,y1 = loadtxt("DPlimits/limit_data/DarkPhoton/DM_combined.txt",unpack=True)
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/DAMIC.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
 
         y2 = interp(dat[:,0],m1,y1)
@@ -292,8 +262,8 @@ class DarkPhoton():
         return
 
     def MuDHI(ax,col='#400927',fs=15,text_on=True,lw=1.5):
-        m1,y1 = loadtxt("limit_data/DarkPhoton/DM_combined.txt",unpack=True)
-        dat = loadtxt("limit_data/DarkPhoton/MuDHI.txt")
+        m1,y1 = loadtxt("DPlimits/limit_data/DarkPhoton/DM_combined.txt",unpack=True)
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/MuDHI.txt")
 
         y2 = interp(dat[:,0],m1,y1)
         dat[dat[:,1]>y2,1] = y2[dat[:,1]>y2]
@@ -307,8 +277,8 @@ class DarkPhoton():
 
 
     def FUNK(ax,col='red',fs=21,text_on=True,lw=1.5):
-        m1,y1 = loadtxt("limit_data/DarkPhoton/DM_combined.txt",unpack=True)
-        dat = loadtxt("limit_data/DarkPhoton/FUNK.txt")
+        m1,y1 = loadtxt("DPlimits/limit_data/DarkPhoton/DM_combined.txt",unpack=True)
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/FUNK.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)*sqrt(2/3/0.27)
 
         y2 = interp(dat[:,0],m1,y1)
@@ -324,7 +294,7 @@ class DarkPhoton():
 
     def SENSEI(ax,col='firebrick',fs=21,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/SENSEI.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/SENSEI.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
 
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1)
@@ -337,7 +307,7 @@ class DarkPhoton():
 
     def SuperCDMS(ax,col=[0.4,0,0],fs=18,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/SuperCDMS.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/SuperCDMS.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.6)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=0.5,zorder=0.6,lw=lw)
@@ -348,8 +318,8 @@ class DarkPhoton():
         return
 
     def Nanowire(ax,col='pink',fs=22,text_on=True,lw=1.5):
-        m1,y1 = loadtxt("limit_data/DarkPhoton/DM_combined.txt",unpack=True)
-        dat = loadtxt("limit_data/DarkPhoton/WSi_Nanowire.txt")
+        m1,y1 = loadtxt("DPlimits/limit_data/DarkPhoton/DM_combined.txt",unpack=True)
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/WSi_Nanowire.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
         y2 = interp(dat[:,0],m1,y1)
         dat[0,1] = y2[0]/1.1
@@ -365,7 +335,7 @@ class DarkPhoton():
 
     def SQMS(ax,col='#02734b',fs=17,text_on=True,lw=0.5,ms=10):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/SQMS.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/SQMS.txt")
         dat[:,1] = dat[:,1]*sqrt(1/3/0.019)
         plt.plot(dat[:,0],dat[:,1],lw=lw,color=col,alpha=1,zorder=0.0)
         if text_on:
@@ -373,8 +343,8 @@ class DarkPhoton():
         return
 
     def LAMPOST(ax,col='#471710',fs=15,text_on=True,lw=1.5):
-        m1,y1 = loadtxt("limit_data/DarkPhoton/DM_combined.txt",unpack=True)
-        dat = loadtxt("limit_data/DarkPhoton/LAMPOST.txt")
+        m1,y1 = loadtxt("DPlimits/limit_data/DarkPhoton/DM_combined.txt",unpack=True)
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/LAMPOST.txt")
         dat[:,1] = dat[:,1]*sqrt(0.4/0.45)*sqrt(2/3/0.27)
 
         y2 = interp(dat[:,0],m1,y1)
@@ -389,8 +359,8 @@ class DarkPhoton():
         return
 
     def Tokyo(ax,col='darkred',fs=15,text_on=True,lw=1.5):
-        m1,y1 = loadtxt("limit_data/DarkPhoton/DM_combined.txt",unpack=True)
-        dat = loadtxt("limit_data/DarkPhoton/Tokyo-Dish.txt")
+        m1,y1 = loadtxt("DPlimits/limit_data/DarkPhoton/DM_combined.txt",unpack=True)
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Tokyo-Dish.txt")
         dat[:,1] = dat[:,1]*sqrt(2/3/0.6)
         y2 = interp(dat[:,0],m1,y1)
         dat[0,1] = y2[0]
@@ -399,11 +369,11 @@ class DarkPhoton():
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.4,lw=lw)
 
 
-        dat = loadtxt("limit_data/DarkPhoton/Tokyo-Knirck.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Tokyo-Knirck.txt")
         dat[:,1] = dat[:,1]*sqrt(1/3/0.175)
         plt.fill_between(dat[:,0],dat[:,1],y2=1e0,edgecolor='k',facecolor=col,zorder=1.09)
 
-        dat = loadtxt("limit_data/DarkPhoton/Tokyo-Tomita.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Tokyo-Tomita.txt")
         plt.plot([dat[1,0],dat[1,0]],[dat[1,1],1e0],'-',color=col,lw=3,zorder=0.2)
         if text_on:
             #plt.text(2e-4,1e-10,r'{\bf Tokyo-3}',fontsize=fs,color=col,rotation=-90,rotation_mode='anchor',ha='center',va='center')
@@ -413,8 +383,8 @@ class DarkPhoton():
         return
 
     def FAST(ax,col='tomato',fs=10,text_on=True,lw=1.5,edge_on=False,zorder=0.11):
-        m1,y1 = loadtxt("limit_data/DarkPhoton/DM_combined.txt",unpack=True)
-        dat = loadtxt("limit_data/DarkPhoton/FAST.txt")
+        m1,y1 = loadtxt("DPlimits/limit_data/DarkPhoton/DM_combined.txt",unpack=True)
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/FAST.txt")
         dat[:,1] = dat[:,1]*sqrt(2/3/0.6)
         y2 = interp(dat[:,0],m1,y1)
         dat[0,1] = y2[0]/1.1
@@ -429,8 +399,8 @@ class DarkPhoton():
 
     def LOFAR(ax,col='red',fs=10,text_on=True,lw=1.5,edge_on=False,zorder=0.11):
         # Solar corona bound
-        m1,y1 = loadtxt("limit_data/DarkPhoton/DM_combined.txt",unpack=True)
-        dat = loadtxt("limit_data/DarkPhoton/LOFAR.txt")
+        m1,y1 = loadtxt("DPlimits/limit_data/DarkPhoton/DM_combined.txt",unpack=True)
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/LOFAR.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
         y2 = interp(dat[:,0],m1,y1)
         dat[0,1] = y2[0]/1.1
@@ -445,7 +415,7 @@ class DarkPhoton():
 
     def Jupiter(ax,col='Green',fs=15,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/Jupiter.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Jupiter.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=2)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=2,lw=lw)
         if text_on:
@@ -454,7 +424,7 @@ class DarkPhoton():
 
     def Earth(ax,col='DarkGreen',fs=17,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/Earth.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Earth.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1.9)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.9,lw=lw)
         if text_on:
@@ -464,11 +434,11 @@ class DarkPhoton():
 
     def Crab(ax,col=[0.1,0.4,0.1],fs=17,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/Crab.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Crab.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=2)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=2,lw=lw)
 
-    #     dat = loadtxt("limit_data/DarkPhoton/Crab_2.txt")
+    #     dat = loadtxt("DPlimits/limit_data/DarkPhoton/Crab_2.txt")
     #     plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.9,lw=lw)
     #     plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1.9)
         if text_on:
@@ -481,7 +451,7 @@ class DarkPhoton():
     def QUALIPHIDE(ax,col='r',fs=9,text_on=True,edge_on=False,lw=0.8,zorder=0):
         # data file is for randomly polarised case and 0.3 GeV/cm^3
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/QUALIPHIDE.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/QUALIPHIDE.txt")
         dat[:,1] = dat[:,1]*sqrt(1/3/0.13)*sqrt(0.3/0.45)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor='k',facecolor=col,zorder=zorder,lw=0)
         if edge_on:
@@ -492,7 +462,7 @@ class DarkPhoton():
         
     def SHUKET(ax,col='maroon',fs=13,text_on=False,edge_on=False,lw=0.8):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/SHUKET.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/SHUKET.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)*sqrt(1/3/0.038)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.2)
         if edge_on:
@@ -503,7 +473,7 @@ class DarkPhoton():
 
     def DarkEfield(ax,col='darkred',fs=17,text_on=True,edge_on=False,lw=0.8):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/DarkEfield.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/DarkEfield.txt")
         dat[:,1] = dat[:,1]*sqrt(1.64/5) # convert from 5 sigma CL to 95%
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)*sqrt(1/3/0.129)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.2)
@@ -517,7 +487,7 @@ class DarkPhoton():
     def ORPHEUS(ax,col='darkred',fs=10,text_on=True,edge_on=False,lw=0.8):
         # data file is for randomly polarised case
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/ORPHEUS.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/ORPHEUS.txt")
         dat[:,1] = dat[:,1]*sqrt(1/3/0.01944939)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor='k',facecolor=col,zorder=0.1,lw=0)
         if edge_on:
@@ -528,7 +498,7 @@ class DarkPhoton():
 
     def WISPDMX(ax,col='crimson',fs=12,text_on=True,edge_on=False,lw=0.8):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/WISPDMX.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/WISPDMX.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)*sqrt(1/3/0.23)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.201)
         if edge_on:
@@ -542,7 +512,7 @@ class DarkPhoton():
 
     def DOSUE(ax,col='red',fs=9,text_on=True,edge_on=False,lw=0.8):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/DOSUE-RR.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/DOSUE-RR.txt")
         dat[:,1] = dat[:,1]*sqrt(2/3/0.29377804)*sqrt(0.39/0.45)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.201)
         if edge_on:
@@ -555,7 +525,7 @@ class DarkPhoton():
 
     def SQuAD(ax,col=[0.7,0,0],fs=12,text_on=True,lw=0.5,point_on=False,ms=10):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/SQuAD.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/SQuAD.txt")
         dat[:,1] = dat[:,1]*sqrt(0.4/0.45)*sqrt(1/3/0.019)
         plt.plot([dat[0,0],dat[0,0]],[y2,dat[0,1]],lw=lw,color=col,alpha=1,zorder=0.2)
         if point_on:
@@ -567,7 +537,7 @@ class DarkPhoton():
 
     def DMPathfinder(ax,col='pink',fs=13,text_on=True):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/DM-Pathfinder.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/DM-Pathfinder.txt")
         dat[:,1] = dat[:,1]*sqrt(1/0.075)
         plt.plot([dat[0,0],dat[0,0]],[y2,dat[0,1]],lw=2,color=col,alpha=1,zorder=0.6)
         if text_on:
@@ -579,7 +549,7 @@ class DarkPhoton():
 
     def QuantumCyclotron(ax,col='orangered',fs=13,text_on=True):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/QuantumCyclotron.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/QuantumCyclotron.txt")
         dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
         plt.plot([dat[0,0],dat[0,0]],[y2,dat[0,1]],lw=2,color=col,alpha=1,zorder=0.6,path_effects=line_background(2.5,'k'))
         if text_on:
@@ -592,7 +562,7 @@ class DarkPhoton():
         pek=[pe.Stroke(linewidth=7, foreground='k'), pe.Normal()]
 
         # Combined limits
-        dat = loadtxt("limit_data/DarkPhoton/DM_combined.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/DM_combined.txt")
         plt.plot(dat[:,0],dat[:,1],'-',color='w',alpha=1,zorder=zo+0.1,lw=2.5,path_effects=pek)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor='lightgray',zorder=zo,alpha=1.0)
         plt.plot([1e-16,dat[0,0]],[dat[0,1],dat[0,1]],'--',color='w',alpha=1,zorder=zo+0.1,lw=2.5,path_effects=pek)
@@ -600,9 +570,9 @@ class DarkPhoton():
         plt.plot(dat[40:,0],dat[40:,1],'--',color='w',alpha=1,lw=2.5,zorder=1000,solid_capstyle='round')
 
         # Individual limits
-        dat2 = loadtxt("limit_data/DarkPhoton/Cosmology_Witte_inhomogeneous.txt")
-        dat4 = loadtxt("limit_data/DarkPhoton/Cosmology_Caputo_HeII.txt",delimiter=',')
-        dat5 = loadtxt("limit_data/DarkPhoton/Cosmology_Arias.txt")
+        dat2 = loadtxt("DPlimits/limit_data/DarkPhoton/Cosmology_Witte_inhomogeneous.txt")
+        dat4 = loadtxt("DPlimits/limit_data/DarkPhoton/Cosmology_Caputo_HeII.txt",delimiter=',')
+        dat5 = loadtxt("DPlimits/limit_data/DarkPhoton/Cosmology_Arias.txt")
 
         plt.fill_between(dat2[:,0],dat2[:,1],y2=y2,edgecolor='k',facecolor=Witte_col,zorder=0.305,alpha=0.8)
         plt.fill_between(dat4[:,0],dat4[:,1],y2=y2,edgecolor='k',facecolor=Caputo_col,zorder=0.305,alpha=0.8)
@@ -623,7 +593,7 @@ class DarkPhoton():
 
     def COBEFIRAS(ax,col=[0.1,0.2,0.5],text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat3 = loadtxt("limit_data/DarkPhoton/COBEFIRAS.txt",delimiter=',')
+        dat3 = loadtxt("DPlimits/limit_data/DarkPhoton/COBEFIRAS.txt",delimiter=',')
         plt.fill_between(dat3[:,0],dat3[:,1],y2=y2,edgecolor='k',facecolor=col,zorder=0.5,alpha=1)
         plt.plot(dat3[:,0],dat3[:,1],'k-',lw=lw,zorder=0.5)
         if text_on:
@@ -634,31 +604,31 @@ class DarkPhoton():
 
     def LSW(ax,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/SPring-8.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/SPring-8.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=[0.45, 0.05, 0.1],zorder=1.1001)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.1001,lw=lw)
 
-        dat = loadtxt("limit_data/DarkPhoton/ALPS.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/ALPS.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=[0.55, 0.0, 0.16],zorder=1.091)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.091,lw=lw)
 
-        dat = loadtxt("limit_data/DarkPhoton/LSW_UWA.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/LSW_UWA.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=[0.6, 0.0, 0.2],zorder=1.09)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.09,lw=lw)
 
-        dat = loadtxt("limit_data/DarkPhoton/LSW_ADMX.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/LSW_ADMX.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=[0.65, 0.1, 0.24],zorder=1.089)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.089,lw=lw)
 
-    #     dat = loadtxt("limit_data/DarkPhoton/LSW_CERN.txt")
+    #     dat = loadtxt("DPlimits/limit_data/DarkPhoton/LSW_CERN.txt")
     #     plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.089,lw=2)
     #     plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=[0.65, 0.15, 0.2],zorder=1.089)
 
-        dat = loadtxt("limit_data/DarkPhoton/CROWS.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/CROWS.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=[0.7, 0.2, 0.2],zorder=1.08)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.08,lw=lw)
 
-        dat = loadtxt("limit_data/DarkPhoton/DarkSRF.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/DarkSRF.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=[0.5, 0.2, 0.2],zorder=1.06)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.06,lw=lw)
 
@@ -676,19 +646,19 @@ class DarkPhoton():
 
     def Coulomb(ax,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/Cavendish.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Cavendish.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=[0.7,0,0],zorder=1.07)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.07,lw=lw)
 
-        dat = loadtxt("limit_data/DarkPhoton/PlimptonLawton.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/PlimptonLawton.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor='crimson',zorder=1.071)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.071,lw=lw)
 
-        dat = loadtxt("limit_data/DarkPhoton/Spectroscopy.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/Spectroscopy.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=[0.4, 0.0, 0.13],zorder=1.11)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.11,lw=lw)
 
-        dat = loadtxt("limit_data/DarkPhoton/AFM.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/AFM.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=[0.4, 0.2, 0.2],zorder=1.5)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.5,lw=lw)
         if text_on:
@@ -701,7 +671,7 @@ class DarkPhoton():
 
     def NeutronStarCooling(ax,col='#004d00',fs=18,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/NeutronStarCooling.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/NeutronStarCooling.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1.1001)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.1001,lw=lw)
         if text_on:
@@ -710,7 +680,7 @@ class DarkPhoton():
 
     def CAST(ax,col='maroon',fs=19,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/CAST.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/CAST.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1.1)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.1,lw=lw)
         if text_on:
@@ -719,7 +689,7 @@ class DarkPhoton():
 
     def HINODE(ax,col='#700606',fs=16,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/HINODE.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/HINODE.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1.1001)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.1001,lw=lw)
         if text_on:
@@ -728,7 +698,7 @@ class DarkPhoton():
 
     def SHIPS(ax,col='indianred',fs=20,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/SHIPS.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/SHIPS.txt")
         dat[:,1] = dat[:,1]/dat[:,0]
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1.09)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.09,lw=lw)
@@ -739,7 +709,7 @@ class DarkPhoton():
 
     def TEXONO(ax,col=[0.5, 0.0, 0.13],fs=15,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/TEXONO.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/TEXONO.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1.101)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.101,lw=lw)
         if text_on:
@@ -748,7 +718,7 @@ class DarkPhoton():
 
     def IGM(ax,col='seagreen',fs=18,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/IGM.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/IGM.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.49)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.49,lw=lw)
 
@@ -760,7 +730,7 @@ class DarkPhoton():
 
     def LeoT(ax,col='mediumseagreen',fs=18,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/LeoT.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/LeoT.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3061)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.3062,lw=lw)
 
@@ -770,7 +740,7 @@ class DarkPhoton():
 
     def GasClouds(ax,col='#00cc66',fs=18,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/GasClouds.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/GasClouds.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.306)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=0.307,lw=lw)
 
@@ -780,7 +750,7 @@ class DarkPhoton():
 
     def SuperMAG(ax,col='#b5403e',fs=18,text_on=True,lw=1.5):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/SuperMAG.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/SuperMAG.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1,lw=lw)
 
@@ -858,7 +828,7 @@ class DarkPhoton():
 
     def SHIPS(ax,col='indianred',fs=20,text_on=True):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/SHIPS.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/SHIPS.txt")
         dat[:,1] = dat[:,1]/dat[:,0]
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.09,lw=2)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1.09)
@@ -869,7 +839,7 @@ class DarkPhoton():
 
     def TEXONO(ax,col=[0.5, 0.0, 0.13],fs=15,text_on=True):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/TEXONO.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/TEXONO.txt")
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1.101,lw=2)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1.101)
         if text_on:
@@ -879,7 +849,7 @@ class DarkPhoton():
 
     def IGM(ax,col='seagreen',fs=18,text_on=True):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/IGM.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/IGM.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.49)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=0.6,zorder=0.49,lw=2)
 
@@ -893,7 +863,7 @@ class DarkPhoton():
 
     def LeoT(ax,col='mediumseagreen',fs=18,text_on=True):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/LeoT.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/LeoT.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.3061)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=0.68,zorder=0.3062,lw=2)
 
@@ -904,7 +874,7 @@ class DarkPhoton():
 
     def GasClouds(ax,col='#00cc66',fs=18,text_on=True):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/GasClouds.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/GasClouds.txt")
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=0.306)
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=0.6,zorder=0.307,lw=2)
 
@@ -915,7 +885,7 @@ class DarkPhoton():
 
     def SuperMAG(ax,col='#b5403e',fs=18,text_on=True):
         y2 = ax.get_ylim()[1]
-        dat = loadtxt("limit_data/DarkPhoton/SuperMAG.txt")
+        dat = loadtxt("DPlimits/limit_data/DarkPhoton/SuperMAG.txt")
         plt.plot(dat[:,0],dat[:,1],color='k',alpha=1,zorder=1,lw=2)
         plt.fill_between(dat[:,0],dat[:,1],y2=y2,edgecolor=None,facecolor=col,zorder=1)
 
