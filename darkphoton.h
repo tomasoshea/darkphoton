@@ -25,9 +25,9 @@ double c0 = 299792458;			// speed of light [ms-1]
 // solar params
 double R_raw = 149.5978707e9;	// mean earth-sun distance [m]
 double rSolar_raw = 6.957e8;	// solar radius [m]
-double B0 = 3e3;	// radiative zone max B [T]
-double B1 = 50;	// tachocline max B [T]
-double B2 = 3;	// outer region max B [T]
+double B0 = 3e3;	// radiative zone max B [T] 200;//
+double B1 = 50;	// tachocline max B [T] 4;//
+double B2 = 4;	// outer region max B [T] 3;//
 double r0 = 0.712;	// [R0]
 double r1 = 0.732;	// [R0]
 double d1 = 0.02;	// [R0]
@@ -175,7 +175,7 @@ vector<double> loadtxt( string name, int col ) {
 	// choose column
 	if ( col == 0 ) { return row1; }
 	else if ( col == 1 ) { return row2; }
-	else { cout << "put 0 or 1 for columns" << endl; return {69.}; }	
+	else { cout << "put 0 or 1 for columns" << endl; return {69.}; }
 	}
 	else{ cout << "file " << name << " doesn't exist" << endl; return {69.}; }
 }

@@ -210,7 +210,7 @@ void lMixingRes( vector<double> ne, vector<double> T, vector<double> wp, vector<
 	vector<double> massIAXO;
 	vector<double> chiIAXO;
 	double pressure = 0;
-	double wmin = 1;	// eV
+	double wmin = 30;	// eV
 	double T0 = 300*K2eV;
 
 	// set path for writeout
@@ -219,7 +219,7 @@ void lMixingRes( vector<double> ne, vector<double> T, vector<double> wp, vector<
 
 	// get for many DP mass values
 	for ( double m = 1e-6; m < 1e4; m*=1.1 ) {
-			//pressure = m*m*m_e*T0/(8*pi*a);		// [eV4]
+			pressure = m*m*m_e*T0/(8*pi*a);		// [eV4]
 			//pressure = 0.1*0.1*m_e*T/(8*pi*a);				// 0.1eV
 			double phi = lMixingResIntegrate( m, ne, T, wp,nH, nHe4, nHe3,z1, z2,r, L, pressure, wmin);
 			chiIAXO.push_back(phi);
