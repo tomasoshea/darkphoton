@@ -15,7 +15,7 @@ y2= 1e-5
 alp=1
 
 # solar bounds
-col='lime'
+col='deepskyblue'
 z=0.6
 dat = loadtxt("DPlimits/limit_data/DarkPhoton/Solar.txt")
 plt.fill_between(dat[:,0],dat[:,1],y2=y2,label='Stellar',facecolor=col,edgecolor=None,zorder=z)
@@ -26,7 +26,7 @@ plt.fill_between(dat[:,0],dat[:,1],y2=y2,facecolor=col,edgecolor=None,zorder=z)
 
 
 # XENON
-col='hotpink'
+col='violet'
 dat = loadtxt("DPlimits/limit_data/DarkPhoton/Xenon1T.txt")
 dat[:,1] = dat[:,1]*sqrt(0.3/0.45)
 plt.fill_between(1e3*dat[:,0],dat[:,1],y2=y2,label='XENON',edgecolor=None,facecolor=col,zorder=0.5,alpha=alp)
@@ -70,7 +70,7 @@ ax2.plot(dat[:,0],dat[:,1], color=col,ls=':',lw=lw)
 
 # axes
 ax2.set_xlabel("Dark photon mass [eV]")
-ax2.set_ylabel("Kintetic Mixing Parameter")
+ax2.set_ylabel("Kintetic mixing parameter")
 ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.legend()#loc='upper right')

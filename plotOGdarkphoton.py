@@ -80,7 +80,7 @@ plt.text(4e-9,0.02e-14,r'DM',fontsize=27,ha='center')
 
 # axes
 ax.set_xlabel("Dark photon mass [eV]")
-ax.set_ylabel("Kinetic Mixing Parameter")
+ax.set_ylabel("Kinetic mixing parameter")
 ax.set_xscale('log')
 ax.set_yscale('log')
 ax.tick_params(axis='both')
